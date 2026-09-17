@@ -64,14 +64,8 @@ const HrmsAssetsPage              = lazy_(() => import('@/features/hrms/assets/p
 const HrmsSettingsPage            = lazy_(() => import('@/features/hrms/settings/pages/SettingsPage'));
 
 // ─── CRM Pages ─────────────────────────────────────────────────────────────
-const CrmDashboardPage            = lazy_(() => import('@/features/crm/dashboard/pages/DashboardPage'));
-const LeadsPage                   = lazy_(() => import('@/features/crm/leads/pages/LeadsPage'));
-const OpportunitiesPage           = lazy_(() => import('@/features/crm/opportunities/pages/OpportunitiesPage'));
-const ContactsPage                = lazy_(() => import('@/features/crm/contacts/pages/ContactsPage'));
-const SalesPipelinePage           = lazy_(() => import('@/features/crm/sales-pipeline/pages/SalesPipelinePage'));
-const QuotationsPage              = lazy_(() => import('@/features/crm/quotations/pages/QuotationsPage'));
-const CrmCustomerPortalPage       = lazy_(() => import('@/features/crm/customer-portal/pages/CustomerPortalPage'));
-const CrmSettingsPage             = lazy_(() => import('@/features/crm/settings/pages/SettingsPage'));
+// (CRM Pages are now fully lazy-loaded inside the route definitions below to avoid top-level bloat)
+
 
 // ─── ERP Pages ─────────────────────────────────────────────────────────────
 const ErpDashboardPage            = lazy_(() => import('@/features/erp/dashboard/DashboardPage'));
@@ -222,15 +216,101 @@ export const router = createBrowserRouter([
       { path: 'hrms/settings',          element: <HrmsSettingsPage /> },
 
       // CRM
-      { path: 'crm',                    element: <Navigate to="/crm/dashboard" replace /> },
-      { path: 'crm/dashboard',          element: <CrmDashboardPage /> },
-      { path: 'crm/leads',              element: <LeadsPage /> },
-      { path: 'crm/opportunities',      element: <OpportunitiesPage /> },
-      { path: 'crm/contacts',           element: <ContactsPage /> },
-      { path: 'crm/pipeline',           element: <SalesPipelinePage /> },
-      { path: 'crm/quotations',         element: <QuotationsPage /> },
-      { path: 'crm/customer-portal',    element: <CrmCustomerPortalPage /> },
-      { path: 'crm/settings',           element: <CrmSettingsPage /> },
+      {
+        path: 'crm',
+        children: [
+          { index: true, element: <Navigate to="dashboard" replace /> },
+          { path: 'dashboard', lazy: async () => ({ Component: (await import('@/features/crm/dashboard/pages/DashboardPage')).default || (await import('@/features/crm/dashboard/pages/DashboardPage')).DashboardPage }) },
+          { path: 'settings', lazy: async () => ({ Component: (await import('@/features/crm/settings/pages/SettingsPage')).default || (await import('@/features/crm/settings/pages/SettingsPage')).SettingsPage }) },
+          {
+            path: 'leads',
+            children: [
+              { index: true, lazy: async () => ({ Component: (await import('@/features/crm/leads/pages/LeadsPage')).LeadsPage }) },
+              { path: 'new', lazy: async () => ({ Component: (await import('@/features/crm/leads/pages/CreateLeadPage')).CreateLeadPage }) },
+              { path: ':id', lazy: async () => ({ Component: (await import('@/features/crm/leads/pages/LeadDetailsPage')).LeadDetailsPage }) },
+              { path: ':id/edit', lazy: async () => ({ Component: (await import('@/features/crm/leads/pages/EditLeadPage')).EditLeadPage }) },
+            ],
+          },
+          {
+            path: 'opportunities',
+            children: [
+              { index: true, lazy: async () => ({ Component: (await import('@/features/crm/opportunities/pages/OpportunitiesPage')).OpportunitiesPage }) },
+              { path: 'new', lazy: async () => ({ Component: (await import('@/features/crm/opportunities/pages/CreateOpportunityPage')).CreateOpportunityPage }) },
+              { path: ':id', lazy: async () => ({ Component: (await import('@/features/crm/opportunities/pages/OpportunityDetailsPage')).OpportunityDetailsPage }) },
+              { path: ':id/edit', lazy: async () => ({ Component: (await import('@/features/crm/opportunities/pages/EditOpportunityPage')).EditOpportunityPage }) },
+            ],
+          },
+          {
+            path: 'customers',
+            children: [
+              { index: true, lazy: async () => ({ Component: (await import('@/features/crm/customers/pages/CustomersPage')).CustomersPage }) },
+              { path: 'new', lazy: async () => ({ Component: (await import('@/features/crm/customers/pages/CreateCustomerPage')).CreateCustomerPage }) },
+              { path: ':id', lazy: async () => ({ Component: (await import('@/features/crm/customers/pages/CustomerDetailsPage')).CustomerDetailsPage }) },
+              { path: ':id/edit', lazy: async () => ({ Component: (await import('@/features/crm/customers/pages/EditCustomerPage')).EditCustomerPage }) },
+            ],
+          },
+          {
+            path: 'contacts',
+            children: [
+              { index: true, lazy: async () => ({ Component: (await import('@/features/crm/contacts/pages/ContactsPage')).ContactsPage }) },
+              { path: 'new', lazy: async () => ({ Component: (await import('@/features/crm/contacts/pages/CreateContactPage')).CreateContactPage }) },
+              { path: ':id', lazy: async () => ({ Component: (await import('@/features/crm/contacts/pages/ContactDetailsPage')).ContactDetailsPage }) },
+              { path: ':id/edit', lazy: async () => ({ Component: (await import('@/features/crm/contacts/pages/EditContactPage')).EditContactPage }) },
+            ],
+          },
+          {
+            path: 'activities',
+            children: [
+              { index: true, lazy: async () => ({ Component: (await import('@/features/crm/activities/pages/ActivitiesPage')).ActivitiesPage }) },
+              { path: 'new', lazy: async () => ({ Component: (await import('@/features/crm/activities/pages/CreateActivityPage')).CreateActivityPage }) },
+              { path: ':id', lazy: async () => ({ Component: (await import('@/features/crm/activities/pages/ActivityDetailsPage')).ActivityDetailsPage }) },
+              { path: ':id/edit', lazy: async () => ({ Component: (await import('@/features/crm/activities/pages/EditActivityPage')).EditActivityPage }) },
+            ],
+          },
+          {
+            path: 'pipeline',
+            children: [
+              { index: true, lazy: async () => ({ Component: (await import('@/features/crm/sales-pipeline/pages/SalesPipelinePage')).SalesPipelinePage }) },
+              { path: 'analysis', lazy: async () => ({ Component: (await import('@/features/crm/sales-pipeline/pages/WonLostAnalysisPage')).WonLostAnalysisPage }) },
+              { path: ':id', lazy: async () => ({ Component: (await import('@/features/crm/sales-pipeline/pages/PipelineOpportunityDetailsPage')).PipelineOpportunityDetailsPage }) },
+            ],
+          },
+          {
+            path: 'quotations',
+            children: [
+              { index: true, lazy: async () => ({ Component: (await import('@/features/crm/quotations/pages/QuotationsPage')).QuotationsPage }) },
+              { path: 'new', lazy: async () => ({ Component: (await import('@/features/crm/quotations/pages/CreateQuotationPage')).CreateQuotationPage }) },
+              { path: ':id', lazy: async () => ({ Component: (await import('@/features/crm/quotations/pages/QuotationDetailsPage')).QuotationDetailsPage }) },
+              { path: ':id/edit', lazy: async () => ({ Component: (await import('@/features/crm/quotations/pages/EditQuotationPage')).EditQuotationPage }) },
+            ],
+          },
+          {
+            path: 'reports',
+            children: [
+              { index: true, lazy: async () => ({ Component: (await import('@/features/crm/reports/pages/ReportsDashboardPage')).ReportsDashboardPage }) },
+              { path: 'leads', lazy: async () => ({ Component: (await import('@/features/crm/reports/pages/LeadConversionReportPage')).LeadConversionReportPage }) },
+              { path: 'opportunities', lazy: async () => ({ Component: (await import('@/features/crm/reports/pages/OpportunityReportPage')).OpportunityReportPage }) },
+              { path: 'sales-performance', lazy: async () => ({ Component: (await import('@/features/crm/reports/pages/SalesPerformanceReportPage')).SalesPerformanceReportPage }) },
+              { path: 'quotations', lazy: async () => ({ Component: (await import('@/features/crm/reports/pages/QuoteAnalysisReportPage')).QuoteAnalysisReportPage }) },
+            ],
+          },
+          {
+            path: 'customer-portal',
+            children: [
+              { index: true, lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/CustomerDashboardPage')).CustomerDashboardPage }) },
+              { path: 'profile', lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/CustomerProfilePage')).CustomerProfilePage }) },
+              { path: 'quotations', lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/CustomerQuotationsPage')).CustomerQuotationsPage }) },
+              { path: 'orders', lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/CustomerOrdersPage')).CustomerOrdersPage }) },
+              { path: 'invoices', lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/CustomerInvoicesPage')).CustomerInvoicesPage }) },
+              { path: 'account', lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/AccountSummaryPage')).AccountSummaryPage }) },
+              { path: 'activities', lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/CustomerActivitiesPage')).CustomerActivitiesPage }) },
+              { path: 'notifications', lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/NotificationsPage')).NotificationsPage }) },
+              { path: 'support', lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/SupportRequestsPage')).SupportRequestsPage }) },
+              { path: 'support/:id', lazy: async () => ({ Component: (await import('@/features/crm/customer-portal/pages/SupportDetailsPage')).SupportDetailsPage }) },
+            ],
+          },
+        ]
+      },
 
       // ERP
       { path: 'erp',                    element: <Navigate to="/erp/dashboard" replace /> },
