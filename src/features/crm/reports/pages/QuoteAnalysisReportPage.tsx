@@ -1,10 +1,10 @@
 import React from 'react';
 import PageShell from '@/shared/components/ui/PageShell';
 
-export const QuotationsPage: React.FC = () => (
+export const QuoteAnalysisReportPage: React.FC = () => (
   <PageShell
     domain="CRM"
-    title="Quotations"
+    title="Quote Analysis Report"
     description="Pending implementation"
   />
 );
