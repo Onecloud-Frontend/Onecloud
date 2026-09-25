@@ -1,0 +1,57 @@
+.department-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.department-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.department-table th,
+.department-table td {
+  padding: 13px 16px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  text-align: left;
+
+  font-size: 14px;
+}
+
+.department-table th {
+  background: #f9fafb;
+
+  color: #374151;
+
+  font-weight: 600;
+}
+
+.department-table td {
+  color: #4b5563;
+}
+
+.department-table__name {
+  color: #111827 !important;
+  font-weight: 500;
+}
+
+.department-table__row--clickable {
+  cursor: pointer;
+}
+
+.department-table__row--clickable:hover {
+  background: #f9fafb;
+}
+
+.department-table__state {
+  padding: 40px;
+
+  text-align: center;
+
+  color: #6b7280;
+}
+
+.department-table__state--error {
+  color: #dc2626;
+}

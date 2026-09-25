@@ -1,0 +1,193 @@
+.departments-page {
+  min-height: 100%;
+  padding: 24px;
+  background: #f8fafc;
+}
+
+.departments-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 24px;
+}
+
+.departments-page__header h1 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.departments-page__header p {
+  margin: 7px 0 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+.departments-page__count {
+  padding: 8px 14px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+
+  background: #ffffff;
+
+  color: #4b5563;
+
+  font-size: 13px;
+}
+
+.departments-page__content {
+  display: grid;
+
+  grid-template-columns: 320px minmax(0, 1fr);
+
+  gap: 20px;
+
+  align-items: start;
+}
+
+.departments-page__card {
+  overflow: hidden;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+
+  background: #ffffff;
+}
+
+.departments-page__card-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 68px;
+
+  padding: 14px 18px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.departments-page__card-header h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.departments-page__card-header p {
+  margin: 4px 0 0;
+
+  color: #9ca3af;
+
+  font-size: 12px;
+}
+
+.departments-page__selected {
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+.departments-page__selected strong {
+  color: #111827;
+}
+
+.departments-page__state {
+  min-height: 300px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 12px;
+
+  color: #6b7280;
+}
+
+.departments-page__state h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 20px;
+}
+
+.departments-page__state p {
+  margin: 0;
+
+  font-size: 14px;
+}
+
+.departments-page__state button {
+  padding: 9px 18px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: #111827;
+
+  color: #ffffff;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.departments-page__state button:hover {
+  opacity: 0.9;
+}
+
+.departments-page__state--error {
+  color: #dc2626;
+}
+
+.departments-page__spinner {
+  width: 28px;
+  height: 28px;
+
+  border: 3px solid #e5e7eb;
+  border-top-color: #374151;
+
+  border-radius: 50%;
+
+  animation: department-spinner 0.8s linear infinite;
+}
+
+@keyframes department-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1000px) {
+  .departments-page__content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .departments-page {
+    padding: 16px;
+  }
+
+  .departments-page__header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 12px;
+  }
+}

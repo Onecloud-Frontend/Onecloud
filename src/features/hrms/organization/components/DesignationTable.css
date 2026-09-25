@@ -1,0 +1,49 @@
+.designation-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.designation-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.designation-table th,
+.designation-table td {
+  padding: 13px 16px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  text-align: left;
+
+  font-size: 14px;
+}
+
+.designation-table th {
+  background: #f9fafb;
+
+  color: #374151;
+
+  font-weight: 600;
+}
+
+.designation-table td {
+  color: #4b5563;
+}
+
+.designation-table__name {
+  color: #111827 !important;
+  font-weight: 500;
+}
+
+.designation-table__state {
+  padding: 40px;
+
+  text-align: center;
+
+  color: #6b7280;
+}
+
+.designation-table__state--error {
+  color: #dc2626;
+}
