@@ -25,15 +25,14 @@ import {
 import { cn } from "@/shared/utils/cn";
 
 const CRM_NAVIGATION = [
-  { label: "Dashboard", path: "/crm/dashboard", icon: LayoutDashboard },
-  { label: "Leads", path: "/crm/leads", icon: Filter },
-  { label: "Contacts", path: "/crm/contacts", icon: Contact },
-  { label: "Opportunities", path: "/crm/opportunities", icon: Briefcase },
-  { label: "Pipeline", path: "/crm/pipeline", icon: BarChart3 },
-  { label: "Quotations", path: "/crm/quotations", icon: FileText },
-  { label: "Customer Portal", path: "/crm/portal", icon: Globe },
-  { label: "Activities", path: "/crm/activities", icon: Globe },
-  { label: "Settings", path: "/crm/settings", icon: Settings },
+  { label: 'Dashboard', path: '/crm/dashboard', icon: LayoutDashboard },
+  { label: 'Leads', path: '/crm/leads', icon: Filter },
+  { label: 'Contacts', path: '/crm/contacts', icon: Contact },
+  { label: 'Opportunities', path: '/crm/opportunities', icon: Briefcase },
+  { label: 'Pipeline', path: '/crm/pipeline', icon: BarChart3 },
+  { label: 'Quotations', path: '/crm/quotations', icon: FileText },
+  { label: 'Customer Portal', path: '/crm/customer-portal', icon: Globe },
+  { label: 'Settings', path: '/crm/settings', icon: Settings },
 ];
 
 const HRMS_NAVIGATION = [
