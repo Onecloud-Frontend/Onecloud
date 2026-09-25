@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
-  Calendar, 
+  Palmtree, 
   CheckCircle2, 
   Clock, 
-  Palmtree, 
-  Info,
-  RefreshCw,
-  ChevronDown
+  CalendarDays, 
+  RefreshCw, 
+  Info 
 } from 'lucide-react';
 import { useLeaveBalances, useLeaveSummary } from '../hooks/useLeaveBalances';
 import { LeaveBalanceCards } from '../components/LeaveBalanceCards';
 import { LeaveCardsSkeleton, LeaveEmptyView, LeaveErrorView } from '../components/LeaveStateViews';
 
 export const LeaveDashboardPage: React.FC = () => {
-  const [selectedYear, setSelectedYear] = useState<number>(2026);
-
   const {
     data: balances,
     isLoading: isBalancesLoading,
@@ -22,7 +19,7 @@ export const LeaveDashboardPage: React.FC = () => {
     isError: isBalancesError,
     error: balancesError,
     refetch: refetchBalances,
-  } = useLeaveBalances({ year: selectedYear });
+  } = useLeaveBalances();
 
   const {
     data: summary,
@@ -30,38 +27,29 @@ export const LeaveDashboardPage: React.FC = () => {
     isFetching: isSummaryFetching,
     isError: isSummaryError,
     refetch: refetchSummary,
-  } = useLeaveSummary({ year: selectedYear });
+  } = useLeaveSummary();
 
-  const [isManualRefreshing, setIsManualRefreshing] = useState(false);
-
-  const isFetching = isBalancesFetching || isSummaryFetching || isManualRefreshing;
-  const isLoading = (isBalancesLoading || isSummaryLoading) && !balances;
+  const isLoading = isBalancesLoading || isSummaryLoading;
+  const isFetching = isBalancesFetching || isSummaryFetching;
   const isError = isBalancesError || isSummaryError;
 
-  const handleRefresh = async () => {
-    setIsManualRefreshing(true);
-    try {
-      await Promise.all([refetchBalances(), refetchSummary()]);
-    } finally {
-      // Keep subtle spin visible for at least 600ms so user clearly perceives the refresh
-      setTimeout(() => {
-        setIsManualRefreshing(false);
-      }, 500);
-    }
+  const handleRefresh = () => {
+    refetchBalances();
+    refetchSummary();
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-6 md:p-8">
+    <div className="min-h-full bg-slate-50/50 p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
 
-        {/* ─── Top Bar / Header ────────────────────────────────────────── */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 tracking-wide uppercase">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-700">
                 HRMS
               </span>
-              <span className="text-xs text-slate-400 font-medium">Leave Management</span>
+              <span className="text-xs text-slate-500 font-medium">Leave Management</span>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
               Leave Dashboard
@@ -71,61 +59,43 @@ export const LeaveDashboardPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Action & Filter Controls */}
           <div className="flex items-center gap-3">
-            {/* Year Selector */}
-            <div className="relative inline-flex items-center">
-              <Calendar className="absolute left-3 h-4 w-4 text-slate-400 pointer-events-none" />
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="appearance-none rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-8 text-sm font-medium text-slate-700 shadow-xs hover:border-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-              >
-                <option value={2026}>Year 2026 (Current)</option>
-                <option value={2025}>Year 2025</option>
-                <option value={2024}>Year 2024</option>
-              </select>
-              <ChevronDown className="absolute right-2.5 h-4 w-4 text-slate-400 pointer-events-none" />
-            </div>
-
-            {/* Refresh Button */}
             <button
+              type="button"
               onClick={handleRefresh}
               disabled={isFetching}
-              title="Refresh leave balances"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 disabled:opacity-75 transition active:scale-95"
+              title="Refresh balances"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-xs hover:bg-slate-50 disabled:opacity-60 transition active:scale-95"
             >
-              <RefreshCw className={`h-4 w-4 transition-transform ${isFetching ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
-              <span className="hidden sm:inline font-medium">
-                {isFetching ? 'Refreshing...' : 'Refresh'}
-              </span>
+              <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
+              <span>{isFetching ? 'Refreshing...' : 'Refresh'}</span>
             </button>
           </div>
         </div>
 
-        {/* ─── Scope Boundary Notice ────────────────────────────────────── */}
-        <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50/60 p-3.5 text-xs text-blue-800">
+        {/* Scope Boundary Notification */}
+        <div className="flex items-start gap-3 rounded-lg border border-blue-100 bg-blue-50/70 p-3.5 text-xs text-blue-800">
           <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
           <p>
-            <span className="font-semibold">Notice:</span> This dashboard displays personal quota balances and usage. To submit new leave requests or review pending approvals, visit the Leave Requests workflow.
+            <span className="font-semibold">Notice:</span> This dashboard provides a summary of personal quota allocations and usage. To submit a new leave request or review pending approvals, visit the Leave Requests workflow.
           </p>
         </div>
 
-        {/* ─── Summary Metrics Strip ────────────────────────────────────── */}
+        {/* Summary Metrics Strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
             <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
               <span>Total Allowance</span>
-              <Palmtree className="h-4 w-4 text-slate-400" />
+              <CalendarDays className="h-4 w-4 text-slate-400" />
             </div>
             <div className="text-2xl font-bold text-slate-900">
               {isLoading ? (
-                <div className="h-7 w-14 bg-slate-200 rounded animate-pulse" />
+                <div className="h-7 w-12 bg-slate-200 rounded animate-pulse" />
               ) : (
-                summary?.totalAllowance ?? 0
+                `${summary?.totalAllowance ?? 0} days`
               )}
             </div>
-            <div className="text-xs text-slate-400 mt-0.5">Days credited in {selectedYear}</div>
+            <div className="text-xs text-slate-400 mt-0.5">Annual quota allocated</div>
           </div>
 
           <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
@@ -135,9 +105,9 @@ export const LeaveDashboardPage: React.FC = () => {
             </div>
             <div className="text-2xl font-bold text-slate-900">
               {isLoading ? (
-                <div className="h-7 w-14 bg-slate-200 rounded animate-pulse" />
+                <div className="h-7 w-12 bg-slate-200 rounded animate-pulse" />
               ) : (
-                summary?.totalUsed ?? 0
+                `${summary?.totalUsed ?? 0} days`
               )}
             </div>
             <div className="text-xs text-emerald-600 font-medium mt-0.5">Approved & taken</div>
@@ -150,9 +120,9 @@ export const LeaveDashboardPage: React.FC = () => {
             </div>
             <div className="text-2xl font-bold text-blue-600">
               {isLoading ? (
-                <div className="h-7 w-14 bg-slate-200 rounded animate-pulse" />
+                <div className="h-7 w-12 bg-slate-200 rounded animate-pulse" />
               ) : (
-                summary?.totalRemaining ?? 0
+                `${summary?.totalRemaining ?? 0} days`
               )}
             </div>
             <div className="text-xs text-slate-400 mt-0.5">Ready for booking</div>
@@ -165,40 +135,45 @@ export const LeaveDashboardPage: React.FC = () => {
             </div>
             <div className="text-2xl font-bold text-amber-600">
               {isLoading ? (
-                <div className="h-7 w-14 bg-slate-200 rounded animate-pulse" />
+                <div className="h-7 w-12 bg-slate-200 rounded animate-pulse" />
               ) : (
-                summary?.totalPending ?? 0
+                `${summary?.pendingRequestsCount ?? 0} requests`
               )}
             </div>
-            <div className="text-xs text-slate-400 mt-0.5">Awaiting manager approval</div>
+            <div className="text-xs text-slate-400 mt-0.5">Awaiting manager review</div>
           </div>
         </div>
 
-        {/* ─── Leave Balance Cards Section ─────────────────────────────── */}
+        {/* Leave Category Quotas Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-slate-900">
               Leave Categories & Quotas
             </h2>
-            <span className="text-xs text-slate-500">
-              {balances ? `${balances.length} active leave categories` : ''}
-            </span>
+            {balances && (
+              <span className="text-xs text-slate-500">
+                {balances.length} active categories
+              </span>
+            )}
           </div>
 
-          {/* Conditional rendering for States: Loading, Error, Empty, Success */}
+          {/* Loading state */}
           {isLoading && <LeaveCardsSkeleton />}
 
+          {/* Error state */}
           {isError && !isLoading && (
-            <LeaveErrorView 
+            <LeaveErrorView
               message={balancesError instanceof Error ? balancesError.message : undefined}
-              onRetry={handleRefresh} 
+              onRetry={handleRefresh}
             />
           )}
 
+          {/* Empty state */}
           {!isLoading && !isError && (!balances || balances.length === 0) && (
             <LeaveEmptyView />
           )}
 
+          {/* Loaded data state */}
           {!isLoading && !isError && balances && balances.length > 0 && (
             <LeaveBalanceCards balances={balances} />
           )}

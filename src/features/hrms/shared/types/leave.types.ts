@@ -1,42 +1,39 @@
-/**
- * Types & Data Transfer Objects for HRMS Leave Dashboard
- */
+export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
-export type LeaveType = 
-  | 'annual'
-  | 'sick'
-  | 'casual'
-  | 'unpaid'
-  | 'compensatory'
-  | 'maternity'
-  | 'paternity';
+export type LeaveType =
+  | 'CASUAL'
+  | 'SICK'
+  | 'EARNED'
+  | 'UNPAID'
+  | 'MATERNITY'
+  | 'PATERNITY';
 
 export interface LeaveBalance {
-  id: string;
   leaveType: LeaveType;
-  name: string;
-  description?: string;
-  totalAllowance: number;
+  total: number;
   used: number;
-  pending: number;
   remaining: number;
-  accrualPeriod: string;
-  color: 'blue' | 'emerald' | 'amber' | 'purple' | 'rose' | 'indigo';
-  icon?: string;
 }
 
-export interface LeaveSummary {
-  year: number;
-  employeeId?: string;
-  employeeName?: string;
-  totalAllowance: number;
-  totalUsed: number;
-  totalPending: number;
-  totalRemaining: number;
-  balances: LeaveBalance[];
+export interface LeaveRequest {
+  id: string;
+  employeeId: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  days: number;
+  reason: string;
+  status: LeaveStatus;
+  appliedAt: string;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  reviewComment: string | null;
 }
 
-export interface LeaveBalanceFilters {
-  year?: number;
-  employeeId?: string;
+export interface CreateLeaveRequestPayload {
+  employeeId: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  reason: string;
 }

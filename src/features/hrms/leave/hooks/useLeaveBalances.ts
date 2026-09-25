@@ -1,19 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
+import { hrmsQueryKeys } from '@/features/hrms/shared/constants';
 import { leaveService } from '../services/leaveService';
-import { LeaveBalanceFilters } from '../../shared/types/leave.types';
 
-export const useLeaveBalances = (filters?: LeaveBalanceFilters) => {
+export const useLeaveBalances = (employeeId?: string) => {
   return useQuery({
-    queryKey: ['hrms', 'leave', 'balances', filters],
-    queryFn: () => leaveService.getLeaveBalances(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryKey: hrmsQueryKeys.leave.balances(employeeId ?? 'current'),
+    queryFn: () => leaveService.getLeaveBalances(employeeId),
+    staleTime: 5 * 60 * 1000,
   });
 };
 
-export const useLeaveSummary = (filters?: LeaveBalanceFilters) => {
+export const useLeaveSummary = (employeeId?: string) => {
   return useQuery({
-    queryKey: ['hrms', 'leave', 'summary', filters],
-    queryFn: () => leaveService.getLeaveSummary(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryKey: [...hrmsQueryKeys.leave.all(), 'summary', employeeId ?? 'current'] as const,
+    queryFn: () => leaveService.getLeaveSummary(employeeId),
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useLeaveRequests = (employeeId?: string) => {
+  return useQuery({
+    queryKey: hrmsQueryKeys.leave.requests({ employeeId: employeeId ?? 'current' }),
+    queryFn: () => leaveService.getLeaveRequests(employeeId),
+    staleTime: 5 * 60 * 1000,
   });
 };

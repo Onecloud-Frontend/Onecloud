@@ -1,29 +1,57 @@
-import { LeaveBalance, LeaveBalanceFilters, LeaveSummary } from '../../shared/types/leave.types';
-import { mockLeaveBalances, mockLeaveSummary } from '../mocks/leaveMockData';
+import type { LeaveBalance, LeaveRequest, LeaveType } from '@/features/hrms/shared/types';
+import { mockLeaveBalances, mockLeaveRequests } from '@/features/hrms/shared/mocks';
+import type { LeaveSummary } from '../types/leaveDashboard.types';
 
-class LeaveService {
+export const leaveService = {
   /**
-   * Fetch leave balances for an employee.
-   * Simulates network latency while keeping ready for backend endpoint integration.
+   * Fetches leave balances for an employee.
+   * Simulates async network delay.
    */
-  async getLeaveBalances(filters?: LeaveBalanceFilters): Promise<LeaveBalance[]> {
+  async getLeaveBalances(_employeeId?: string): Promise<LeaveBalance[]> {
     await new Promise((resolve) => setTimeout(resolve, 400));
     return [...mockLeaveBalances];
-  }
+  },
 
   /**
-   * Fetch aggregate leave summary for the given year and employee.
+   * Fetches leave requests to calculate pending counts and usage breakdown.
    */
-  async getLeaveSummary(filters?: LeaveBalanceFilters): Promise<LeaveSummary> {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    
-    // If a specific year is requested, reflect in summary
-    const year = filters?.year || 2026;
-    return {
-      ...mockLeaveSummary,
-      year,
-    };
-  }
-}
+  async getLeaveRequests(employeeId?: string): Promise<LeaveRequest[]> {
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    if (employeeId) {
+      return mockLeaveRequests.filter((req) => req.employeeId === employeeId);
+    }
+    return [...mockLeaveRequests];
+  },
 
-export const leaveService = new LeaveService();
+  /**
+   * Calculates overall aggregate summary metrics across all leave allocations.
+   */
+  async getLeaveSummary(employeeId?: string): Promise<LeaveSummary> {
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    const totalAllowance = mockLeaveBalances.reduce((acc, curr) => acc + curr.total, 0);
+    const totalUsed = mockLeaveBalances.reduce((acc, curr) => acc + curr.used, 0);
+    const totalRemaining = mockLeaveBalances.reduce((acc, curr) => acc + curr.remaining, 0);
+
+    const pendingRequestsCount = mockLeaveRequests.filter((req) => {
+      const isPending = req.status === 'PENDING';
+      const matchesEmp = employeeId ? req.employeeId === employeeId : true;
+      return isPending && matchesEmp;
+    }).length;
+
+    return {
+      totalAllowance,
+      totalUsed,
+      totalRemaining,
+      pendingRequestsCount,
+    };
+  },
+
+  /**
+   * Fetches leave balance for a single leave category.
+   */
+  async getLeaveBalanceByType(leaveType: LeaveType): Promise<LeaveBalance | undefined> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return mockLeaveBalances.find((item) => item.leaveType === leaveType);
+  },
+};

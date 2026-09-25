@@ -1,7 +1,5 @@
 /**
  * HRMS Leave Feature — Public API Contract
- *
- * Intentionally exports only the public surfaces required by the application orchestration.
  */
 
 // Route Pages
@@ -13,7 +11,11 @@ export { LeaveBalanceCards } from './components/LeaveBalanceCards';
 export { LeaveCardsSkeleton, LeaveErrorView, LeaveEmptyView } from './components/LeaveStateViews';
 
 // Query Hooks
-export { useLeaveBalances, useLeaveSummary } from './hooks/useLeaveBalances';
+export { useLeaveBalances, useLeaveSummary, useLeaveRequests } from './hooks/useLeaveBalances';
+
+// Services
+export { leaveService } from './services/leaveService';
 
 // Types
-export type { LeaveBalance, LeaveSummary, LeaveType, LeaveBalanceFilters } from '../shared/types/leave.types';
+export type { LeaveBalance, LeaveType, LeaveRequest, LeaveStatus } from '@/features/hrms/shared/types';
+export type { LeaveSummary, LeaveTypeDisplayConfig } from './types/leaveDashboard.types';
