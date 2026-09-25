@@ -26,7 +26,7 @@ const CRM_NAVIGATION = [
   { label: 'Opportunities', path: '/crm/opportunities', icon: Briefcase },
   { label: 'Pipeline', path: '/crm/pipeline', icon: BarChart3 },
   { label: 'Quotations', path: '/crm/quotations', icon: FileText },
-  { label: 'Customer Portal', path: '/crm/portal', icon: Globe },
+  { label: 'Customer Portal', path: '/crm/customer-portal', icon: Globe },
   { label: 'Settings', path: '/crm/settings', icon: Settings },
 ];
 
