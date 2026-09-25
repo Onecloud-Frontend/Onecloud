@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Settings,
+  PieChart,
 } from "lucide-react";
 import {
   Tooltip,
@@ -32,6 +33,7 @@ const CRM_NAVIGATION = [
   { label: 'Pipeline', path: '/crm/pipeline', icon: BarChart3 },
   { label: 'Quotations', path: '/crm/quotations', icon: FileText },
   { label: 'Customer Portal', path: '/crm/customer-portal', icon: Globe },
+  { label: 'Reports', path: '/crm/reports', icon: PieChart },
   { label: 'Settings', path: '/crm/settings', icon: Settings },
 ];
 
