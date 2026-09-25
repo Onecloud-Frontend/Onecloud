@@ -103,91 +103,120 @@ export function QuotationFilters({
     );
 
   return (
-    <div className="quotation-filters">
+    <div className="flex flex-col gap-3 xl:flex-row xl:items-end">
       {/* Search */}
-
-      <div className="quotation-search">
-        <svg
-          width="17"
-          height="17"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
+      <div className="min-w-0 flex-1">
+        <label
+          htmlFor="quotation-search"
+          className="mb-1.5 block text-xs font-medium text-slate-600"
         >
-          <path
-            d="m21 21-4.35-4.35m2.1-5.4a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
-        </svg>
+          Search
+        </label>
 
-        <input
-          type="search"
-          placeholder="Search quotations..."
-          value={filters.search ?? ""}
-          onChange={(event) =>
-            updateFilter(
-              "search",
-              event.target.value,
-            )
-          }
-          aria-label="Search quotations"
-        />
+        <div className="relative">
+          <svg
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="m21 21-4.35-4.35m2.1-5.4a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+          </svg>
+
+          <input
+            id="quotation-search"
+            type="search"
+            placeholder="Search quotations..."
+            value={filters.search ?? ""}
+            onChange={(event) =>
+              updateFilter(
+                "search",
+                event.target.value,
+              )
+            }
+            aria-label="Search quotations"
+            className="h-9 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+          />
+        </div>
       </div>
 
       {/* Status */}
+      <div className="w-full xl:w-40">
+        <label
+          htmlFor="quotation-status"
+          className="mb-1.5 block text-xs font-medium text-slate-600"
+        >
+          Status
+        </label>
 
-      <select
-        className="quotation-filter-select"
-        value={filters.status ?? "all"}
-        onChange={(event) =>
-          updateFilter(
-            "status",
-            event.target.value,
-          )
-        }
-        aria-label="Quotation status"
-      >
-        {statusOptions.map((option) => (
-          <option
-            key={option.value}
-            value={option.value}
-          >
-            {option.label}
-          </option>
-        ))}
-      </select>
+        <select
+          id="quotation-status"
+          value={filters.status ?? "all"}
+          onChange={(event) =>
+            updateFilter(
+              "status",
+              event.target.value,
+            )
+          }
+          aria-label="Quotation status"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+        >
+          {statusOptions.map((option) => (
+            <option
+              key={option.value}
+              value={option.value}
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {/* Approval */}
+      <div className="w-full xl:w-44">
+        <label
+          htmlFor="quotation-approval-status"
+          className="mb-1.5 block text-xs font-medium text-slate-600"
+        >
+          Approval
+        </label>
 
-      <select
-        className="quotation-filter-select"
-        value={
-          filters.approvalStatus ?? "all"
-        }
-        onChange={(event) =>
-          updateFilter(
-            "approvalStatus",
-            event.target.value,
-          )
-        }
-        aria-label="Approval status"
-      >
-        {approvalOptions.map((option) => (
-          <option
-            key={option.value}
-            value={option.value}
-          >
-            {option.label}
-          </option>
-        ))}
-      </select>
+        <select
+          id="quotation-approval-status"
+          value={
+            filters.approvalStatus ?? "all"
+          }
+          onChange={(event) =>
+            updateFilter(
+              "approvalStatus",
+              event.target.value,
+            )
+          }
+          aria-label="Approval status"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+        >
+          {approvalOptions.map((option) => (
+            <option
+              key={option.value}
+              value={option.value}
+            >
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      {/* Date range */}
-
-      <div className="quotation-date-filter">
-        <label htmlFor="quotation-from-date">
+      {/* From date */}
+      <div className="w-full sm:w-[calc(50%-0.375rem)] xl:w-36">
+        <label
+          htmlFor="quotation-from-date"
+          className="mb-1.5 block text-xs font-medium text-slate-600"
+        >
           From
         </label>
 
@@ -202,11 +231,16 @@ export function QuotationFilters({
             )
           }
           aria-label="From date"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
         />
       </div>
 
-      <div className="quotation-date-filter">
-        <label htmlFor="quotation-to-date">
+      {/* To date */}
+      <div className="w-full sm:w-[calc(50%-0.375rem)] xl:w-36">
+        <label
+          htmlFor="quotation-to-date"
+          className="mb-1.5 block text-xs font-medium text-slate-600"
+        >
           To
         </label>
 
@@ -221,16 +255,16 @@ export function QuotationFilters({
             )
           }
           aria-label="To date"
+          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 outline-none transition hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
         />
       </div>
 
       {/* Clear */}
-
       {hasFilters && (
         <button
           type="button"
-          className="quotation-clear-button"
           onClick={clearFilters}
+          className="h-9 shrink-0 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-200"
         >
           Clear filters
         </button>

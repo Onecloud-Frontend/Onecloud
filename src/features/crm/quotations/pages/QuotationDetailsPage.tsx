@@ -11,8 +11,6 @@ import type {
   QuotationStatus,
 } from "../types/quotation.types";
 
-import "../styles/quotation-details.css";
-
 const statusLabels: Record<
   QuotationStatus,
   string
@@ -45,9 +43,7 @@ function formatCurrency(
   }).format(amount);
 }
 
-function formatDate(
-  date?: string,
-): string {
+function formatDate(date?: string): string {
   if (!date) {
     return "—";
   }
@@ -59,9 +55,7 @@ function formatDate(
   }).format(new Date(date));
 }
 
-function formatDateTime(
-  date?: string,
-): string {
+function formatDateTime(date?: string): string {
   if (!date) {
     return "—";
   }
@@ -75,6 +69,49 @@ function formatDateTime(
   }).format(new Date(date));
 }
 
+function getStatusClasses(status: QuotationStatus) {
+  switch (status) {
+    case "draft":
+      return "bg-slate-100 text-slate-700 ring-slate-200";
+
+    case "sent":
+      return "bg-blue-50 text-blue-700 ring-blue-200";
+
+    case "accepted":
+      return "bg-emerald-50 text-emerald-700 ring-emerald-200";
+
+    case "rejected":
+      return "bg-red-50 text-red-700 ring-red-200";
+
+    case "expired":
+      return "bg-amber-50 text-amber-700 ring-amber-200";
+
+    default:
+      return "bg-slate-100 text-slate-700 ring-slate-200";
+  }
+}
+
+function getApprovalClasses(
+  approvalStatus: ApprovalStatus,
+) {
+  switch (approvalStatus) {
+    case "not_submitted":
+      return "bg-slate-100 text-slate-600 ring-slate-200";
+
+    case "pending":
+      return "bg-amber-50 text-amber-700 ring-amber-200";
+
+    case "approved":
+      return "bg-emerald-50 text-emerald-700 ring-emerald-200";
+
+    case "rejected":
+      return "bg-red-50 text-red-700 ring-red-200";
+
+    default:
+      return "bg-slate-100 text-slate-600 ring-slate-200";
+  }
+}
+
 export function QuotationDetailsPage() {
   const navigate = useNavigate();
 
@@ -82,8 +119,7 @@ export function QuotationDetailsPage() {
     id: string;
   }>();
 
-  const quotationQuery =
-    useQuotation(id ?? "");
+  const quotationQuery = useQuotation(id ?? "");
 
   const submitApproval =
     useSubmitQuotationApproval();
@@ -126,9 +162,7 @@ export function QuotationDetailsPage() {
       setActionError(null);
 
       try {
-        await submitApproval.mutateAsync(
-          id,
-        );
+        await submitApproval.mutateAsync(id);
 
         setActionMessage(
           "Quotation submitted for approval.",
@@ -151,9 +185,7 @@ export function QuotationDetailsPage() {
     setActionError(null);
 
     try {
-      await reviseQuotation.mutateAsync(
-        id,
-      );
+      await reviseQuotation.mutateAsync(id);
 
       setActionMessage(
         "Quotation revised successfully and returned to draft.",
@@ -169,14 +201,14 @@ export function QuotationDetailsPage() {
 
   if (quotationQuery.isLoading) {
     return (
-      <main className="quotation-details-page">
-        <div className="quotation-details-state">
+      <main className="min-h-full bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex min-h-[500px] flex-col items-center justify-center">
           <div
-            className="loading-spinner"
+            className="mb-3 h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700"
             aria-hidden="true"
           />
 
-          <p>
+          <p className="text-sm font-medium text-slate-600">
             Loading quotation...
           </p>
         </div>
@@ -189,24 +221,30 @@ export function QuotationDetailsPage() {
     !quotation
   ) {
     return (
-      <main className="quotation-details-page">
-        <div className="quotation-details-state quotation-details-error">
-          <h2>
-            Quotation not found
-          </h2>
+      <main className="min-h-full bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex min-h-[500px] items-center justify-center">
+          <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-red-50 text-sm font-semibold text-red-600">
+              !
+            </div>
 
-          <p>
-            We couldn't load the requested
-            quotation.
-          </p>
+            <h2 className="text-base font-semibold text-slate-900">
+              Quotation not found
+            </h2>
 
-          <button
-            type="button"
-            className="details-btn details-btn-secondary"
-            onClick={handleBack}
-          >
-            Back to quotations
-          </button>
+            <p className="mt-1 text-sm text-slate-500">
+              We couldn't load the requested
+              quotation.
+            </p>
+
+            <button
+              type="button"
+              className="mt-5 inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2"
+              onClick={handleBack}
+            >
+              Back to quotations
+            </button>
+          </div>
         </div>
       </main>
     );
@@ -226,99 +264,106 @@ export function QuotationDetailsPage() {
     reviseQuotation.isPending;
 
   return (
-    <main className="quotation-details-page">
-      <div className="quotation-details-container">
+    <main className="min-h-full bg-slate-50 px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1400px]">
         {/* Header */}
-        <header className="quotation-details-header">
-          <div className="quotation-details-heading">
-            <button
-              type="button"
-              className="back-button"
-              onClick={handleBack}
-            >
-              ← Back to quotations
-            </button>
+        <header className="mb-5">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2"
+          >
+            <span aria-hidden="true">←</span>
+            Back to quotations
+          </button>
 
-            <div className="quotation-title-row">
-              <div>
-                <p className="page-eyebrow">
+          <div className="flex flex-col gap-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <div className="mb-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                   Quotation
                 </p>
-
-                <h1>
-                  {quotation.quoteNumber}
-                </h1>
-
-                <p className="quotation-details-id">
-                  ID: {quotation.id}
-                </p>
               </div>
 
-              <div className="quotation-header-statuses">
-                <span
-                  className={`quotation-status quotation-status-${quotation.status}`}
-                >
-                  {
-                    statusLabels[
-                      quotation.status
-                    ]
-                  }
-                </span>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                    {quotation.quoteNumber}
+                  </h1>
 
-                <span
-                  className={`quotation-approval quotation-approval-${quotation.approvalStatus}`}
-                >
-                  {
-                    approvalLabels[
-                      quotation.approvalStatus
-                    ]
-                  }
-                </span>
+                  <p className="mt-1 text-xs text-slate-400">
+                    ID: {quotation.id}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${getStatusClasses(
+                      quotation.status,
+                    )}`}
+                  >
+                    {statusLabels[
+                      quotation.status
+                    ]}
+                  </span>
+
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${getApprovalClasses(
+                      quotation.approvalStatus,
+                    )}`}
+                  >
+                    {
+                      approvalLabels[
+                        quotation.approvalStatus
+                      ]
+                    }
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="quotation-details-actions">
-            <button
-              type="button"
-              className="details-btn details-btn-secondary"
-              onClick={handleEdit}
-              disabled={isActionPending}
-            >
-              Edit
-            </button>
-
-            {canSubmitApproval && (
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                className="details-btn details-btn-primary"
-                onClick={
-                  handleSubmitApproval
-                }
-                disabled={
-                  submitApproval.isPending
-                }
+                onClick={handleEdit}
+                disabled={isActionPending}
+                className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2"
               >
-                {submitApproval.isPending
-                  ? "Submitting..."
-                  : "Submit approval"}
+                Edit
               </button>
-            )}
 
-            {canRevise && (
-              <button
-                type="button"
-                className="details-btn details-btn-secondary"
-                onClick={handleRevise}
-                disabled={
-                  reviseQuotation.isPending
-                }
-              >
-                {reviseQuotation.isPending
-                  ? "Revising..."
-                  : "Revise"}
-              </button>
-            )}
+              {canSubmitApproval && (
+                <button
+                  type="button"
+                  onClick={
+                    handleSubmitApproval
+                  }
+                  disabled={
+                    submitApproval.isPending
+                  }
+                  className="inline-flex h-9 items-center justify-center rounded-lg bg-slate-900 px-3.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                >
+                  {submitApproval.isPending
+                    ? "Submitting..."
+                    : "Submit approval"}
+                </button>
+              )}
+
+              {canRevise && (
+                <button
+                  type="button"
+                  onClick={handleRevise}
+                  disabled={
+                    reviseQuotation.isPending
+                  }
+                  className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2"
+                >
+                  {reviseQuotation.isPending
+                    ? "Revising..."
+                    : "Revise"}
+                </button>
+              )}
+            </div>
           </div>
         </header>
 
@@ -326,10 +371,10 @@ export function QuotationDetailsPage() {
         {(actionMessage ||
           actionError) && (
           <div
-            className={`quotation-action-feedback ${
+            className={`mb-5 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm ${
               actionError
-                ? "quotation-action-feedback-error"
-                : "quotation-action-feedback-success"
+                ? "border-red-200 bg-red-50 text-red-800"
+                : "border-emerald-200 bg-emerald-50 text-emerald-800"
             }`}
             role={
               actionError
@@ -338,22 +383,23 @@ export function QuotationDetailsPage() {
             }
           >
             <span
-              className="quotation-action-feedback-icon"
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                actionError
+                  ? "bg-red-100 text-red-700"
+                  : "bg-emerald-100 text-emerald-700"
+              }`}
               aria-hidden="true"
             >
-              {actionError
-                ? "!"
-                : "✓"}
+              {actionError ? "!" : "✓"}
             </span>
 
-            <span>
-              {actionError ??
-                actionMessage}
+            <span className="min-w-0 flex-1">
+              {actionError ?? actionMessage}
             </span>
 
             <button
               type="button"
-              className="quotation-action-feedback-close"
+              className="shrink-0 rounded-md p-1 text-current/60 transition-colors hover:bg-black/5 hover:text-current focus:outline-none focus:ring-2 focus:ring-current/20"
               onClick={() => {
                 setActionMessage(null);
                 setActionError(null);
@@ -366,143 +412,121 @@ export function QuotationDetailsPage() {
         )}
 
         {/* Quotation Overview */}
-        <section className="quotation-details-section">
-          <div className="quotation-section-header">
-            <div>
-              <h2>
-                Quotation overview
-              </h2>
+        <section className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Quotation overview
+            </h2>
 
-              <p>
-                Basic quotation and sales
-                information.
-              </p>
-            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Basic quotation and sales
+              information.
+            </p>
           </div>
 
-          <div className="quotation-info-grid">
-            <div className="quotation-info-item">
-              <span className="quotation-info-label">
-                Quote date
-              </span>
-
-              <span className="quotation-info-value">
-                {formatDate(
+          <div className="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-3 xl:grid-cols-6">
+            {[
+              {
+                label: "Quote date",
+                value: formatDate(
                   quotation.quoteDate,
-                )}
-              </span>
-            </div>
-
-            <div className="quotation-info-item">
-              <span className="quotation-info-label">
-                Valid until
-              </span>
-
-              <span className="quotation-info-value">
-                {formatDate(
+                ),
+              },
+              {
+                label: "Valid until",
+                value: formatDate(
                   quotation.validUntil,
-                )}
-              </span>
-            </div>
+                ),
+              },
+              {
+                label: "Salesperson",
+                value: quotation.salespersonName,
+              },
+              {
+                label: "Currency",
+                value: quotation.currency,
+              },
+              {
+                label: "Payment terms",
+                value:
+                  quotation.paymentTerms ??
+                  "—",
+              },
+              {
+                label: "Delivery terms",
+                value:
+                  quotation.deliveryTerms ??
+                  "—",
+              },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="px-5 py-4 sm:px-4"
+              >
+                <span className="block text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                  {item.label}
+                </span>
 
-            <div className="quotation-info-item">
-              <span className="quotation-info-label">
-                Salesperson
-              </span>
-
-              <span className="quotation-info-value">
-                {quotation.salespersonName}
-              </span>
-            </div>
-
-            <div className="quotation-info-item">
-              <span className="quotation-info-label">
-                Currency
-              </span>
-
-              <span className="quotation-info-value">
-                {quotation.currency}
-              </span>
-            </div>
-
-            <div className="quotation-info-item">
-              <span className="quotation-info-label">
-                Payment terms
-              </span>
-
-              <span className="quotation-info-value">
-                {quotation.paymentTerms ??
-                  "—"}
-              </span>
-            </div>
-
-            <div className="quotation-info-item">
-              <span className="quotation-info-label">
-                Delivery terms
-              </span>
-
-              <span className="quotation-info-value">
-                {quotation.deliveryTerms ??
-                  "—"}
-              </span>
-            </div>
+                <span className="mt-1.5 block text-sm font-medium text-slate-800">
+                  {item.value}
+                </span>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* Customer */}
-        <section className="quotation-details-section">
-          <div className="quotation-section-header">
-            <div>
-              <h2>
-                Customer
-              </h2>
+        <section className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Customer
+            </h2>
 
-              <p>
-                Customer and opportunity
-                information.
-              </p>
-            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Customer and opportunity
+              information.
+            </p>
           </div>
 
-          <div className="quotation-customer-grid">
-            <div className="quotation-customer-card">
-              <span className="quotation-info-label">
+          <div className="grid grid-cols-1 divide-y divide-slate-100 md:grid-cols-3 md:divide-x md:divide-y-0">
+            <div className="px-5 py-5 sm:px-6">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-slate-400">
                 Customer
               </span>
 
-              <strong>
+              <strong className="mt-1.5 block text-sm font-semibold text-slate-900">
                 {quotation.customerName}
               </strong>
 
-              <p>
+              <p className="mt-1 text-sm leading-5 text-slate-500">
                 {quotation.customerAddress ??
                   "Address not available"}
               </p>
             </div>
 
-            <div className="quotation-customer-card">
-              <span className="quotation-info-label">
+            <div className="px-5 py-5 sm:px-6">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-slate-400">
                 Contact
               </span>
 
-              <strong>
+              <strong className="mt-1.5 block text-sm font-semibold text-slate-900">
                 {quotation.contactName ??
                   "—"}
               </strong>
             </div>
 
-            <div className="quotation-customer-card">
-              <span className="quotation-info-label">
+            <div className="px-5 py-5 sm:px-6">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-slate-400">
                 Opportunity
               </span>
 
-              <strong>
+              <strong className="mt-1.5 block text-sm font-semibold text-slate-900">
                 {quotation.opportunityName ??
                   "—"}
               </strong>
 
               {quotation.opportunityId && (
-                <p>
+                <p className="mt-1 text-xs text-slate-400">
                   {quotation.opportunityId}
                 </p>
               )}
@@ -511,102 +535,105 @@ export function QuotationDetailsPage() {
         </section>
 
         {/* Line Items */}
-        <section className="quotation-details-section">
-          <div className="quotation-section-header">
-            <div>
-              <h2>
-                Line items
-              </h2>
+        <section className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Line items
+            </h2>
 
-              <p>
-                Products and services included
-                in this quotation.
-              </p>
-            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Products and services included
+              in this quotation.
+            </p>
           </div>
 
-          <div className="quotation-line-items-wrapper">
-            <table className="quotation-line-items-table">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[900px] border-collapse text-left">
               <thead>
-                <tr>
-                  <th>
+                <tr className="border-b border-slate-200 bg-slate-50/70">
+                  <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Product / Service
                   </th>
 
-                  <th>
+                  <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Description
                   </th>
 
-                  <th className="numeric-cell">
+                  <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Quantity
                   </th>
 
-                  <th className="numeric-cell">
+                  <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Unit price
                   </th>
 
-                  <th className="numeric-cell">
+                  <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Discount
                   </th>
 
-                  <th className="numeric-cell">
+                  <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Tax
                   </th>
 
-                  <th className="numeric-cell">
+                  <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Subtotal
                   </th>
 
-                  <th className="numeric-cell">
+                  <th className="px-5 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                     Total
                   </th>
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {quotation.lineItems.map(
                   (
                     item: Quotation["lineItems"][number],
                   ) => (
-                    <tr key={item.id}>
-                      <td>
-                        <strong>
+                    <tr
+                      key={item.id}
+                      className="hover:bg-slate-50/50"
+                    >
+                      <td className="px-5 py-4 align-middle">
+                        <strong className="text-sm font-medium text-slate-800">
                           {item.productName}
                         </strong>
                       </td>
 
-                      <td>
-                        {item.description ??
-                          "—"}
+                      <td className="max-w-[240px] px-4 py-4 align-middle">
+                        <span className="block truncate text-sm text-slate-500">
+                          {item.description ??
+                            "—"}
+                        </span>
                       </td>
 
-                      <td className="numeric-cell">
+                      <td className="whitespace-nowrap px-4 py-4 text-right align-middle text-sm text-slate-600">
                         {item.quantity}
                       </td>
 
-                      <td className="numeric-cell">
+                      <td className="whitespace-nowrap px-4 py-4 text-right align-middle text-sm text-slate-600">
                         {formatCurrency(
                           item.unitPrice,
                           quotation.currency,
                         )}
                       </td>
 
-                      <td className="numeric-cell">
+                      <td className="whitespace-nowrap px-4 py-4 text-right align-middle text-sm text-slate-600">
                         {item.discountPercent}%
                       </td>
 
-                      <td className="numeric-cell">
+                      <td className="whitespace-nowrap px-4 py-4 text-right align-middle text-sm text-slate-600">
                         {item.taxRate}%
                       </td>
 
-                      <td className="numeric-cell">
+                      <td className="whitespace-nowrap px-4 py-4 text-right align-middle text-sm text-slate-600">
                         {formatCurrency(
                           item.subtotal,
                           quotation.currency,
                         )}
                       </td>
 
-                      <td className="numeric-cell quotation-line-total">
+                      <td className="whitespace-nowrap px-5 py-4 text-right align-middle text-sm font-semibold text-slate-900">
                         {formatCurrency(
                           item.total,
                           quotation.currency,
@@ -621,26 +648,24 @@ export function QuotationDetailsPage() {
         </section>
 
         {/* Pricing */}
-        <section className="quotation-details-section quotation-pricing-section">
-          <div className="quotation-section-header">
-            <div>
-              <h2>
-                Pricing
-              </h2>
+        <section className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Pricing
+            </h2>
 
-              <p>
-                Quotation pricing summary.
-              </p>
-            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Quotation pricing summary.
+            </p>
           </div>
 
-          <div className="quotation-pricing-summary">
-            <div className="quotation-pricing-row">
-              <span>
+          <div className="ml-auto w-full max-w-md px-5 py-5 sm:px-6">
+            <div className="flex items-center justify-between py-2 text-sm">
+              <span className="text-slate-500">
                 Subtotal
               </span>
 
-              <strong>
+              <strong className="font-medium text-slate-800">
                 {formatCurrency(
                   quotation.subtotal,
                   quotation.currency,
@@ -648,12 +673,12 @@ export function QuotationDetailsPage() {
               </strong>
             </div>
 
-            <div className="quotation-pricing-row">
-              <span>
+            <div className="flex items-center justify-between py-2 text-sm">
+              <span className="text-slate-500">
                 Discount
               </span>
 
-              <strong>
+              <strong className="font-medium text-slate-800">
                 -
                 {formatCurrency(
                   quotation.discountAmount,
@@ -662,12 +687,12 @@ export function QuotationDetailsPage() {
               </strong>
             </div>
 
-            <div className="quotation-pricing-row">
-              <span>
+            <div className="flex items-center justify-between py-2 text-sm">
+              <span className="text-slate-500">
                 Tax
               </span>
 
-              <strong>
+              <strong className="font-medium text-slate-800">
                 {formatCurrency(
                   quotation.taxAmount,
                   quotation.currency,
@@ -675,14 +700,14 @@ export function QuotationDetailsPage() {
               </strong>
             </div>
 
-            <div className="quotation-pricing-divider" />
+            <div className="my-3 border-t border-slate-200" />
 
-            <div className="quotation-pricing-row quotation-grand-total">
-              <span>
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-sm font-semibold text-slate-900">
                 Grand total
               </span>
 
-              <strong>
+              <strong className="text-lg font-semibold text-slate-900">
                 {formatCurrency(
                   quotation.grandTotal,
                   quotation.currency,
@@ -693,70 +718,69 @@ export function QuotationDetailsPage() {
         </section>
 
         {/* Approval History */}
-        <section className="quotation-details-section">
-          <div className="quotation-section-header">
-            <div>
-              <h2>
-                Approval history
-              </h2>
+        <section className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Approval history
+            </h2>
 
-              <p>
-                Approval actions and status
-                changes.
-              </p>
-            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Approval actions and status
+              changes.
+            </p>
           </div>
 
           {quotation.approvalHistory &&
           quotation.approvalHistory.length >
             0 ? (
-            <div className="quotation-approval-timeline">
-              {quotation.approvalHistory.map(
-                (
-                  history: NonNullable<
-                    Quotation["approvalHistory"]
-                  >[number],
-                ) => (
-                  <div
-                    key={history.id}
-                    className="quotation-timeline-item"
-                  >
-                    <div className="quotation-timeline-marker" />
+            <div className="px-5 py-5 sm:px-6">
+              <div className="relative ml-2 border-l border-slate-200 pl-6">
+                {quotation.approvalHistory.map(
+                  (
+                    history: NonNullable<
+                      Quotation["approvalHistory"]
+                    >[number],
+                  ) => (
+                    <div
+                      key={history.id}
+                      className="relative pb-6 last:pb-0"
+                    >
+                      <div className="absolute -left-[31px] top-1.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-slate-400 ring-1 ring-slate-300" />
 
-                    <div className="quotation-timeline-content">
-                      <div className="quotation-timeline-header">
-                        <strong>
-                          {
-                            approvalLabels[
-                              history.status
-                            ]
-                          }
-                        </strong>
+                      <div className="rounded-lg border border-slate-100 bg-slate-50/60 p-4">
+                        <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+                          <strong className="text-sm font-semibold text-slate-800">
+                            {
+                              approvalLabels[
+                                history.status
+                              ]
+                            }
+                          </strong>
 
-                        <span>
-                          {formatDateTime(
-                            history.createdAt,
-                          )}
+                          <span className="text-xs text-slate-400">
+                            {formatDateTime(
+                              history.createdAt,
+                            )}
+                          </span>
+                        </div>
+
+                        <p className="mt-2 text-sm leading-5 text-slate-600">
+                          {history.comment ??
+                            "No comment provided."}
+                        </p>
+
+                        <span className="mt-2 block text-xs text-slate-400">
+                          By {history.actionBy}
                         </span>
                       </div>
-
-                      <p>
-                        {history.comment ??
-                          "No comment provided."}
-                      </p>
-
-                      <span className="quotation-timeline-user">
-                        By{" "}
-                        {history.actionBy}
-                      </span>
                     </div>
-                  </div>
-                ),
-              )}
+                  ),
+                )}
+              </div>
             </div>
           ) : (
-            <div className="quotation-empty-history">
-              <p>
+            <div className="px-5 py-8 text-center sm:px-6">
+              <p className="text-sm text-slate-500">
                 No approval activity yet.
               </p>
             </div>
@@ -764,36 +788,33 @@ export function QuotationDetailsPage() {
         </section>
 
         {/* Notes */}
-        <section className="quotation-details-section">
-          <div className="quotation-section-header">
-            <div>
-              <h2>
-                Notes
-              </h2>
+        <section className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Notes
+            </h2>
 
-              <p>
-                Additional information about
-                this quotation.
-              </p>
-            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              Additional information about
+              this quotation.
+            </p>
           </div>
 
-          <div className="quotation-notes">
+          <div className="px-5 py-5 sm:px-6">
             {quotation.notes ? (
-              <p>
+              <p className="whitespace-pre-wrap text-sm leading-6 text-slate-600">
                 {quotation.notes}
               </p>
             ) : (
-              <p className="quotation-muted-text">
-                No notes added to this
-                quotation.
+              <p className="text-sm text-slate-400">
+                No notes added to this quotation.
               </p>
             )}
           </div>
         </section>
 
         {/* Metadata */}
-        <footer className="quotation-details-footer">
+        <footer className="flex flex-col gap-1 border-t border-slate-200 py-4 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between">
           <span>
             Created{" "}
             {formatDateTime(

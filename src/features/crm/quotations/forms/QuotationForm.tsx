@@ -17,8 +17,6 @@ import type {
   QuotationLineItem,
 } from "../types/quotation.types";
 
-import "../styles/quotation-form.css";
-
 interface QuotationFormProps {
   initialValues?: QuotationFormValues;
   submitLabel: string;
@@ -195,12 +193,6 @@ export function QuotationForm({
         DEFAULT_FORM_VALUES,
     });
 
-  /*
-   * Edit mode:
-   * quotation data arrives asynchronously,
-   * so reset the form when initialValues
-   * becomes available.
-   */
   useEffect(() => {
     if (initialValues) {
       reset(initialValues);
@@ -283,41 +275,52 @@ export function QuotationForm({
     }
   };
 
+  const inputClass =
+    "h-10 w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-200 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
+
+  const selectClass =
+    "h-10 w-full min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-200 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500";
+
+  const labelClass =
+    "mb-1.5 block text-xs font-medium text-slate-700";
+
+  const errorClass =
+    "mt-1 text-xs text-red-600";
+
   return (
     <form
-      className="quotation-form"
+      className="space-y-5"
       onSubmit={handleSubmit(
         submitForm,
       )}
       noValidate
     >
       {/* Submission error */}
-
       {submitError && (
         <div
-          className="quotation-form-submit-error"
+          className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3"
           role="alert"
         >
           <span
-            className="quotation-form-submit-error-icon"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700"
             aria-hidden="true"
           >
             !
           </span>
 
-          <div>
-            <strong>
+          <div className="min-w-0 flex-1">
+            <strong className="block text-sm font-semibold text-red-900">
               Unable to save quotation
             </strong>
 
-            <p>
+            <p className="mt-0.5 text-sm text-red-700">
               {submitError}
             </p>
           </div>
 
           <button
             type="button"
-            className="quotation-form-submit-error-close"
+            className="shrink-0 rounded-md p-1 text-red-500 transition-colors hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-300"
             onClick={() =>
               setSubmitError(null)
             }
@@ -329,32 +332,34 @@ export function QuotationForm({
       )}
 
       {/* Customer & quotation information */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+          <h2 className="text-sm font-semibold text-slate-900">
+            Quotation information
+          </h2>
 
-      <section className="form-section">
-        <div className="form-section-header">
-          <div>
-            <h2 className="form-section-title">
-              Quotation information
-            </h2>
-
-            <p className="form-section-description">
-              Customer, opportunity and
-              quotation details.
-            </p>
-          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Customer, opportunity and quotation
+            details.
+          </p>
         </div>
 
-        <div className="form-grid form-grid-three">
-          <div className="form-field">
-            <label className="form-label">
+        <div className="grid grid-cols-1 gap-x-5 gap-y-5 p-5 sm:grid-cols-2 lg:grid-cols-3 sm:p-6">
+          {/* Customer */}
+          <div>
+            <label
+              htmlFor="quotation-customer"
+              className={labelClass}
+            >
               Customer{" "}
-              <span className="required">
+              <span className="text-red-500">
                 *
               </span>
             </label>
 
             <select
-              className="form-select"
+              id="quotation-customer"
+              className={selectClass}
               {...register("customerId")}
             >
               <option value="">
@@ -374,22 +379,24 @@ export function QuotationForm({
             </select>
 
             {errors.customerId && (
-              <div className="form-error">
-                {
-                  errors.customerId
-                    .message
-                }
+              <div className={errorClass}>
+                {errors.customerId.message}
               </div>
             )}
           </div>
 
-          <div className="form-field">
-            <label className="form-label">
+          {/* Opportunity */}
+          <div>
+            <label
+              htmlFor="quotation-opportunity"
+              className={labelClass}
+            >
               Opportunity
             </label>
 
             <select
-              className="form-select"
+              id="quotation-opportunity"
+              className={selectClass}
               {...register(
                 "opportunityId",
               )}
@@ -402,9 +409,7 @@ export function QuotationForm({
                 (opportunity) => (
                   <option
                     key={opportunity.id}
-                    value={
-                      opportunity.id
-                    }
+                    value={opportunity.id}
                   >
                     {opportunity.name}
                   </option>
@@ -413,16 +418,21 @@ export function QuotationForm({
             </select>
           </div>
 
-          <div className="form-field">
-            <label className="form-label">
+          {/* Salesperson */}
+          <div>
+            <label
+              htmlFor="quotation-salesperson"
+              className={labelClass}
+            >
               Salesperson{" "}
-              <span className="required">
+              <span className="text-red-500">
                 *
               </span>
             </label>
 
             <select
-              className="form-select"
+              id="quotation-salesperson"
+              className={selectClass}
               {...register(
                 "salespersonId",
               )}
@@ -435,9 +445,7 @@ export function QuotationForm({
                 (salesperson) => (
                   <option
                     key={salesperson.id}
-                    value={
-                      salesperson.id
-                    }
+                    value={salesperson.id}
                   >
                     {salesperson.name}
                   </option>
@@ -446,77 +454,83 @@ export function QuotationForm({
             </select>
 
             {errors.salespersonId && (
-              <div className="form-error">
-                {
-                  errors.salespersonId
-                    .message
-                }
+              <div className={errorClass}>
+                {errors.salespersonId.message}
               </div>
             )}
           </div>
 
-          <div className="form-field">
-            <label className="form-label">
+          {/* Quote date */}
+          <div>
+            <label
+              htmlFor="quotation-quote-date"
+              className={labelClass}
+            >
               Quote date{" "}
-              <span className="required">
+              <span className="text-red-500">
                 *
               </span>
             </label>
 
             <input
+              id="quotation-quote-date"
               type="date"
-              className="form-input"
+              className={inputClass}
               {...register(
                 "quoteDate",
               )}
             />
 
             {errors.quoteDate && (
-              <div className="form-error">
-                {
-                  errors.quoteDate
-                    .message
-                }
+              <div className={errorClass}>
+                {errors.quoteDate.message}
               </div>
             )}
           </div>
 
-          <div className="form-field">
-            <label className="form-label">
+          {/* Valid until */}
+          <div>
+            <label
+              htmlFor="quotation-valid-until"
+              className={labelClass}
+            >
               Valid until{" "}
-              <span className="required">
+              <span className="text-red-500">
                 *
               </span>
             </label>
 
             <input
+              id="quotation-valid-until"
               type="date"
-              className="form-input"
+              className={inputClass}
               {...register(
                 "validUntil",
               )}
             />
 
             {errors.validUntil && (
-              <div className="form-error">
-                {
-                  errors.validUntil
-                    .message
-                }
+              <div className={errorClass}>
+                {errors.validUntil.message}
               </div>
             )}
           </div>
 
-          <div className="form-field">
-            <label className="form-label">
+          {/* Currency */}
+          <div>
+            <label
+              htmlFor="quotation-currency"
+              className={labelClass}
+            >
               Currency{" "}
-              <span className="required">
+              <span className="text-red-500">
                 *
               </span>
             </label>
 
             <select
-              className="form-select"
+              id="quotation-currency"
+              className={selectClass}
               {...register(
                 "currency",
               )}
@@ -534,11 +548,8 @@ export function QuotationForm({
             </select>
 
             {errors.currency && (
-              <div className="form-error">
-                {
-                  errors.currency
-                    .message
-                }
+              <div className={errorClass}>
+                {errors.currency.message}
               </div>
             )}
           </div>
@@ -546,31 +557,32 @@ export function QuotationForm({
       </section>
 
       {/* Commercial terms */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+          <h2 className="text-sm font-semibold text-slate-900">
+            Commercial terms
+          </h2>
 
-      <section className="form-section">
-        <div className="form-section-header">
-          <div>
-            <h2 className="form-section-title">
-              Commercial terms
-            </h2>
-
-            <p className="form-section-description">
-              Payment and delivery
-              conditions for the
-              quotation.
-            </p>
-          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Payment and delivery conditions for
+            the quotation.
+          </p>
         </div>
 
-        <div className="form-grid">
-          <div className="form-field">
-            <label className="form-label">
+        <div className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 sm:p-6">
+          {/* Payment terms */}
+          <div>
+            <label
+              htmlFor="quotation-payment-terms"
+              className={labelClass}
+            >
               Payment terms
             </label>
 
             <input
+              id="quotation-payment-terms"
               type="text"
-              className="form-input"
+              className={inputClass}
               placeholder="e.g. Net 30"
               {...register(
                 "paymentTerms",
@@ -578,23 +590,25 @@ export function QuotationForm({
             />
 
             {errors.paymentTerms && (
-              <div className="form-error">
-                {
-                  errors.paymentTerms
-                    .message
-                }
+              <div className={errorClass}>
+                {errors.paymentTerms.message}
               </div>
             )}
           </div>
 
-          <div className="form-field">
-            <label className="form-label">
+          {/* Delivery terms */}
+          <div>
+            <label
+              htmlFor="quotation-delivery-terms"
+              className={labelClass}
+            >
               Delivery terms
             </label>
 
             <input
+              id="quotation-delivery-terms"
               type="text"
-              className="form-input"
+              className={inputClass}
               placeholder="e.g. Delivery within 15 days"
               {...register(
                 "deliveryTerms",
@@ -602,11 +616,8 @@ export function QuotationForm({
             />
 
             {errors.deliveryTerms && (
-              <div className="form-error">
-                {
-                  errors.deliveryTerms
-                    .message
-                }
+              <div className={errorClass}>
+                {errors.deliveryTerms.message}
               </div>
             )}
           </div>
@@ -614,68 +625,72 @@ export function QuotationForm({
       </section>
 
       {/* Line items */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+          <h2 className="text-sm font-semibold text-slate-900">
+            Line items
+          </h2>
 
-      <section className="form-section">
-        <div className="form-section-header">
-          <div>
-            <h2 className="form-section-title">
-              Line items
-            </h2>
-
-            <p className="form-section-description">
-              Add products or services
-              included in this
-              quotation.
-            </p>
-          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Add products or services included in
+            this quotation.
+          </p>
         </div>
 
         {errors.lineItems?.root && (
-          <div className="form-error">
-            {
-              errors.lineItems.root
-                .message
-            }
+          <div className="mx-5 mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 sm:mx-6">
+            {errors.lineItems.root.message}
           </div>
         )}
 
-        <div className="line-items-wrapper">
-          <table className="line-items-table">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1100px] table-fixed border-collapse text-left">
+            <colgroup>
+              <col className="w-[220px]" />
+              <col className="w-[250px]" />
+              <col className="w-[100px]" />
+              <col className="w-[145px]" />
+              <col className="w-[125px]" />
+              <col className="w-[105px]" />
+              <col className="w-[150px]" />
+              <col className="w-[90px]" />
+            </colgroup>
+
             <thead>
-              <tr>
-                <th>
+              <tr className="border-b border-slate-200 bg-slate-50/70">
+                <th className="px-5 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                   Product / Service
                 </th>
 
-                <th>
+                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                   Description
                 </th>
 
-                <th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                   Qty
                 </th>
 
-                <th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                   Unit Price
                 </th>
 
-                <th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                   Discount %
                 </th>
 
-                <th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                   Tax %
                 </th>
 
-                <th>
+                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
                   Total
                 </th>
 
-                <th />
+                <th className="px-4 py-3" />
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {fields.map(
                 (
                   field,
@@ -698,14 +713,14 @@ export function QuotationForm({
 
                   return (
                     <tr
-                      key={
-                        field.id
-                      }
+                      key={field.id}
+                      className="align-top"
                     >
-                      <td>
+                      {/* Product */}
+                      <td className="max-w-0 px-5 py-3">
                         <input
                           type="text"
-                          className="form-input line-item-product"
+                          className={inputClass}
                           placeholder="Product / service"
                           {...register(
                             `lineItems.${index}.productName`,
@@ -713,7 +728,7 @@ export function QuotationForm({
                         />
 
                         {lineItemError?.productName && (
-                          <div className="form-error">
+                          <div className={errorClass}>
                             {
                               lineItemError
                                 .productName
@@ -723,10 +738,11 @@ export function QuotationForm({
                         )}
                       </td>
 
-                      <td>
+                      {/* Description */}
+                      <td className="max-w-0 px-4 py-3">
                         <input
                           type="text"
-                          className="form-input line-item-description"
+                          className={inputClass}
                           placeholder="Description"
                           {...register(
                             `lineItems.${index}.description`,
@@ -734,12 +750,13 @@ export function QuotationForm({
                         />
                       </td>
 
-                      <td>
+                      {/* Quantity */}
+                      <td className="px-4 py-3">
                         <input
                           type="number"
                           min="0.01"
                           step="0.01"
-                          className="form-input line-item-number"
+                          className={`${inputClass} text-right`}
                           {...register(
                             `lineItems.${index}.quantity`,
                             {
@@ -750,7 +767,7 @@ export function QuotationForm({
                         />
 
                         {lineItemError?.quantity && (
-                          <div className="form-error">
+                          <div className={errorClass}>
                             {
                               lineItemError
                                 .quantity
@@ -760,12 +777,13 @@ export function QuotationForm({
                         )}
                       </td>
 
-                      <td>
+                      {/* Unit price */}
+                      <td className="px-4 py-3">
                         <input
                           type="number"
                           min="0"
                           step="0.01"
-                          className="form-input line-item-number"
+                          className={`${inputClass} text-right`}
                           {...register(
                             `lineItems.${index}.unitPrice`,
                             {
@@ -776,7 +794,7 @@ export function QuotationForm({
                         />
 
                         {lineItemError?.unitPrice && (
-                          <div className="form-error">
+                          <div className={errorClass}>
                             {
                               lineItemError
                                 .unitPrice
@@ -786,13 +804,14 @@ export function QuotationForm({
                         )}
                       </td>
 
-                      <td>
+                      {/* Discount */}
+                      <td className="px-4 py-3">
                         <input
                           type="number"
                           min="0"
                           max="100"
                           step="0.01"
-                          className="form-input line-item-number"
+                          className={`${inputClass} text-right`}
                           {...register(
                             `lineItems.${index}.discountPercent`,
                             {
@@ -803,7 +822,7 @@ export function QuotationForm({
                         />
 
                         {lineItemError?.discountPercent && (
-                          <div className="form-error">
+                          <div className={errorClass}>
                             {
                               lineItemError
                                 .discountPercent
@@ -813,13 +832,14 @@ export function QuotationForm({
                         )}
                       </td>
 
-                      <td>
+                      {/* Tax */}
+                      <td className="px-4 py-3">
                         <input
                           type="number"
                           min="0"
                           max="100"
                           step="0.01"
-                          className="form-input line-item-number"
+                          className={`${inputClass} text-right`}
                           {...register(
                             `lineItems.${index}.taxRate`,
                             {
@@ -830,7 +850,7 @@ export function QuotationForm({
                         />
 
                         {lineItemError?.taxRate && (
-                          <div className="form-error">
+                          <div className={errorClass}>
                             {
                               lineItemError
                                 .taxRate
@@ -840,27 +860,28 @@ export function QuotationForm({
                         )}
                       </td>
 
-                      <td>
-                        <div className="line-item-total">
+                      {/* Total */}
+                      <td className="px-4 py-3 text-right align-middle">
+                        <div className="overflow-hidden pt-2 text-ellipsis whitespace-nowrap text-sm font-semibold text-slate-800">
                           {formatAmount(
                             calculated.total,
                           )}
                         </div>
                       </td>
 
-                      <td>
+                      {/* Remove */}
+                      <td className="px-4 py-3 text-right align-middle">
                         <button
                           type="button"
-                          className="btn btn-danger"
+                          className="rounded-md px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-red-200"
                           onClick={() =>
-                            remove(
-                              index,
-                            )
+                            remove(index)
                           }
                           disabled={
-                            fields.length ===
-                            1
+                            fields.length === 1 ||
+                            isSubmitting
                           }
+                          aria-label={`Remove line item ${index + 1}`}
                         >
                           Remove
                         </button>
@@ -873,57 +894,58 @@ export function QuotationForm({
           </table>
         </div>
 
-        <button
-          type="button"
-          className="btn btn-secondary btn-add-item"
-          onClick={() =>
-            append(
-              createEmptyLineItem(),
-            )
-          }
-          disabled={isSubmitting}
-        >
-          + Add line item
-        </button>
+        <div className="border-t border-slate-200 px-5 py-4 sm:px-6">
+          <button
+            type="button"
+            className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2"
+            onClick={() =>
+              append(
+                createEmptyLineItem(),
+              )
+            }
+            disabled={isSubmitting}
+          >
+            <span aria-hidden="true">
+              +
+            </span>
+            Add line item
+          </button>
+        </div>
       </section>
 
       {/* Pricing */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+          <h2 className="text-sm font-semibold text-slate-900">
+            Pricing summary
+          </h2>
 
-      <section className="form-section">
-        <div className="form-section-header">
-          <div>
-            <h2 className="form-section-title">
-              Pricing summary
-            </h2>
-
-            <p className="form-section-description">
-              Pricing is calculated
-              automatically from the
-              line items.
-            </p>
-          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Pricing is calculated automatically
+            from the line items.
+          </p>
         </div>
 
-        <div className="pricing-layout">
-          <div className="pricing-summary">
-            <div className="pricing-row">
-              <span>
+        <div className="flex justify-end px-5 py-5 sm:px-6">
+          <div className="w-full max-w-md">
+            <div className="flex items-center justify-between py-2 text-sm">
+              <span className="text-slate-500">
                 Subtotal
               </span>
 
-              <strong>
+              <strong className="font-medium text-slate-800">
                 {formatAmount(
                   pricing.subtotal,
                 )}
               </strong>
             </div>
 
-            <div className="pricing-row">
-              <span>
+            <div className="flex items-center justify-between py-2 text-sm">
+              <span className="text-slate-500">
                 Discount
               </span>
 
-              <strong>
+              <strong className="font-medium text-slate-800">
                 -{" "}
                 {formatAmount(
                   pricing.discount,
@@ -931,24 +953,26 @@ export function QuotationForm({
               </strong>
             </div>
 
-            <div className="pricing-row">
-              <span>
+            <div className="flex items-center justify-between py-2 text-sm">
+              <span className="text-slate-500">
                 Tax
               </span>
 
-              <strong>
+              <strong className="font-medium text-slate-800">
                 {formatAmount(
                   pricing.tax,
                 )}
               </strong>
             </div>
 
-            <div className="pricing-row pricing-total">
-              <span>
+            <div className="my-3 border-t border-slate-200" />
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-slate-900">
                 Grand Total
               </span>
 
-              <strong>
+              <strong className="text-lg font-semibold text-slate-900">
                 {formatAmount(
                   pricing.grandTotal,
                 )}
@@ -959,31 +983,27 @@ export function QuotationForm({
       </section>
 
       {/* Notes */}
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 px-5 py-4 sm:px-6">
+          <h2 className="text-sm font-semibold text-slate-900">
+            Notes
+          </h2>
 
-      <section className="form-section">
-        <div className="form-section-header">
-          <div>
-            <h2 className="form-section-title">
-              Notes
-            </h2>
-
-            <p className="form-section-description">
-              Add any additional
-              information for this
-              quotation.
-            </p>
-          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            Add any additional information for
+            this quotation.
+          </p>
         </div>
 
-        <div className="form-field">
+        <div className="p-5 sm:p-6">
           <textarea
-            className="form-textarea"
+            className="min-h-[120px] w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm leading-5 text-slate-800 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
             placeholder="Enter quotation notes..."
             {...register("notes")}
           />
 
           {errors.notes && (
-            <div className="form-error">
+            <div className={errorClass}>
               {errors.notes.message}
             </div>
           )}
@@ -991,11 +1011,10 @@ export function QuotationForm({
       </section>
 
       {/* Actions */}
-
-      <div className="form-actions">
+      <div className="flex flex-col-reverse gap-2 border-t border-slate-200 pt-5 sm:flex-row sm:items-center sm:justify-end">
         <button
           type="button"
-          className="btn btn-secondary"
+          className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:ring-offset-2"
           onClick={onCancel}
           disabled={isSubmitting}
         >
@@ -1004,7 +1023,7 @@ export function QuotationForm({
 
         <button
           type="submit"
-          className="btn btn-primary"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
           disabled={isSubmitting}
         >
           {isSubmitting
