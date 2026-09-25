@@ -14,6 +14,12 @@ export const dashboardMockData: DashboardMetrics = {
     trend: 5.2,
     trendLabel: 'vs last month',
   },
+  qualifiedLeads: {
+  value: 42,
+  label: 'Qualified Leads',
+  trend: 8.6,
+  trendLabel: 'vs last month',
+},
   winRate: {
     value: 32.4,
     label: 'Win Rate',
@@ -28,6 +34,13 @@ export const dashboardMockData: DashboardMetrics = {
     trendLabel: 'vs last month',
     prefix: '₹',
   },
+  pipelineValue: {
+  value: 8540000,
+  label: 'Pipeline Value',
+  trend: 14.8,
+  trendLabel: 'vs last month',
+  prefix: '₹',
+},
   revenueTrend: [
     { month: 'Jan', revenue: 800000, target: 900000 },
     { month: 'Feb', revenue: 950000, target: 900000 },
@@ -85,4 +98,56 @@ export const dashboardMockData: DashboardMetrics = {
       createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(), // 3 days ago
     },
   ],
+  recentActivities: [
+  {
+    id: 'A-1001',
+    type: 'Call',
+    title: 'Follow-up call completed',
+    description: 'Discussed proposal with Acme Corporation',
+    user: 'Deepika',
+    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+  },
+  {
+    id: 'A-1002',
+    type: 'Email',
+    title: 'Proposal email sent',
+    description: 'Proposal shared with Cyberdyne Systems',
+    user: 'Rahul',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+  },
+  {
+    id: 'A-1003',
+    type: 'Meeting',
+    title: 'Client meeting completed',
+    description: 'Product demo completed with Dunder Mifflin',
+    user: 'Priya',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+  },
+],
+salesPerformance: [
+  {
+    id: 'S-1001',
+    name: 'Deepika',
+    deals: 12,
+    revenue: 1850000,
+    target: 2000000,
+    achievement: 92.5,
+  },
+  {
+    id: 'S-1002',
+    name: 'Rahul',
+    deals: 10,
+    revenue: 1620000,
+    target: 1800000,
+    achievement: 90,
+  },
+  {
+    id: 'S-1003',
+    name: 'Priya',
+    deals: 8,
+    revenue: 1340000,
+    target: 1500000,
+    achievement: 89.3,
+  },
+],
 };
