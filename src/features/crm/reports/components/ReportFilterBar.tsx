@@ -27,16 +27,19 @@ interface ReportFilterBarProps {
 }
 
 interface FilterSelectProps {
+  id: string;
   label: string;
   value: string;
   options: SelectOption[];
   onChange: (value: string) => void;
 }
 
-const FilterSelect: React.FC<FilterSelectProps> = ({ label, value, options, onChange }) => (
-  <label className="flex flex-col gap-1">
+const FilterSelect: React.FC<FilterSelectProps> = ({ id, label, value, options, onChange }) => (
+  <label htmlFor={id} className="flex flex-col gap-1">
     <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{label}</span>
     <select
+      id={id}
+      name={id}
       value={value}
       onChange={(event) => onChange(event.target.value)}
       className="h-9 min-w-[150px] rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
@@ -85,6 +88,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
     <div className="flex flex-wrap items-end gap-4 rounded-xl border border-slate-200/60 bg-white p-4">
       {show.includes('dateRange') && (
         <FilterSelect
+          id="report-filter-date-range"
           label="Date Range"
           value={filters.dateRange}
           options={DATE_RANGE_OPTIONS.map((option) => ({ value: option.value, label: option.label }))}
@@ -93,6 +97,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       )}
       {show.includes('owner') && (
         <FilterSelect
+          id="report-filter-owner"
           label={ownerLabel}
           value={filters.owner}
           options={withAll(options?.owners ?? [])}
@@ -101,6 +106,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       )}
       {show.includes('team') && (
         <FilterSelect
+          id="report-filter-team"
           label="Team"
           value={filters.team}
           options={withAll(options?.teams ?? [])}
@@ -109,6 +115,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       )}
       {show.includes('region') && (
         <FilterSelect
+          id="report-filter-region"
           label="Region"
           value={filters.region}
           options={withAll(options?.regions ?? [])}
@@ -117,6 +124,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       )}
       {show.includes('source') && (
         <FilterSelect
+          id="report-filter-source"
           label="Lead Source"
           value={filters.source}
           options={withAll(LEAD_SOURCES)}
@@ -125,6 +133,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       )}
       {show.includes('stage') && (
         <FilterSelect
+          id="report-filter-stage"
           label="Stage"
           value={filters.stage}
           options={withAll(OPPORTUNITY_STAGES)}
@@ -133,6 +142,7 @@ export const ReportFilterBar: React.FC<ReportFilterBarProps> = ({
       )}
       {show.includes('status') && (
         <FilterSelect
+          id="report-filter-status"
           label="Quote Status"
           value={filters.status}
           options={withAll(QUOTE_STATUSES)}
