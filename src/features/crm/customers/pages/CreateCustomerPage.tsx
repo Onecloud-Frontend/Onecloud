@@ -1,463 +1,436 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { useCreateCustomer } from '../hooks/useCreateCustomer'
-import type { CustomerFormData } from '../types/customer.types'
+import { useCustomers } from '../hooks/useCustomers'
 
-export const CreateCustomerPage: React.FC = () => {
+export const CustomersPage: React.FC = () => {
   const navigate = useNavigate()
-  const createCustomer = useCreateCustomer()
 
-  const [formData, setFormData] = useState<CustomerFormData>({
-    customerName: '',
-    customerType: 'Business',
-    industry: '',
-    website: '',
-    email: '',
-    phone: '',
-    owner: '',
-    status: 'Active',
-    taxNumber: '',
-    billingAddress: '',
-    shippingAddress: '',
-    city: '',
-    state: '',
-    country: 'India',
-    postalCode: '',
-    currency: 'INR',
-    paymentTerms: '',
-    notes: '',
+  const {
+    data: customers = [],
+    isLoading,
+    isError,
+  } = useCustomers()
+
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [ownerFilter, setOwnerFilter] = useState('')
+  const [typeFilter, setTypeFilter] = useState('')
+
+  // Filter customers
+  const filteredCustomers = customers.filter((customer) => {
+    const searchValue = search.toLowerCase()
+
+    const matchesSearch =
+      customer.customerId
+        .toLowerCase()
+        .includes(searchValue) ||
+      customer.customerName
+        .toLowerCase()
+        .includes(searchValue) ||
+      customer.email
+        .toLowerCase()
+        .includes(searchValue) ||
+      customer.phone
+        .toLowerCase()
+        .includes(searchValue)
+
+    const matchesStatus =
+      statusFilter === '' ||
+      customer.status === statusFilter
+
+    const matchesOwner =
+      ownerFilter === '' ||
+      customer.owner === ownerFilter
+
+    const matchesType =
+      typeFilter === '' ||
+      customer.customerType === typeFilter
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesOwner &&
+      matchesType
+    )
   })
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement |
-      HTMLSelectElement |
-      HTMLTextAreaElement
-    >
-  ) => {
-    const { name, value } = e.target
+  // Get unique owners for owner filter
+  const owners = [
+    ...new Set(
+      customers.map((customer) => customer.owner)
+    ),
+  ]
 
-    setFormData({
-      ...formData,
-      [name]: value,
-    })
+  // Format revenue
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(amount)
   }
 
-  const handleSubmit = (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault()
-
-    if (!formData.customerName.trim()) {
-      alert('Customer Name is required')
-      return
+  // Format date
+  const formatDate = (date: string) => {
+    if (!date) {
+      return '-'
     }
 
-    if (!formData.owner.trim()) {
-      alert('Owner is required')
-      return
-    }
+    return new Date(date).toLocaleDateString('en-IN')
+  }
 
-    createCustomer.mutate(formData, {
-      onSuccess: () => {
-        navigate('/crm/customers')
-      },
-    })
+  // Loading
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <p>Loading customers...</p>
+      </div>
+    )
+  }
+
+  // Error
+  if (isError) {
+    return (
+      <div className="p-6">
+        <p>Unable to load customers.</p>
+      </div>
+    )
   }
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold">
-          Create Customer
-        </h1>
 
-        <p className="mt-1 text-sm text-gray-500">
-          Add a new customer to CRM
-        </p>
+      {/* Page Header */}
+
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">
+            Customers
+          </h1>
+
+          <p className="mt-1 text-sm text-gray-500">
+            View and manage CRM customers
+          </p>
+        </div>
+
+        {/* Add Customer Button */}
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate('/crm/customers/new')
+          }
+          className="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+        >
+          + Add Customer
+        </button>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="max-w-5xl rounded border bg-white p-6"
-      >
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {/* Customer Name */}
+      {/* Search and Filters */}
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Customer Name *
-            </label>
+      <div className="mb-6 flex flex-wrap gap-3">
 
-            <input
-              type="text"
-              name="customerName"
-              value={formData.customerName}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter customer name"
-            />
-          </div>
+        {/* Search */}
 
-          {/* Customer Type */}
+        <input
+          type="text"
+          placeholder="Search customers..."
+          value={search}
+          onChange={(e) =>
+            setSearch(e.target.value)
+          }
+          className="w-64 rounded border px-3 py-2 text-sm"
+        />
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Customer Type *
-            </label>
+        {/* Status Filter */}
 
-            <select
-              name="customerType"
-              value={formData.customerType}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
+        <select
+          value={statusFilter}
+          onChange={(e) =>
+            setStatusFilter(e.target.value)
+          }
+          className="rounded border px-3 py-2 text-sm"
+        >
+          <option value="">
+            All Status
+          </option>
+
+          <option value="Active">
+            Active
+          </option>
+
+          <option value="Inactive">
+            Inactive
+          </option>
+        </select>
+
+        {/* Owner Filter */}
+
+        <select
+          value={ownerFilter}
+          onChange={(e) =>
+            setOwnerFilter(e.target.value)
+          }
+          className="rounded border px-3 py-2 text-sm"
+        >
+          <option value="">
+            All Owners
+          </option>
+
+          {owners.map((owner) => (
+            <option
+              key={owner}
+              value={owner}
             >
-              <option value="Individual">
-                Individual
-              </option>
+              {owner}
+            </option>
+          ))}
+        </select>
 
-              <option value="Business">
-                Business
-              </option>
+        {/* Customer Type Filter */}
 
-              <option value="Enterprise">
-                Enterprise
-              </option>
-            </select>
-          </div>
+        <select
+          value={typeFilter}
+          onChange={(e) =>
+            setTypeFilter(e.target.value)
+          }
+          className="rounded border px-3 py-2 text-sm"
+        >
+          <option value="">
+            All Types
+          </option>
 
-          {/* Industry */}
+          <option value="Individual">
+            Individual
+          </option>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Industry
-            </label>
+          <option value="Business">
+            Business
+          </option>
 
-            <input
-              type="text"
-              name="industry"
-              value={formData.industry}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter industry"
-            />
-          </div>
+          <option value="Enterprise">
+            Enterprise
+          </option>
+        </select>
+      </div>
 
-          {/* Website */}
+      {/* Customer Table */}
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Website
-            </label>
+      <div className="overflow-x-auto rounded border">
+        <table className="min-w-full text-sm">
 
-            <input
-              type="text"
-              name="website"
-              value={formData.website}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter website"
-            />
-          </div>
+          {/* Table Header */}
 
-          {/* Email */}
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left">
+                Customer ID
+              </th>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Email
-            </label>
+              <th className="px-4 py-3 text-left">
+                Customer Name
+              </th>
 
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter email"
-            />
-          </div>
+              <th className="px-4 py-3 text-left">
+                Customer Type
+              </th>
 
-          {/* Phone */}
+              <th className="px-4 py-3 text-left">
+                Industry
+              </th>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Phone
-            </label>
+              <th className="px-4 py-3 text-left">
+                Primary Contact
+              </th>
 
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter phone number"
-            />
-          </div>
+              <th className="px-4 py-3 text-left">
+                Email
+              </th>
 
-          {/* Owner */}
+              <th className="px-4 py-3 text-left">
+                Phone
+              </th>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Owner *
-            </label>
+              <th className="px-4 py-3 text-left">
+                Owner
+              </th>
 
-            <input
-              type="text"
-              name="owner"
-              value={formData.owner}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter owner"
-            />
-          </div>
+              <th className="px-4 py-3 text-left">
+                Status
+              </th>
 
-          {/* Status */}
+              <th className="px-4 py-3 text-left">
+                Total Opportunities
+              </th>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Status *
-            </label>
+              <th className="px-4 py-3 text-left">
+                Total Revenue
+              </th>
 
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-            >
-              <option value="Active">
-                Active
-              </option>
+              <th className="px-4 py-3 text-left">
+                Created Date
+              </th>
 
-              <option value="Inactive">
-                Inactive
-              </option>
-            </select>
-          </div>
+              <th className="px-4 py-3 text-left">
+                Last Activity
+              </th>
 
-          {/* Tax Number */}
+              <th className="px-4 py-3 text-center">
+                Actions
+              </th>
+            </tr>
+          </thead>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Tax / GST Number
-            </label>
+          {/* Table Body */}
 
-            <input
-              type="text"
-              name="taxNumber"
-              value={formData.taxNumber}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter Tax/GST number"
-            />
-          </div>
+          <tbody>
+            {filteredCustomers.map((customer) => (
+              <tr
+                key={customer.id}
+                onClick={() =>
+                  navigate(
+                    `/crm/customers/${customer.id}`
+                  )
+                }
+                className="cursor-pointer border-t hover:bg-gray-50"
+              >
 
-          {/* Currency */}
+                {/* Customer ID */}
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Currency
-            </label>
+                <td className="whitespace-nowrap px-4 py-3">
+                  {customer.customerId}
+                </td>
 
-            <select
-              name="currency"
-              value={formData.currency}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-            >
-              <option value="INR">INR</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-            </select>
-          </div>
+                {/* Customer Name */}
 
-          {/* Billing Address */}
+                <td className="whitespace-nowrap px-4 py-3 font-medium text-blue-600">
+                  {customer.customerName}
+                </td>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Billing Address
-            </label>
+                {/* Customer Type */}
 
-            <textarea
-              name="billingAddress"
-              value={formData.billingAddress}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              rows={3}
-              placeholder="Enter billing address"
-            />
-          </div>
+                <td className="whitespace-nowrap px-4 py-3">
+                  {customer.customerType}
+                </td>
 
-          {/* Shipping Address */}
+                {/* Industry */}
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Shipping Address
-            </label>
+                <td className="whitespace-nowrap px-4 py-3">
+                  {customer.industry || '-'}
+                </td>
 
-            <textarea
-              name="shippingAddress"
-              value={formData.shippingAddress}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              rows={3}
-              placeholder="Enter shipping address"
-            />
-          </div>
+                {/* Primary Contact */}
 
-          {/* City */}
+                <td className="whitespace-nowrap px-4 py-3">
+                  {customer.primaryContact || '-'}
+                </td>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              City
-            </label>
+                {/* Email */}
 
-            <input
-              type="text"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter city"
-            />
-          </div>
+                <td className="whitespace-nowrap px-4 py-3">
+                  {customer.email || '-'}
+                </td>
 
-          {/* State */}
+                {/* Phone */}
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              State
-            </label>
+                <td className="whitespace-nowrap px-4 py-3">
+                  {customer.phone || '-'}
+                </td>
 
-            <input
-              type="text"
-              name="state"
-              value={formData.state}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter state"
-            />
-          </div>
+                {/* Owner */}
 
-          {/* Country */}
+                <td className="whitespace-nowrap px-4 py-3">
+                  {customer.owner}
+                </td>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Country
-            </label>
+                {/* Status */}
 
-            <input
-              type="text"
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter country"
-            />
-          </div>
+                <td className="whitespace-nowrap px-4 py-3">
+                  <span
+                    className={`rounded-full px-2 py-1 text-xs ${
+                      customer.status === 'Active'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {customer.status}
+                  </span>
+                </td>
 
-          {/* Postal Code */}
+                {/* Total Opportunities */}
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Postal Code
-            </label>
+                <td className="whitespace-nowrap px-4 py-3 text-center">
+                  {customer.totalOpportunities}
+                </td>
 
-            <input
-              type="text"
-              name="postalCode"
-              value={formData.postalCode}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              placeholder="Enter postal code"
-            />
-          </div>
+                {/* Total Revenue */}
 
-          {/* Payment Terms */}
+                <td className="whitespace-nowrap px-4 py-3">
+                  {formatCurrency(
+                    customer.totalRevenue
+                  )}
+                </td>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Payment Terms
-            </label>
+                {/* Created Date */}
 
-            <select
-              name="paymentTerms"
-              value={formData.paymentTerms}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-            >
-              <option value="">
-                Select payment terms
-              </option>
+                <td className="whitespace-nowrap px-4 py-3">
+                  {formatDate(
+                    customer.createdDate
+                  )}
+                </td>
 
-              <option value="Immediate">
-                Immediate
-              </option>
+                {/* Last Activity */}
 
-              <option value="Net 15">
-                Net 15
-              </option>
+                <td className="whitespace-nowrap px-4 py-3">
+                  {formatDate(
+                    customer.lastActivity
+                  )}
+                </td>
 
-              <option value="Net 30">
-                Net 30
-              </option>
+                {/* Actions */}
 
-              <option value="Net 45">
-                Net 45
-              </option>
+                <td className="whitespace-nowrap px-4 py-3 text-center">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      // Prevent row click
+                      e.stopPropagation()
 
-              <option value="Net 60">
-                Net 60
-              </option>
-            </select>
-          </div>
+                      navigate(
+                        `/crm/customers/${customer.id}/edit`
+                      )
+                    }}
+                    className="rounded bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700"
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            ))}
 
-          {/* Notes */}
+            {/* No Customers */}
 
-          <div className="md:col-span-2">
-            <label className="mb-1 block text-sm font-medium">
-              Notes
-            </label>
+            {filteredCustomers.length === 0 && (
+              <tr>
+                <td
+                  colSpan={14}
+                  className="px-4 py-8 text-center text-gray-500"
+                >
+                  No customers found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-            <textarea
-              name="notes"
-              value={formData.notes}
-              onChange={handleChange}
-              className="w-full rounded border px-3 py-2"
-              rows={4}
-              placeholder="Enter notes"
-            />
-          </div>
-        </div>
+      {/* Customer Count */}
 
-        {/* Buttons */}
-
-        <div className="mt-6 flex gap-3">
-          <button
-            type="submit"
-            disabled={createCustomer.isPending}
-            className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
-          >
-            {createCustomer.isPending
-              ? 'Creating...'
-              : 'Create Customer'}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate('/crm/customers')}
-            className="rounded border px-4 py-2"
-          >
-            Cancel
-          </button>
-        </div>
-
-        {createCustomer.isError && (
-          <p className="mt-3 text-sm text-red-600">
-            Unable to create customer.
-          </p>
-        )}
-      </form>
+      <div className="mt-3 text-sm text-gray-500">
+        Showing {filteredCustomers.length} of{' '}
+        {customers.length} customers
+      </div>
     </div>
   )
 }
