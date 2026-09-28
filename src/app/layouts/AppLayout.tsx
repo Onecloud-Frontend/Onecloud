@@ -30,6 +30,7 @@ const CRM_NAVIGATION = [
   { label: 'Dashboard', path: '/crm/dashboard', icon: LayoutDashboard },
   { label: 'Leads', path: '/crm/leads', icon: Filter },
   { label: 'Contacts', path: '/crm/contacts', icon: Contact },
+  { label: 'Customers', path: '/crm/customers', icon: Users },
   { label: 'Opportunities', path: '/crm/opportunities', icon: Briefcase },
   { label: 'Activities', path: '/crm/activities', icon: Activity },
   { label: 'Pipeline', path: '/crm/pipeline', icon: BarChart3 },
