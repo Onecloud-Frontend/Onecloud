@@ -304,8 +304,6 @@ export const CustomersPage: React.FC = () => {
         </table>
       </div>
 
-      {/* Customer Count */}
-
       <div className="mt-3 text-sm text-gray-500">
         Showing {filteredCustomers.length} of {customers.length} customers
       </div>
