@@ -1,9 +1,18 @@
-import { createContext, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react'
+
 import type { AuthUser } from './types'
 import { getToken, clearTokens } from './tokenStorage'
-import { getStoredUser, setStoredUser, clearSession } from './sessionStorage'
-import { authService } from './authService'
-import { ApiError } from '@/core/errors/apiError'
+import {
+  getStoredUser,
+  setStoredUser,
+  clearSession,
+} from './sessionStorage'
 
 export interface AuthContextValue {
   user: AuthUser | null
@@ -15,85 +24,69 @@ export interface AuthContextValue {
   refreshUser: () => Promise<void>
 }
 
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+export const AuthContext = createContext<AuthContextValue | undefined>(
+  undefined
+)
 
 interface AuthProviderProps {
   children: ReactNode
 }
 
-/** Minimum gap between focus-triggered permission refreshes */
-const REFRESH_THROTTLE_MS = 10_000
-
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const lastRefreshRef = useRef(0)
 
+  // Logout user
   const logout = useCallback(() => {
     setUser(null)
     clearTokens()
     clearSession()
   }, [])
 
+  // Login user
   const login = useCallback((authUser: AuthUser) => {
     setUser(authUser)
     setStoredUser(authUser)
   }, [])
 
+  // Update user
   const updateUser = useCallback((authUser: AuthUser) => {
     setUser(authUser)
     setStoredUser(authUser)
   }, [])
 
-  /**
-   * Pulls roles and permissions from the server so privilege changes take effect
-   * without forcing a re-login.
+  /*
+   * Backend authentication refresh is disabled temporarily.
+   *
+   * Your Customer module is frontend-only and uses mock data.
+   * Therefore we do not call:
+   *
+   * GET /api/auth/me
+   *
+   * This prevents the 502 error while developing the Customer pages.
    */
   const refreshUser = useCallback(async () => {
-    if (!getToken()) return
+    // Backend refresh disabled during frontend development.
+    return
+  }, [])
 
-    lastRefreshRef.current = Date.now()
-    try {
-      const fresh = await authService.getMe()
-      setUser(fresh)
-      setStoredUser(fresh)
-    } catch (error) {
-      if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
-        logout()
-      }
-      // Other failures keep the cached session so a flaky request cannot sign the user out.
-    }
-  }, [logout])
-
+  /*
+   * Load the stored user when the application starts.
+   *
+   * We are NOT calling authService.getMe() here.
+   */
   useEffect(() => {
     const token = getToken()
     const storedUser = getStoredUser()
 
-    // Hydrate from the cached session first so the shell paints immediately.
+    // If a previous login exists, load the stored user.
     if (token && storedUser) {
       setUser(storedUser)
     }
+
+    // Authentication loading is complete.
     setIsLoading(false)
-
-    if (token) {
-      void refreshUser()
-    }
-  }, [refreshUser])
-
-  useEffect(() => {
-    const handleFocus = () => {
-      if (document.visibilityState === 'hidden') return
-      if (Date.now() - lastRefreshRef.current < REFRESH_THROTTLE_MS) return
-      void refreshUser()
-    }
-
-    window.addEventListener('focus', handleFocus)
-    document.addEventListener('visibilitychange', handleFocus)
-    return () => {
-      window.removeEventListener('focus', handleFocus)
-      document.removeEventListener('visibilitychange', handleFocus)
-    }
-  }, [refreshUser])
+  }, [])
 
   return (
     <AuthContext.Provider
