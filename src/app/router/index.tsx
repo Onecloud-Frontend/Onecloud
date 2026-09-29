@@ -56,6 +56,7 @@ const EmployeeDetailsPage         = lazy_(() => import('@/features/hrms/employee
 const AttendancePage              = lazy_(() => import('@/features/hrms/attendance/pages/AttendancePage'));
 const LeavePage                   = lazy_(() => import('@/features/hrms/leave/pages/LeavePage'));
 const PayrollPage                 = lazy_(() => import('@/features/hrms/payroll/pages/PayrollPage'));
+const PayslipViewPage             = lazy_(() => import('@/features/hrms/payroll/pages/PayslipViewPage'));
 const RecruitmentPage             = lazy_(() => import('@/features/hrms/recruitment/pages/RecruitmentPage'));
 const PerformancePage             = lazy_(() => import('@/features/hrms/performance/pages/PerformancePage'));
 const LearningPage                = lazy_(() => import('@/features/hrms/learning/pages/LearningPage'));
@@ -208,6 +209,7 @@ export const router = createBrowserRouter([
       { path: 'hrms/attendance',        element: <AttendancePage /> },
       { path: 'hrms/leave',             element: <LeavePage /> },
       { path: 'hrms/payroll',           element: <PayrollPage /> },
+      { path: 'hrms/payroll/payslips/:id',       element: <PayslipViewPage /> },
       { path: 'hrms/recruitment',       element: <RecruitmentPage /> },
       { path: 'hrms/performance',       element: <PerformancePage /> },
       { path: 'hrms/learning',          element: <LearningPage /> },
