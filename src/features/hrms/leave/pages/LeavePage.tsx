@@ -1,8 +1,12 @@
 import React from 'react';
-import PageShell from '@/shared/components/ui/PageShell';
+import LeaveDashboardPage from './LeaveDashboardPage';
 
-/** Route: /hrms/leave */
-const LeavePage: React.FC = () => (
-  <PageShell domain="HRMS" title="Leave Management" description="Leave requests, approvals, balances, and leave policy configuration." />
-);
+/**
+ * Route: /hrms/leave
+ * Renders the Leave Dashboard (Developer 5)
+ */
+const LeavePage: React.FC = () => {
+  return <LeaveDashboardPage />;
+};
+
 export default LeavePage;

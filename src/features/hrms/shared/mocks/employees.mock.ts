@@ -1,0 +1,68 @@
+import type { Employee } from '../types';
+
+export const mockEmployees: Employee[] = [
+    {
+        employeeId: 'emp-1',
+        firstName: 'Aarav', lastName: 'Sharma',
+        email: 'aarav.sharma@company.com', phone: '+91-9876543210',
+        departmentId: 'dept-1', designationId: 'des-3',
+        managerId: null, joiningDate: '2021-03-01',
+        employmentType: 'FULL_TIME', status: 'ACTIVE',
+    },
+    {
+        employeeId: 'emp-2',
+        firstName: 'Priya', lastName: 'Nair',
+        email: 'priya.nair@company.com', phone: '+91-9876543211',
+        departmentId: 'dept-2', designationId: 'des-5',
+        managerId: null, joiningDate: '2020-07-15',
+        employmentType: 'FULL_TIME', status: 'ACTIVE',
+    },
+    {
+        employeeId: 'emp-3',
+        firstName: 'Rohan', lastName: 'Mehta',
+        email: 'rohan.mehta@company.com', phone: '+91-9876543212',
+        departmentId: 'dept-3', designationId: 'des-6',
+        managerId: null, joiningDate: '2019-01-10',
+        employmentType: 'FULL_TIME', status: 'ACTIVE',
+    },
+    {
+        employeeId: 'emp-4',
+        firstName: 'Sneha', lastName: 'Iyer',
+        email: 'sneha.iyer@company.com', phone: '+91-9876543213',
+        departmentId: 'dept-1', designationId: 'des-3',
+        managerId: 'emp-1', joiningDate: '2022-05-05',
+        employmentType: 'FULL_TIME', status: 'ACTIVE',
+    },
+    {
+        employeeId: 'emp-5',
+        firstName: 'Vikram', lastName: 'Singh',
+        email: 'vikram.singh@company.com', phone: '+91-9876543214',
+        departmentId: 'dept-1', designationId: 'des-1',
+        managerId: 'emp-1', joiningDate: '2023-02-20',
+        employmentType: 'FULL_TIME', status: 'PROBATION',
+    },
+    {
+        employeeId: 'emp-6',
+        firstName: 'Ananya', lastName: 'Rao',
+        email: 'ananya.rao@company.com', phone: '+91-9876543215',
+        departmentId: 'dept-2', designationId: 'des-4',
+        managerId: 'emp-2', joiningDate: '2022-11-01',
+        employmentType: 'FULL_TIME', status: 'ACTIVE',
+    },
+    {
+        employeeId: 'emp-7',
+        firstName: 'Karan', lastName: 'Patel',
+        email: 'karan.patel@company.com', phone: '+91-9876543216',
+        departmentId: 'dept-1', designationId: 'des-2',
+        managerId: 'emp-1', joiningDate: '2024-01-08',
+        employmentType: 'CONTRACT', status: 'ACTIVE',
+    },
+    {
+        employeeId: 'emp-8',
+        firstName: 'Meera', lastName: 'Krishnan',
+        email: 'meera.krishnan@company.com', phone: '+91-9876543217',
+        departmentId: 'dept-3', designationId: 'des-6',
+        managerId: 'emp-3', joiningDate: '2023-08-14',
+        employmentType: 'PART_TIME', status: 'ON_LEAVE',
+    },
+];
