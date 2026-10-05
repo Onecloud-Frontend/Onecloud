@@ -223,7 +223,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to="dashboard" replace /> },
           { path: 'dashboard', lazy: async () => ({ Component: (await import('@/features/crm/dashboard/pages/DashboardPage')).default || (await import('@/features/crm/dashboard/pages/DashboardPage')).DashboardPage }) },
-          {path: 'settings', lazy: async () => ({Component: (await import('@/features/crm/settings/pages/SettingsPage')).default}),},git
+          {path: 'settings', lazy: async () => ({Component: (await import('@/features/crm/settings/pages/SettingsPage')).default}),},
           {
             path: 'leads',
             children: [

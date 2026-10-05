@@ -1,5 +1,3 @@
-// OWNER: Sudharsan ONLY
-
 import type { ReactNode } from 'react';
 
 import SettingsHeader from './SettingsHeader';
@@ -10,7 +8,9 @@ import type { SettingsSection } from '../types/settings.types';
 interface SettingsLayoutProps {
   title: string;
   activeSection: SettingsSection;
-  onSectionChange: (section: SettingsSection) => void;
+  onSectionChange: (
+    section: SettingsSection,
+  ) => void;
   children: ReactNode;
 }
 
@@ -22,13 +22,15 @@ export default function SettingsLayout({
 }: SettingsLayoutProps) {
   return (
     <div className="min-h-full bg-slate-50 p-6">
+      {/* Breadcrumb */}
+
       <p className="text-sm text-slate-500">
-        CRM &nbsp;›&nbsp; Settings &nbsp;›&nbsp; {title}
+        CRM &nbsp;›&nbsp; Settings
       </p>
 
       <SettingsHeader />
 
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[300px_1fr]">
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
         <SettingsSidebar
           activeSection={activeSection}
           onSectionChange={onSectionChange}

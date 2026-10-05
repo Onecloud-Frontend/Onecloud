@@ -5,16 +5,20 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import SettingsLayout from '../components/SettingsLayout';
 import GeneralSettings from '../components/GeneralSettings';
+
 import type { SettingsSection } from '../types/settings.types';
 import {
   isSettingsSection,
   SETTINGS_BASE_PATH,
-  settingsSections,
 } from '../types/settings.types';
 
 const ComingSoon = () => (
   <div className="rounded-xl border border-slate-200 bg-white p-6">
-    <p className="text-sm text-slate-500">
+    <h2 className="text-base font-semibold text-slate-900">
+      Coming Soon
+    </h2>
+
+    <p className="mt-1 text-sm text-slate-500">
       This section is not built yet.
     </p>
   </div>
@@ -23,30 +27,80 @@ const ComingSoon = () => (
 const sectionComponents: Partial<
   Record<SettingsSection, React.ComponentType>
 > = {
+  // Built
   general: GeneralSettings,
+
+  // Not built yet
+  'lead-management': ComingSoon,
+  opportunity: ComingSoon,
+  pipeline: ComingSoon,
+  activities: ComingSoon,
+  quotations: ComingSoon,
+  customers: ComingSoon,
+  contacts: ComingSoon,
+  notifications: ComingSoon,
+  email: ComingSoon,
+  numbering: ComingSoon,
+  localization: ComingSoon,
+  display: ComingSoon,
+  history: ComingSoon,
 };
 
 export default function SettingsPage() {
-  const { section } = useParams<{ section?: string }>();
+  const { section } = useParams<{
+    section?: string;
+  }>();
+
   const navigate = useNavigate();
 
-  const activeSection: SettingsSection = isSettingsSection(section)
-    ? section
-    : 'general';
+  /*
+   * Check whether the URL section is a valid
+   * SettingsSection.
+   *
+   * Example:
+   * /crm/settings/general
+   * /crm/settings/pipeline
+   * /crm/settings/customers
+   */
+  const activeSection: SettingsSection =
+    typeof section === 'string' && isSettingsSection(section)
+      ? section
+      : 'general';
 
-  const title = useMemo(
-    () =>
-      settingsSections.find((item) => item.id === activeSection)?.label ??
-      'General',
-    [activeSection],
-  );
+  /*
+   * Get the label for the active sidebar item.
+   *
+   * Example:
+   * general -> General
+   * pipeline -> Pipeline
+   * numbering -> Numbering & Sequences
+   */
+    const title = useMemo(
+      () => activeSection.replace(/-/g, ' '),
+      [activeSection],
+    );
 
-  const handleSectionChange = (nextSection: SettingsSection) => {
-    navigate(`${SETTINGS_BASE_PATH}/${nextSection}`);
+  /*
+   * Change the URL when the user clicks
+   * an item in the Settings sidebar.
+   */
+  const handleSectionChange = (
+    nextSection: SettingsSection,
+  ) => {
+    navigate(
+      `${SETTINGS_BASE_PATH}/${nextSection}`,
+    );
   };
 
+  /*
+   * Load the component for the selected section.
+   *
+   * If the section does not have a component yet,
+   * ComingSoon will be displayed.
+   */
   const ActiveComponent =
-    sectionComponents[activeSection] ?? ComingSoon;
+    sectionComponents[activeSection] ??
+    ComingSoon;
 
   return (
     <SettingsLayout
