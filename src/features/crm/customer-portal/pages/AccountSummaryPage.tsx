@@ -1,3 +1,22 @@
+<<<<<<< HEAD
+import React from 'react';
+import { CreditCard, Download, Landmark, ReceiptText, ShieldCheck, Wallet } from 'lucide-react';
+import { customerAccount, customerInvoices, customerOrders } from '../types/data';
+import { DetailRow, PageHeader, PortalNav, StatCard, formatMoney, portalStatus } from '../components/PortalUi';
+
+export const AccountSummaryPage: React.FC = () => {
+  const statement = () => {
+    const rows = [['Invoice','Date','Status','Total','Balance'], ...customerInvoices.map(i => [i.invoiceNumber,i.invoiceDate,i.status,String(i.total),String(i.balanceDue)])];
+    const blob = new Blob([rows.map(row => row.join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'acme-account-statement.csv'; a.click(); URL.revokeObjectURL(url);
+  };
+  return <div className="p-5 md:p-7"><PageHeader title="Account & Billing" description="View account status, credit, payment terms, billing information and recent financial activity." action={<button onClick={statement} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-600"><Download size={16}/> Download Statement</button>}/><PortalNav />
+    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"><StatCard label="Credit Limit" value={formatMoney(customerAccount.creditLimit)} icon={<CreditCard size={19}/>} /><StatCard label="Outstanding" value={formatMoney(customerAccount.outstanding)} icon={<Wallet size={19}/>} tone="bg-orange-50 text-orange-600"/><StatCard label="Available Credit" value={formatMoney(customerAccount.availableCredit)} icon={<ShieldCheck size={19}/>} tone="bg-emerald-50 text-emerald-600"/><StatCard label="Lifetime Value" value={formatMoney(customerAccount.lifetimeValue)} icon={<Landmark size={19}/>} tone="bg-violet-50 text-violet-600"/></div>
+    <div className="grid gap-5 xl:grid-cols-[1fr_380px]"><section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="font-bold text-slate-900">Account Information</h2><dl className="mt-3 grid gap-x-6 md:grid-cols-2"><DetailRow label="Customer Code" value={customerAccount.customerCode}/><DetailRow label="Company" value={customerAccount.companyName}/><DetailRow label="Account Manager" value={customerAccount.accountManager}/><DetailRow label="Account Status" value={<span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${portalStatus(customerAccount.accountStatus)}`}>{customerAccount.accountStatus}</span>}/><DetailRow label="Customer Since" value={customerAccount.customerSince}/><DetailRow label="Payment Terms" value={customerAccount.paymentTerms}/><DetailRow label="Billing Cycle" value={customerAccount.billingCycle}/><DetailRow label="Total Orders" value={customerAccount.totalOrders}/></dl></section>
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="flex items-center gap-2 font-bold text-slate-900"><ReceiptText size={18} className="text-blue-600"/> Billing Summary</h2><div className="mt-4 space-y-3"><div className="flex justify-between text-sm"><span className="text-slate-500">Open invoices</span><b>{customerInvoices.filter(i => i.balanceDue > 0).length}</b></div><div className="flex justify-between text-sm"><span className="text-slate-500">Open orders</span><b>{customerOrders.filter(o => !['Delivered','Cancelled'].includes(o.status)).length}</b></div><div className="flex justify-between text-sm"><span className="text-slate-500">Current outstanding</span><b>{formatMoney(customerAccount.outstanding)}</b></div><div className="mt-4 rounded-xl bg-blue-50 p-4 text-xs leading-5 text-blue-800">Your account is active. Payment terms are {customerAccount.paymentTerms}; available credit is {formatMoney(customerAccount.availableCredit)}.</div></div></section></div>
+  </div>;
+};
+=======
 import React, { useEffect, useState } from "react";
 
 type AccountStatus = "Active" | "Inactive" | "Suspended" | "Pending";
@@ -196,3 +215,4 @@ const AccountSummaryPage: React.FC = () => {
 };
 
 export {AccountSummaryPage}
+>>>>>>> origin/dev

@@ -1,10 +1,17 @@
-import React from 'react';
-import PageShell from '@/shared/components/ui/PageShell';
+import React, { useMemo, useState } from 'react';
+import { Bell, CheckCheck, ExternalLink, Mail, MailOpen } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { customerNotifications } from '../types/data';
+import { PageHeader, PortalNav, StatCard, priorityBadge } from '../components/PortalUi';
 
-export const NotificationsPage: React.FC = () => (
-  <PageShell
-    domain="CRM"
-    title="Notifications"
-    description="Pending implementation"
-  />
-);
+export const NotificationsPage: React.FC = () => {
+ const [items,setItems]=useState(customerNotifications); const [filter,setFilter]=useState<'All'|'Unread'>('All');
+ const shown=useMemo(()=>items.filter(n=>filter==='All'||!n.read),[items,filter]);
+ const markRead=(id:string)=>setItems(prev=>prev.map(n=>n.id===id?{...n,read:true}:n));
+ const markAll=()=>setItems(prev=>prev.map(n=>({...n,read:true})));
+ return <div className="p-5 md:p-7"><PageHeader title="Notifications" description="Stay informed about support updates, reminders, invoices, orders and other customer-portal events." action={<button onClick={markAll} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-blue-200 hover:text-blue-600"><CheckCheck size={17}/> Mark all read</button>}/>
+ <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2"><StatCard label="Total Notifications" value={items.length} icon={<Bell size={19}/>}/><StatCard label="Unread" value={items.filter(n=>!n.read).length} icon={<Mail size={19}/>} tone="bg-blue-50 text-blue-600"/></div>
+ <div className="mb-4 flex gap-2"><button onClick={()=>setFilter('All')} className={`rounded-lg px-3 py-2 text-sm font-semibold ${filter==='All'?'bg-blue-600 text-white':'border border-slate-200 bg-white text-slate-600'}`}>All</button><button onClick={()=>setFilter('Unread')} className={`rounded-lg px-3 py-2 text-sm font-semibold ${filter==='Unread'?'bg-blue-600 text-white':'border border-slate-200 bg-white text-slate-600'}`}>Unread</button></div>
+ <div className="space-y-3">{shown.map(n=><div key={n.id} className={`rounded-2xl border bg-white p-4 shadow-sm transition ${n.read?'border-slate-200':'border-blue-200 bg-blue-50/30'}`}><div className="flex gap-4"><div className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${n.read?'bg-slate-100 text-slate-500':'bg-blue-100 text-blue-600'}`}>{n.read?<MailOpen size={18}/>:<Mail size={18}/>}</div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-start justify-between gap-2"><div><div className="flex items-center gap-2"><h3 className="font-semibold text-slate-900">{n.title}</h3>{!n.read&&<span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold uppercase text-white">New</span>}</div><p className="mt-1 text-sm leading-6 text-slate-600">{n.message}</p></div><span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${priorityBadge(n.priority)}`}>{n.priority}</span></div><div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-400"><span>{n.notificationType}</span><span>•</span><span>{n.relatedModule} · {n.relatedRecordId}</span><span>•</span><span>{n.createdDate}</span></div><div className="mt-3 flex flex-wrap gap-2">{n.actionPath&&n.actionLabel&&<Link to={n.actionPath} onClick={()=>markRead(n.id)} className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white">{n.actionLabel}<ExternalLink size={13}/></Link>}{!n.read&&<button onClick={()=>markRead(n.id)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:text-blue-600">Mark as read</button>}</div></div></div></div>)}{!shown.length&&<div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm text-slate-500">You’re all caught up. No unread notifications.</div>}</div>
+ </div>;
+};
