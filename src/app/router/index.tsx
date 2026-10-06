@@ -109,6 +109,18 @@ const PayslipViewPage = lazy_(
 const RecruitmentPage = lazy_(
   () => import("@/features/hrms/recruitment/pages/RecruitmentPage"),
 );
+const CandidatesPage = lazy_(
+  () => import("@/features/hrms/recruitment/candidates/pages/CandidatesPage"),
+);
+
+
+const CandidateDetailsPage = lazy_(
+  () =>
+    import(
+      "@/features/hrms/recruitment/candidates/pages/CandidateDetailsPage"
+    ),
+);
+
 const PerformancePage = lazy_(
   () => import("@/features/hrms/performance/pages/PerformancePage"),
 );
@@ -354,6 +366,8 @@ export const router = createBrowserRouter([
       { path: "hrms/payroll", element: <PayrollPage /> },
       { path: "hrms/payroll/payslips/:id", element: <PayslipViewPage /> },
       { path: "hrms/recruitment", element: <RecruitmentPage /> },
+      { path: "hrms/recruitment/candidates", element: <CandidatesPage /> },
+      { path: "hrms/recruitment/candidates/:candidateId",element: <CandidateDetailsPage />,},
       { path: "hrms/performance", element: <PerformancePage /> },
       { path: "hrms/learning", element: <LearningPage /> },
       { path: "hrms/ess", element: <EmployeeSelfServicePage /> },
