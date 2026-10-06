@@ -1,4 +1,4 @@
-import type { Candidate } from './candidate.types';
+import type { Candidate } from '../candidates/types/candidate.types';
 import type { JobOpening } from './jobOpening.types';
 
 export type ApplicationStatus =
@@ -13,10 +13,10 @@ export type ApplicationStatus =
 
 export interface Application {
   id: string;
-  candidateId: Candidate['id'];
+  candidateId: Candidate['candidateId'];
   candidateName: string;
   candidateEmail: string;
-  jobOpeningId: JobOpening['id'];
+jobOpeningId: JobOpening['id'];
   jobTitle: string;
   appliedDate: string;
   recruiterId: string;
