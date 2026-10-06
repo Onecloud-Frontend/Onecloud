@@ -224,7 +224,47 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Navigate to="dashboard" replace /> },
           { path: 'dashboard', lazy: async () => ({ Component: (await import('@/features/crm/dashboard/pages/DashboardPage')).default || (await import('@/features/crm/dashboard/pages/DashboardPage')).DashboardPage }) },
-          { path: 'settings', lazy: async () => ({ Component: (await import('@/features/crm/settings/pages/SettingsPage')).default || (await import('@/features/crm/settings/pages/SettingsPage')).SettingsPage }) },
+{
+  path: 'settings',
+  children: [
+    {
+      index: true,
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/pages/SettingsPage')).default,
+      }),
+    },
+    {
+      path: 'notifications',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/NotificationSettings')).default,
+      }),
+    },
+    {
+      path: 'email',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/EmailSettings')).default,
+      }),
+    },
+    {
+      path: 'display',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/DisplaySettings')).default,
+      }),
+    },
+    {
+      path: 'history',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/ConfigurationHistory')).default,
+      }),
+    },
+    {
+      path: 'contacts',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/ContactSettings')).default,
+      }),
+    },
+  ],
+},
           {
             path: 'leads',
             children: [
