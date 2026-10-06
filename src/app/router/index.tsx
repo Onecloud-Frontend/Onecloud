@@ -371,6 +371,7 @@ export const router = createBrowserRouter([
           { path: 'email', lazy: async () => ({ Component: (await import('@/features/crm/settings/components/EmailSettings')).default,}),},
           { path: 'display', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/DisplaySettings')).default,}),},
           { path: 'history', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/ConfigurationHistory')).default,}),},
+          { path: "contacts", lazy: async () => ({ Component: ( await import( "@/features/crm/settings/components/ContactSettings" )).default, }),},
   ],
 },
           {path: 'settings', lazy: async () => ({Component: (await import('@/features/crm/settings/pages/SettingsPage')).default}),},
