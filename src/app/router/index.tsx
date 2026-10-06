@@ -9,6 +9,7 @@ import AdminLayout from "@/app/layouts/AdminLayout";
 // ─── Error Pages ───────────────────────────────────────────────────────────
 import NotFoundPage from "@/app/error-pages/404";
 import GeneralErrorPage from "@/app/error-pages/GeneralErrorPage";
+import OffersPage from "@/features/hrms/recruitment/pages/OffersPage";
 
 // ─── Simple fallback shown while lazy chunks load ─────────────────────────
 const PageLoader = () => (
@@ -354,6 +355,7 @@ export const router = createBrowserRouter([
       { path: "hrms/payroll", element: <PayrollPage /> },
       { path: "hrms/payroll/payslips/:id", element: <PayslipViewPage /> },
       { path: "hrms/recruitment", element: <RecruitmentPage /> },
+      { path: "hrms/recruitment/offers", element: <OffersPage /> },
       { path: "hrms/performance", element: <PerformancePage /> },
       { path: "hrms/learning", element: <LearningPage /> },
       { path: "hrms/ess", element: <EmployeeSelfServicePage /> },
@@ -365,8 +367,15 @@ export const router = createBrowserRouter([
         path: "crm",
         children: [
           { index: true, element: <Navigate to="dashboard" replace /> },
-          { path: 'dashboard', lazy: async () => ({ Component: (await import('@/features/crm/dashboard/pages/DashboardPage')).default || (await import('@/features/crm/dashboard/pages/DashboardPage')).DashboardPage }) },
-          { path: 'settings', children: [{ index: true, lazy: async () => ({ Component: (await import('@/features/crm/settings/pages/SettingsPage')).default,}),},
+          {
+            path: "dashboard",
+            lazy: async () => ({
+              Component: (
+                await import("@/features/crm/dashboard/pages/DashboardPage")
+              ).default,
+            }),
+          },  
+        { path: 'settings', children: [{ index: true, lazy: async () => ({ Component: (await import('@/features/crm/settings/pages/SettingsPage')).default,}),},
           { path: 'notifications', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/NotificationSettings')).default,}),},
           { path: 'email', lazy: async () => ({ Component: (await import('@/features/crm/settings/components/EmailSettings')).default,}),},
           { path: 'display', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/DisplaySettings')).default,}),},
