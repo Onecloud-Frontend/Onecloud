@@ -6,7 +6,7 @@ export const useLeads = (filters: LeadFilters) => {
   return useQuery({
     queryKey: ['crm', 'leads', filters],
     queryFn: () => leadService.getLeads(filters),
-    placeholderData: (previousData) => previousData, // keep previous data while loading new pages
+    placeholderData: previousData => previousData,
   });
 };
 
