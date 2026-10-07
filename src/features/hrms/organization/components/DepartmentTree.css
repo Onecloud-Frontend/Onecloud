@@ -1,0 +1,77 @@
+.department-tree {
+  width: 100%;
+  padding: 8px 0;
+}
+
+.department-tree__root,
+.department-tree__children {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.department-tree__children {
+  margin-left: 20px;
+  padding-left: 14px;
+  border-left: 1px solid #e5e7eb;
+}
+
+.department-tree__item {
+  margin-bottom: 4px;
+}
+
+.department-tree__node {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  border: none;
+  border-radius: 6px;
+
+  padding: 10px 12px;
+
+  background: transparent;
+
+  color: #374151;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  font-size: 14px;
+}
+
+.department-tree__node:hover {
+  background: #f3f4f6;
+}
+
+.department-tree__node--selected {
+  background: #e5e7eb;
+  color: #111827;
+  font-weight: 600;
+}
+
+.department-tree__icon {
+  width: 18px;
+  color: #6b7280;
+}
+
+.department-tree__name {
+  flex: 1;
+}
+
+.department-tree__code {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.department-tree__empty {
+  padding: 30px 20px;
+
+  text-align: center;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}

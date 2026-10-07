@@ -66,10 +66,9 @@ export interface DashboardMetrics {
   totalRevenue: DashboardMetric;
   activeLeads: DashboardMetric;
   qualifiedLeads: DashboardMetric;
-  activeOpportunities: DashboardMetric;
+  activeOpportunityValue: DashboardMetric;
   winRate: DashboardMetric;
   pipelineValue: DashboardMetric;
-
   revenueTrend: RevenueTrend[];
   pipelineStages: PipelineStage[];
   recentLeads: RecentLead[];
