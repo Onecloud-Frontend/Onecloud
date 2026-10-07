@@ -1,3 +1,24 @@
+export interface ContactActivity {
+  id: string;
+  title: string;
+  date: string;
+}
+
+export interface Communication {
+  id: string;
+  date: string;
+  type: string;
+  summary: string;
+}
+
+export interface Opportunity {
+  id: string;
+  name: string;
+  value: number;
+  stage: string;
+  closeDate: string;
+}
+
 export interface Contact {
   contactId: string;
   firstName: string;
@@ -22,11 +43,11 @@ export interface Contact {
   postalCode: string;
   linkedIn: string;
 
-  communicationHistory: unknown[];
-  appointments: unknown[];
-  tasks: unknown[];
+  communicationHistory: Communication[];
+  appointments: ContactActivity[];
+  tasks: ContactActivity[];
   notes: string;
-  relatedOpportunities: unknown[];
+  relatedOpportunities: Opportunity[];
 
   updatedDate: string;
 }
@@ -53,23 +74,4 @@ export interface CreateContactInput {
   notes: string;
 }
 
-export interface UpdateContactInput {
-  firstName: string;
-  lastName: string;
-  customer: string;
-  designation: string;
-  department: string;
-  email: string;
-  phone: string;
-  mobile: string;
-  contactType: string;
-  owner: string;
-  status: string;
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  postalCode: string;
-  linkedIn: string;
-  notes: string;
-}
+export type UpdateContactInput = Partial<CreateContactInput>;
