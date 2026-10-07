@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import {
@@ -11,6 +10,17 @@ import {
   Wallet,
 } from "lucide-react";
 
+import {
+  customers,
+  invoices,
+  orders,
+  quotations,
+} from "../../shared/data";
+
+// ---------------------------------------------------------------------------
+// Menu
+// ---------------------------------------------------------------------------
+
 interface MenuItem {
   title: string;
   description: string;
@@ -21,19 +31,11 @@ interface MenuItem {
   hoverBorder: string;
 }
 
-interface SummaryItem {
-  label: string;
-  value: string;
-  description: string;
-  icon: React.ElementType;
-  iconBg: string;
-  iconColor: string;
-}
-
 const menuItems: MenuItem[] = [
   {
     title: "Profile",
-    description: "View and manage your customer profile and contact details.",
+    description:
+      "View and manage your customer profile and contact details.",
     path: "/crm/customer-portal/profile",
     icon: User,
     iconBg: "bg-violet-50",
@@ -42,7 +44,8 @@ const menuItems: MenuItem[] = [
   },
   {
     title: "Quotations",
-    description: "Review quotations and track their current status.",
+    description:
+      "Review quotations and track their current status.",
     path: "/crm/customer-portal/quotations",
     icon: FileText,
     iconBg: "bg-blue-50",
@@ -51,7 +54,8 @@ const menuItems: MenuItem[] = [
   },
   {
     title: "Orders",
-    description: "View your orders and monitor order progress.",
+    description:
+      "View your orders and monitor order progress.",
     path: "/crm/customer-portal/orders",
     icon: Package,
     iconBg: "bg-emerald-50",
@@ -60,7 +64,8 @@ const menuItems: MenuItem[] = [
   },
   {
     title: "Invoices",
-    description: "View invoices, payment details, and outstanding amounts.",
+    description:
+      "View invoices, payment details, and outstanding amounts.",
     path: "/crm/customer-portal/invoices",
     icon: Receipt,
     iconBg: "bg-orange-50",
@@ -69,7 +74,8 @@ const menuItems: MenuItem[] = [
   },
   {
     title: "Account Summary",
-    description: "Review your account and overall financial information.",
+    description:
+      "Review your account and overall financial information.",
     path: "/crm/customer-portal/account",
     icon: Wallet,
     iconBg: "bg-cyan-50",
@@ -78,49 +84,77 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-const summaryItems: SummaryItem[] = [
-  {
-    label: "Total Orders",
-    value: "24",
-    description: "Orders placed",
-    icon: Package,
-    iconBg: "bg-emerald-50",
-    iconColor: "text-emerald-600",
-  },
-  {
-    label: "Open Quotations",
-    value: "06",
-    description: "Awaiting response",
-    icon: FileText,
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-600",
-  },
-  {
-    label: "Outstanding",
-    value: "$12,450",
-    description: "Amount due",
-    icon: Wallet,
-    iconBg: "bg-orange-50",
-    iconColor: "text-orange-600",
-  },
-  {
-    label: "Account Status",
-    value: "Active",
-    description: "Account in good standing",
-    icon: User,
-    iconBg: "bg-violet-50",
-    iconColor: "text-violet-600",
-  },
-];
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
 
 const CustomerDashboardPage: React.FC = () => {
+  const customer = customers[0];
+
+  const totalOrders = orders.length;
+
+  const openQuotations = quotations.filter(
+    (quotation) =>
+      quotation.status !== "ACCEPTED" &&
+      quotation.status !== "REJECTED",
+  ).length;
+
+  const outstandingAmount = invoices.reduce(
+    (total, invoice) => total + invoice.balanceAmount,
+    0,
+  );
+
+  const currencyCode = invoices[0]?.currency ?? "INR";
+
+  const formattedOutstanding = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: currencyCode,
+    maximumFractionDigits: 0,
+  }).format(outstandingAmount);
+
+  const accountStatus = customer?.status ?? "UNKNOWN";
+
+  const summaryItems = [
+    {
+      label: "Total Orders",
+      value: String(totalOrders).padStart(2, "0"),
+      description: "Orders placed",
+      icon: Package,
+      iconBg: "bg-emerald-50",
+      iconColor: "text-emerald-600",
+    },
+    {
+      label: "Open Quotations",
+      value: String(openQuotations).padStart(2, "0"),
+      description: "Awaiting response",
+      icon: FileText,
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-600",
+    },
+    {
+      label: "Outstanding",
+      value: formattedOutstanding,
+      description: "Amount due",
+      icon: Wallet,
+      iconBg: "bg-orange-50",
+      iconColor: "text-orange-600",
+    },
+    {
+      label: "Account Status",
+      value: accountStatus,
+      description: "Customer account status",
+      icon: User,
+      iconBg: "bg-violet-50",
+      iconColor: "text-violet-600",
+    },
+  ];
+
   return (
     <div className="min-h-full bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="mx-auto max-w-7xl space-y-7 p-4 sm:p-6 lg:p-8">
 
         {/* Header */}
         <section className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          {/* Decorative background */}
           <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-100/60 blur-3xl" />
           <div className="absolute -bottom-24 left-1/3 h-52 w-52 rounded-full bg-violet-100/50 blur-3xl" />
 
@@ -155,13 +189,26 @@ const CustomerDashboardPage: React.FC = () => {
               </p>
 
               <p className="mt-1 text-lg font-bold text-gray-900">
-                ACC-10245
+                {customer?.id ?? "—"}
               </p>
 
               <div className="mt-2 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span className="text-xs font-medium text-emerald-600">
-                  Active Account
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    accountStatus === "ACTIVE"
+                      ? "bg-emerald-500"
+                      : "bg-gray-400"
+                  }`}
+                />
+
+                <span
+                  className={`text-xs font-medium ${
+                    accountStatus === "ACTIVE"
+                      ? "text-emerald-600"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {accountStatus} Account
                 </span>
               </div>
             </div>
@@ -283,7 +330,9 @@ const CustomerDashboardPage: React.FC = () => {
                     {item.description}
                   </p>
 
-                  <div className={`mt-4 text-sm font-semibold ${item.iconColor}`}>
+                  <div
+                    className={`mt-4 text-sm font-semibold ${item.iconColor}`}
+                  >
                     View details →
                   </div>
                 </Link>
@@ -292,7 +341,7 @@ const CustomerDashboardPage: React.FC = () => {
           </div>
         </section>
 
-        {/* account information */}
+        {/* Account Information */}
         <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <div className="border-b border-gray-100 bg-gradient-to-r from-indigo-50 via-white to-cyan-50 px-6 py-5">
             <h2 className="text-lg font-bold text-gray-900">
@@ -311,7 +360,7 @@ const CustomerDashboardPage: React.FC = () => {
               </p>
 
               <p className="mt-2 text-sm font-semibold text-gray-900">
-                Shan Admin
+                {customer?.companyName ?? "—"}
               </p>
             </div>
 
@@ -321,7 +370,7 @@ const CustomerDashboardPage: React.FC = () => {
               </p>
 
               <p className="mt-2 text-sm font-semibold text-gray-900">
-                Enterprise Customer
+                {customer?.industry ?? "—"}
               </p>
             </div>
           </div>
@@ -332,4 +381,3 @@ const CustomerDashboardPage: React.FC = () => {
 };
 
 export { CustomerDashboardPage };
-
