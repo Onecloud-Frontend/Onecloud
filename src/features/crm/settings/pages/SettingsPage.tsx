@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import SettingsLayout from '../components/SettingsLayout';
 import GeneralSettings from '../components/GeneralSettings';
+import { CrmOperationsSettings } from '../components/CrmOperationsSettings';
 import type { SettingsSection } from '../types/settings.types';
 import {
   isSettingsSection,
@@ -24,6 +25,7 @@ const sectionComponents: Partial<
   Record<SettingsSection, React.ComponentType>
 > = {
   general: GeneralSettings,
+    'crm-operations': CrmOperationsSettings,
 };
 
 export default function SettingsPage() {
