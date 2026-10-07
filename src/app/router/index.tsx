@@ -27,6 +27,7 @@ const lazy_ = (fn: () => Promise<{ default: React.ComponentType }>) => {
   );
 };
 
+
 // ─── Auth Pages ────────────────────────────────────────────────────────────
 const LoginPage = lazy_(() => import("@/app/auth-pages/LoginPage"));
 const RegisterPage = lazy_(() => import("@/app/auth-pages/RegisterPage"));
@@ -120,6 +121,9 @@ const CandidateDetailsPage = lazy_(
     import(
       "@/features/hrms/recruitment/candidates/pages/CandidateDetailsPage"
     ),
+);
+const InterviewsPage = lazy_(
+  () => import("@/features/hrms/recruitment/pages/InterviewsPage"),
 );
 
 const PerformancePage = lazy_(
@@ -351,6 +355,8 @@ export const router = createBrowserRouter([
     ],
   },
 
+
+  
   // ── Application routes (authenticated business domains) ───────────────────
   {
     path: "/",
@@ -369,6 +375,7 @@ export const router = createBrowserRouter([
       { path: "hrms/recruitment", element: <RecruitmentPage /> },
       { path: "hrms/recruitment/offers", element: <OffersPage /> },
       { path: "hrms/recruitment/candidates", element: <CandidatesPage /> },
+      { path: "hrms/recruitment/interviews", element: <InterviewsPage /> },
       { path: "hrms/recruitment/candidates/:candidateId",element: <CandidateDetailsPage />,},
       { path: "hrms/performance", element: <PerformancePage /> },
       { path: "hrms/learning", element: <LearningPage /> },
