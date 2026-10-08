@@ -65,3 +65,4 @@ This document defines the precise folder ownership, branch names, and GitHub Iss
 - **Branch**: `feature/crm-801-global-dashboard`
 - **Ownership**: `src/features/crm/dashboard/`
 - **Responsibility**: `DashboardPage`, conversion rate metrics, revenue forecasts.
+- **Additional Ownership**: `src/features/crm/settings/` (Branch: `feature/crm-1101-settings`) - CRM configuration, profile, stages, preferences.

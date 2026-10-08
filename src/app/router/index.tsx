@@ -395,33 +395,23 @@ export const router = createBrowserRouter([
                 await import("@/features/crm/dashboard/pages/DashboardPage")
               ).default,
             }),
-          },  
-        { path: 'settings', children: [{ index: true, lazy: async () => ({ Component: (await import('@/features/crm/settings/pages/SettingsPage')).default,}),},
-          { path: 'notifications', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/NotificationSettings')).default,}),},
-          { path: 'email', lazy: async () => ({ Component: (await import('@/features/crm/settings/components/EmailSettings')).default,}),},
-          { path: 'display', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/DisplaySettings')).default,}),},
-          { path: 'history', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/ConfigurationHistory')).default,}),},
-          { path: "contacts", lazy: async () => ({ Component: ( await import( "@/features/crm/settings/components/ContactSettings" )).default, }),},
-  ],
-},
-          {path: 'settings', lazy: async () => ({Component: (await import('@/features/crm/settings/pages/SettingsPage')).default}),},
-          {
-            path: "dashboard",
-            lazy: async () => ({
-              Component:
-                (await import("@/features/crm/dashboard/pages/DashboardPage"))
-                  .default ||
-                (await import("@/features/crm/dashboard/pages/DashboardPage"))
-                  .default,
-            }),
           },
           {
             path: "settings",
-            lazy: async () => ({
-              Component: (
-                await import("@/features/crm/settings/pages/SettingsPage")
-              ).default,
-            }),
+            children: [
+              {
+                index: true,
+                lazy: async () => ({
+                  Component: (await import("@/features/crm/settings/pages/SettingsPage")).default,
+                }),
+              },
+              {
+                path: ":section",
+                lazy: async () => ({
+                  Component: (await import("@/features/crm/settings/pages/SettingsPage")).default,
+                }),
+              },
+            ],
           },
           {
             path: "leads",
