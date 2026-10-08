@@ -122,6 +122,11 @@ const CandidateDetailsPage = lazy_(
       "@/features/hrms/recruitment/candidates/pages/CandidateDetailsPage"
     ),
 );
+
+const ApplicationsPage = lazy_(
+  () => import("@/features/hrms/recruitment/pages/ApplicationsPage"),
+);
+
 const InterviewsPage = lazy_(
   () => import("@/features/hrms/recruitment/pages/InterviewsPage"),
 );
@@ -375,6 +380,7 @@ export const router = createBrowserRouter([
       { path: "hrms/recruitment", element: <RecruitmentPage /> },
       { path: "hrms/recruitment/offers", element: <OffersPage /> },
       { path: "hrms/recruitment/candidates", element: <CandidatesPage /> },
+      { path: "hrms/recruitment/applications", element: <ApplicationsPage /> },
       { path: "hrms/recruitment/interviews", element: <InterviewsPage /> },
       { path: "hrms/recruitment/candidates/:candidateId",element: <CandidateDetailsPage />,},
       { path: "hrms/performance", element: <PerformancePage /> },
