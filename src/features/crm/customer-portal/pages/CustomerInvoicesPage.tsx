@@ -1,120 +1,154 @@
-import React, { useMemo, useState } from "react";
-import { Download, Eye, FileText, Printer } from "lucide-react";
-import {
-  customerInvoices,
-  type CustomerInvoice,
-  type InvoiceStatus,
-} from "../types/data";
-import {
-  EmptyState,
-  PageHeader,
-  PortalNav,
-  SearchBox,
-  StatCard,
-  formatMoney,
-  portalStatus,
-} from "../components/PortalUi";
+import React from "react";
 
-const statuses: Array<"All" | InvoiceStatus> = [
-  "All",
-  "Draft",
-  "Sent",
-  "Partially Paid",
-  "Paid",
-  "Overdue",
-];
-export const CustomerInvoicesPage: React.FC = () => {
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"All" | InvoiceStatus>("All");
-  const [selected, setSelected] = useState<CustomerInvoice | null>(null);
-  const rows = useMemo(
-    () =>
-      customerInvoices.filter(
-        (i) =>
-          `${i.invoiceNumber} ${i.orderNumber ?? ""} ${i.status}`
-            .toLowerCase()
-            .includes(query.toLowerCase()) &&
-          (status === "All" || i.status === status),
-      ),
-    [query, status],
-  );
-  const download = (invoice: CustomerInvoice) => {
-    const text = `ONECLOUD CUSTOMER INVOICE\n\nInvoice: ${invoice.invoiceNumber}\nInvoice Date: ${invoice.invoiceDate}\nDue Date: ${invoice.dueDate}\nOrder: ${invoice.orderNumber ?? "—"}\nStatus: ${invoice.status}\nSubtotal: ${formatMoney(invoice.subtotal)}\nTax: ${formatMoney(invoice.tax)}\nTotal: ${formatMoney(invoice.total)}\nAmount Paid: ${formatMoney(invoice.amountPaid)}\nBalance Due: ${formatMoney(invoice.balanceDue)}\n`;
-    const blob = new Blob([text], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${invoice.invoiceNumber}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+import { invoices } from "../../shared/data";
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const currency = (value: number, code: string) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: code,
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+const statusStyles: Record<string, string> = {
+  PAID: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  UNPAID: "bg-amber-50 text-amber-700 border-amber-200",
+  OVERDUE: "bg-red-50 text-red-700 border-red-200",
+  PARTIALLY_PAID: "bg-blue-50 text-blue-700 border-blue-200",
+};
+
+const statusLabels: Record<string, string> = {
+  PAID: "Paid",
+  UNPAID: "Unpaid",
+  OVERDUE: "Overdue",
+  PARTIALLY_PAID: "Partially Paid",
+};
+
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
+  <span
+    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+      statusStyles[status] ??
+      "bg-gray-100 text-gray-600 border-gray-200"
+    }`}
+  >
+    {statusLabels[status] ?? status}
+  </span>
+);
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
+const CustomerInvoicesPage: React.FC = () => {
+  const handleViewInvoice = (invoiceId: string) => {
+    // TODO: navigate to invoice detail
+    console.log("View invoice", invoiceId);
   };
-  const print = () => window.print();
+
   return (
-    <div className="p-5 md:p-7">
-      <PageHeader
-        title="Invoices"
-        description="Review billing documents, payment status, due dates and outstanding balances."
-      />
-      <PortalNav />
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard
-          label="Invoices"
-          value={customerInvoices.length}
-          icon={<FileText size={19} />}
-        />
-        <StatCard
-          label="Paid"
-          value={customerInvoices.filter((i) => i.status === "Paid").length}
-          icon={<FileText size={19} />}
-          tone="bg-emerald-50 text-emerald-600"
-        />
-        <StatCard
-          label="Balance Due"
-          value={formatMoney(
-            customerInvoices.reduce((s, i) => s + i.balanceDue, 0),
-          )}
-          icon={<FileText size={19} />}
-          tone="bg-orange-50 text-orange-600"
-        />
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-gray-900">
+          Invoices
+        </h1>
+
+        <p className="text-sm text-gray-500">
+          {invoices.length} total
+        </p>
       </div>
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-slate-100 p-4 md:flex-row">
-          <div className="flex-1">
-            <SearchBox
-              value={query}
-              onChange={setQuery}
-              placeholder="Search invoice or order..."
-            />
-          </div>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as typeof status)}
-            className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
-          >
-            {statuses.map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
-        </div>
-        {rows.length ? (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                <tr>
-                  {[
-                    "Invoice",
-                    "Invoice Date",
-                    "Due Date",
-                    "Order",
-                    "Status",
-                    "Total",
-                    "Balance",
-                    "Actions",
-                  ].map((h) => (
-                    <th key={h} className="px-4 py-3 font-semibold">
-                      {h}
-                    </th>
-                  ))}
+
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+        <table className="min-w-full divide-y divide-gray-100 text-sm">
+          <thead className="bg-gray-50 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+            <tr>
+              <th className="px-4 py-3">Invoice Number</th>
+              <th className="px-4 py-3">Order Number</th>
+              <th className="px-4 py-3">Invoice Date</th>
+              <th className="px-4 py-3">Due Date</th>
+              <th className="px-4 py-3 text-right">Subtotal</th>
+              <th className="px-4 py-3 text-right">Tax</th>
+              <th className="px-4 py-3 text-right">Total</th>
+              <th className="px-4 py-3 text-right">Paid</th>
+              <th className="px-4 py-3 text-right">Outstanding</th>
+              <th className="px-4 py-3">Payment Status</th>
+              <th className="px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-gray-100">
+            {invoices.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={11}
+                  className="px-4 py-8 text-center text-gray-400"
+                >
+                  No invoices found.
+                </td>
+              </tr>
+            ) : (
+              invoices.map((invoice) => (
+                <tr
+                  key={invoice.id}
+                  className="hover:bg-gray-50"
+                >
+                  <td className="px-4 py-3 font-medium text-gray-800">
+                    {invoice.invoiceNumber}
+                  </td>
+
+                  <td className="px-4 py-3 text-gray-600">
+                    {invoice.orderId}
+                  </td>
+
+                  <td className="px-4 py-3 text-gray-600">
+                    {formatDate(invoice.invoiceDate)}
+                  </td>
+
+                  <td className="px-4 py-3 text-gray-600">
+                    {formatDate(invoice.dueDate)}
+                  </td>
+
+                  <td className="px-4 py-3 text-right text-gray-600">
+                    {currency(invoice.subtotal, invoice.currency)}
+                  </td>
+
+                  <td className="px-4 py-3 text-right text-gray-600">
+                    {currency(invoice.taxAmount, invoice.currency)}
+                  </td>
+
+                  <td className="px-4 py-3 text-right font-medium text-gray-800">
+                    {currency(invoice.totalAmount, invoice.currency)}
+                  </td>
+
+                  <td className="px-4 py-3 text-right text-gray-600">
+                    {currency(invoice.paidAmount, invoice.currency)}
+                  </td>
+
+                  <td className="px-4 py-3 text-right text-gray-600">
+                    {currency(invoice.balanceAmount, invoice.currency)}
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <StatusBadge status={invoice.status} />
+                  </td>
+
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => handleViewInvoice(invoice.id)}
+                      className="rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      View invoice
+                    </button>
+                  </td>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -237,3 +271,5 @@ export const CustomerInvoicesPage: React.FC = () => {
     </div>
   );
 };
+
+export { CustomerInvoicesPage };
