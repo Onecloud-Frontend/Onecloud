@@ -1,12 +1,8 @@
-import {
-  OPPORTUNITY_STAGES,
-  OPPORTUNITY_STATUSES,
-} from "../mocks/opportunityConstants";
+import {OPPORTUNITY_STAGES,} from "../mocks/opportunityConstants";
 
 interface OpportunityFiltersProps {
   search: string;
   stage: string;
-  status: string;
   owner: string;
   probability: string;
   closeDateFrom: string;
@@ -14,7 +10,6 @@ interface OpportunityFiltersProps {
 
   onSearchChange: (value: string) => void;
   onStageChange: (value: string) => void;
-  onStatusChange: (value: string) => void;
   onOwnerChange: (value: string) => void;
   onProbabilityChange: (value: string) => void;
   onCloseDateFromChange: (value: string) => void;
@@ -25,14 +20,12 @@ interface OpportunityFiltersProps {
 export function OpportunityFilters({
   search,
   stage,
-  status,
   owner,
   probability,
   closeDateFrom,
   closeDateTo,
   onSearchChange,
   onStageChange,
-  onStatusChange,
   onOwnerChange,
   onProbabilityChange,
   onCloseDateFromChange,
@@ -42,7 +35,7 @@ export function OpportunityFilters({
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {/* Search */}
+
         <div className="xl:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Search
@@ -50,13 +43,14 @@ export function OpportunityFilters({
 
           <input
             value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search by ID, name, customer or contact..."
+            onChange={(e) =>
+              onSearchChange(e.target.value)
+            }
+            placeholder="Search by ID, code or opportunity name..."
             className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100"
           />
         </div>
 
-        {/* Stage */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Stage
@@ -64,41 +58,28 @@ export function OpportunityFilters({
 
           <select
             value={stage}
-            onChange={(event) => onStageChange(event.target.value)}
+            onChange={(e) =>
+              onStageChange(e.target.value)
+            }
             className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
           >
-            <option value="">All stages</option>
+            <option value="">
+              All stages
+            </option>
 
-            {OPPORTUNITY_STAGES.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
+            {OPPORTUNITY_STAGES.map(
+              (item) => (
+                <option
+                  key={item}
+                  value={item}
+                >
+                  {item}
+                </option>
+              ),
+            )}
           </select>
         </div>
 
-        {/* Status */}
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700">
-            Status
-          </label>
-
-          <select
-            value={status}
-            onChange={(event) => onStatusChange(event.target.value)}
-            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-          >
-            <option value="">All statuses</option>
-
-            {OPPORTUNITY_STATUSES.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Owner */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Owner
@@ -106,13 +87,14 @@ export function OpportunityFilters({
 
           <input
             value={owner}
-            onChange={(event) => onOwnerChange(event.target.value)}
-            placeholder="Owner name"
+            onChange={(e) =>
+              onOwnerChange(e.target.value)
+            }
+            placeholder="Owner name or ID"
             className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100"
           />
         </div>
 
-        {/* Probability */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Probability
@@ -120,20 +102,29 @@ export function OpportunityFilters({
 
           <select
             value={probability}
-            onChange={(event) =>
-              onProbabilityChange(event.target.value)
+            onChange={(e) =>
+              onProbabilityChange(e.target.value)
             }
             className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
           >
-            <option value="">All probabilities</option>
-            <option value="0-25">0% - 25%</option>
-            <option value="26-50">26% - 50%</option>
-            <option value="51-75">51% - 75%</option>
-            <option value="76-100">76% - 100%</option>
+            <option value="">
+              All probabilities
+            </option>
+            <option value="0-25">
+              0% - 25%
+            </option>
+            <option value="26-50">
+              26% - 50%
+            </option>
+            <option value="51-75">
+              51% - 75%
+            </option>
+            <option value="76-100">
+              76% - 100%
+            </option>
           </select>
         </div>
 
-        {/* Close Date From */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Close Date From
@@ -142,14 +133,15 @@ export function OpportunityFilters({
           <input
             type="date"
             value={closeDateFrom}
-            onChange={(event) =>
-              onCloseDateFromChange(event.target.value)
+            onChange={(e) =>
+              onCloseDateFromChange(
+                e.target.value,
+              )
             }
-            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
           />
         </div>
 
-        {/* Close Date To */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700">
             Close Date To
@@ -158,10 +150,12 @@ export function OpportunityFilters({
           <input
             type="date"
             value={closeDateTo}
-            onChange={(event) =>
-              onCloseDateToChange(event.target.value)
+            onChange={(e) =>
+              onCloseDateToChange(
+                e.target.value,
+              )
             }
-            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
           />
         </div>
       </div>
