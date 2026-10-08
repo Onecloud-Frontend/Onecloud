@@ -34,6 +34,12 @@ export const CreateLeadPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      <button
+  onClick={() => navigate("/crm/leads")}
+  className="mb-6 rounded-lg border bg-white px-5 py-2 font-medium text-gray-700 shadow-sm hover:bg-gray-100"
+>
+  ← Back to Leads
+</button>
       <div className="mx-auto max-w-5xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-blue-600">Create Lead</h1>
