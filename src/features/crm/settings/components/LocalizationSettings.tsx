@@ -1,5 +1,3 @@
-// OWNER: Sudharsan ONLY
-
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
