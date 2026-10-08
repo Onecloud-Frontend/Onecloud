@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Download, Eye, Filter, Plus, RefreshCw, Search, SlidersHorizontal, X, CheckCircle2, Clock3, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getSupportTickets, addSupportTicket, saveSupportTickets, updateSupportTicketPriority, updateSupportTicketStatus } from '../services/supportStore';
+import { getSupportTickets, addSupportTicket, updateSupportTicketPriority, updateSupportTicketStatus } from '../services/supportStore';
 import type { Priority, SupportTicket, TicketStatus } from '../types/data';
 import { PageHeader, PortalNav, SearchBox, StatCard, portalStatus, priorityBadge } from '../components/PortalUi';
 
@@ -30,7 +30,7 @@ export const SupportRequestsPage: React.FC = () => {
   const [sortKey, setSortKey] = useState<SortKey>('createdDate');
   const [sortAsc, setSortAsc] = useState(false);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [showCreate, setShowCreate] = useState(false);
   const [notice, setNotice] = useState('');
   const [form, setForm] = useState({ subject: '', description: '', category: 'Technical', priority: 'Medium' as Priority, contact: 'Rohan Mehta', expectedResolutionDate: '', assignedTo: 'Priya Nair' });
