@@ -5,22 +5,86 @@ import { MetricCard } from '../components/MetricCard';
 import { RevenueTrendChart } from '../components/RevenueTrendChart';
 import { PipelineFunnel } from '../components/PipelineFunnel';
 import { RecentLeadsTable } from '../components/RecentLeadsTable';
-
+ 
 /** Route: /crm/dashboard */
 const CrmDashboardPage: React.FC = () => {
   const { data, isLoading, isError, error } = useDashboardMetrics();
-  const [dateRange, setDateRange] = useState('last-6-months');
+  const [dateRange, setDateRange] = useState('this-month');
+ 
+  const currentDate = new Date();
+  const currentMonthIndex = currentDate.getMonth();
+ 
+  const monthIndexes: Record<string, number> = {
+    Jan: 0,
+    Feb: 1,
+    Mar: 2,
+    Apr: 3,
+    May: 4,
+    Jun: 5,
+    Jul: 6,
+    Aug: 7,
+    Sep: 8,
+    Oct: 9,
+    Nov: 10,
+    Dec: 11,
+  };
+ 
   const filteredRevenueTrend =
-  dateRange === 'this-month'
-    ? data?.revenueTrend.slice(-1) ?? []
-    : dateRange === 'last-month'
-      ? data?.revenueTrend.slice(-2, -1) ?? []
-      : dateRange === 'last-3-months'
-        ? data?.revenueTrend.slice(-3) ?? []
-        : dateRange === 'last-6-months'
-          ? data?.revenueTrend.slice(-6) ?? []
-          : data?.revenueTrend ?? [];
-
+    data?.revenueTrend.filter((item) => {
+      const itemMonthIndex = monthIndexes[item.month];
+ 
+      if (itemMonthIndex === undefined) {
+        return false;
+      }
+ 
+      if (dateRange === 'this-month') {
+        return itemMonthIndex === currentMonthIndex;
+      }
+ 
+      if (dateRange === 'last-month') {
+        const lastMonthIndex = (currentMonthIndex - 1 + 12) % 12;
+        return itemMonthIndex === lastMonthIndex;
+      }
+ 
+      if (dateRange === 'last-3-months') {
+        const startMonthIndex = currentMonthIndex - 2;
+ 
+        if (startMonthIndex >= 0) {
+          return (
+            itemMonthIndex >= startMonthIndex &&
+            itemMonthIndex <= currentMonthIndex
+          );
+        }
+ 
+        return (
+          itemMonthIndex >= startMonthIndex + 12 ||
+          itemMonthIndex <= currentMonthIndex
+        );
+      }
+ 
+      if (dateRange === 'last-6-months') {
+        const startMonthIndex = currentMonthIndex - 5;
+ 
+        if (startMonthIndex >= 0) {
+          return (
+            itemMonthIndex >= startMonthIndex &&
+            itemMonthIndex <= currentMonthIndex
+          );
+        }
+ 
+        return (
+          itemMonthIndex >= startMonthIndex + 12 ||
+          itemMonthIndex <= currentMonthIndex
+        );
+      }
+ 
+      if (dateRange === 'this-year') {
+        return itemMonthIndex <= currentMonthIndex;
+      }
+ 
+      return true;
+    }) ?? [];
+ 
   const handleDownloadReport = () => {
     const rows = [
       ['CRM Dashboard Report'],
@@ -43,7 +107,7 @@ const CrmDashboardPage: React.FC = () => {
         `${person.achievement}%`,
       ]),
     ];
-
+ 
     const csvContent = rows
       .map((row) =>
         row
@@ -51,24 +115,24 @@ const CrmDashboardPage: React.FC = () => {
           .join(',')
       )
       .join('\n');
-
+ 
     const blob = new Blob([csvContent], {
       type: 'text/csv;charset=utf-8;',
     });
-
+ 
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-
+ 
     link.href = url;
     link.download = 'crm-dashboard-report.csv';
-
+ 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
+ 
     URL.revokeObjectURL(url);
   };
-
+ 
   if (isLoading) {
     return (
       <PageContainer className="flex min-h-[50vh] items-center justify-center">
@@ -81,7 +145,7 @@ const CrmDashboardPage: React.FC = () => {
       </PageContainer>
     );
   }
-
+ 
   if (isError || !data) {
     return (
       <PageContainer>
@@ -89,7 +153,7 @@ const CrmDashboardPage: React.FC = () => {
           <h3 className="text-sm font-semibold text-rose-800">
             Failed to load dashboard metrics
           </h3>
-
+ 
           <p className="mt-1 text-sm text-rose-600">
             {error?.message || 'Unknown error occurred'}
           </p>
@@ -97,7 +161,7 @@ const CrmDashboardPage: React.FC = () => {
       </PageContainer>
     );
   }
-
+ 
   return (
     <PageContainer className="max-w-[1400px] space-y-6">
       {/* Header */}
@@ -106,12 +170,12 @@ const CrmDashboardPage: React.FC = () => {
           <h1 className="text-2xl font-bold tracking-tight text-[#0b1f4d]">
             Dashboard
           </h1>
-
+ 
           <p className="mt-1 text-sm text-slate-500">
             CRM overview and key performance metrics.
           </p>
         </div>
-
+ 
         <div className="flex flex-wrap items-center gap-3">
           <select
             value={dateRange}
@@ -125,17 +189,17 @@ const CrmDashboardPage: React.FC = () => {
             <option value="last-6-months">Last 6 Months</option>
             <option value="this-year">This Year</option>
           </select>
-
+ 
           <button
             type="button"
             onClick={handleDownloadReport}
-            className="inline-flex h-9 items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-blue-600/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50"
+            className="inline-flex h-9 cursor-pointer items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-blue-600/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50"
           >
             Download Report
           </button>
         </div>
       </div>
-
+ 
       {/* KPI Section */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <MetricCard data={data.totalRevenue} />
@@ -145,37 +209,37 @@ const CrmDashboardPage: React.FC = () => {
         <MetricCard data={data.activeOpportunityValue} />
         <MetricCard data={data.pipelineValue} />
       </div>
-
+ 
       {/* Analytics Section */}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(320px,2fr)]">
         <div className="h-[400px] min-w-0">
           <RevenueTrendChart data={filteredRevenueTrend} />
         </div>
-
+ 
         <div className="h-[400px] min-w-0">
           <PipelineFunnel data={data.pipelineStages} />
         </div>
       </div>
-
+ 
       {/* Recent Leads + Recent Activities */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Leads */}
         <div className="min-w-0">
           <RecentLeadsTable data={data.recentLeads} />
         </div>
-
+ 
         {/* Recent Activities */}
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-5 py-4">
             <h2 className="text-base font-semibold text-slate-900">
               Recent Activities
             </h2>
-
+ 
             <p className="mt-1 text-xs text-slate-500">
               Latest sales and customer activities
             </p>
           </div>
-
+ 
           <div className="divide-y divide-slate-100">
             {data.recentActivities.length === 0 ? (
               <div className="px-5 py-10 text-center">
@@ -192,19 +256,19 @@ const CrmDashboardPage: React.FC = () => {
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-600">
                     {activity.type.charAt(0)}
                   </div>
-
+ 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h3 className="truncate text-sm font-medium text-slate-900">
                           {activity.title}
                         </h3>
-
+ 
                         <p className="mt-1 text-sm text-slate-500">
                           {activity.description}
                         </p>
                       </div>
-
+ 
                       <span className="shrink-0 text-xs text-slate-400">
                         {new Date(activity.createdAt).toLocaleTimeString([], {
                           hour: '2-digit',
@@ -212,7 +276,7 @@ const CrmDashboardPage: React.FC = () => {
                         })}
                       </span>
                     </div>
-
+ 
                     <p className="mt-2 text-xs font-medium text-slate-400">
                       {activity.type} · {activity.user}
                     </p>
@@ -223,19 +287,19 @@ const CrmDashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
-
+ 
       {/* Sales Performance Summary */}
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-100 px-5 py-4">
           <h2 className="text-base font-semibold text-slate-900">
             Sales Performance Summary
           </h2>
-
+ 
           <p className="mt-1 text-xs text-slate-500">
             Sales team revenue and target achievement
           </p>
         </div>
-
+ 
         {data.salesPerformance.length === 0 ? (
           <div className="px-5 py-10 text-center">
             <p className="text-sm text-slate-500">
@@ -250,25 +314,25 @@ const CrmDashboardPage: React.FC = () => {
                   <th className="px-5 py-3 font-medium text-slate-500">
                     Salesperson
                   </th>
-
+ 
                   <th className="px-5 py-3 font-medium text-slate-500">
                     Deals
                   </th>
-
+ 
                   <th className="px-5 py-3 font-medium text-slate-500">
                     Revenue
                   </th>
-
+ 
                   <th className="px-5 py-3 font-medium text-slate-500">
                     Target
                   </th>
-
+ 
                   <th className="px-5 py-3 font-medium text-slate-500">
                     Achievement
                   </th>
                 </tr>
               </thead>
-
+ 
               <tbody className="divide-y divide-slate-100">
                 {data.salesPerformance.map((person) => (
                   <tr
@@ -278,19 +342,19 @@ const CrmDashboardPage: React.FC = () => {
                     <td className="px-5 py-4 font-medium text-slate-900">
                       {person.name}
                     </td>
-
+ 
                     <td className="px-5 py-4 text-slate-600">
                       {person.deals}
                     </td>
-
+ 
                     <td className="px-5 py-4 text-slate-600">
                       ₹{person.revenue.toLocaleString('en-IN')}
                     </td>
-
+ 
                     <td className="px-5 py-4 text-slate-600">
                       ₹{person.target.toLocaleString('en-IN')}
                     </td>
-
+ 
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100">
@@ -304,7 +368,7 @@ const CrmDashboardPage: React.FC = () => {
                             }}
                           />
                         </div>
-
+ 
                         <span className="font-medium text-slate-700">
                           {person.achievement}%
                         </span>
@@ -317,19 +381,19 @@ const CrmDashboardPage: React.FC = () => {
           </div>
         )}
       </div>
-
+ 
       {/* Quick Actions */}
       <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="mb-4">
           <h2 className="text-base font-semibold text-slate-900">
             Quick Actions
           </h2>
-
+ 
           <p className="mt-1 text-xs text-slate-500">
             Quickly access common CRM actions
           </p>
         </div>
-
+ 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <button
             type="button"
@@ -341,18 +405,18 @@ const CrmDashboardPage: React.FC = () => {
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-sm font-semibold text-blue-600">
               +
             </span>
-
+ 
             <div>
               <p className="text-sm font-semibold text-slate-900">
                 Add Lead
               </p>
-
+ 
               <p className="text-xs text-slate-500">
                 Create a new lead
               </p>
             </div>
           </button>
-
+ 
           <button
             type="button"
             onClick={() => {
@@ -363,18 +427,18 @@ const CrmDashboardPage: React.FC = () => {
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-sm font-semibold text-indigo-600">
               +
             </span>
-
+ 
             <div>
               <p className="text-sm font-semibold text-slate-900">
                 Create Opportunity
               </p>
-
+ 
               <p className="text-xs text-slate-500">
                 Add a new opportunity
               </p>
             </div>
           </button>
-
+ 
           <button
             type="button"
             onClick={() => {
@@ -385,18 +449,18 @@ const CrmDashboardPage: React.FC = () => {
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-sm font-semibold text-emerald-600">
               ✓
             </span>
-
+ 
             <div>
               <p className="text-sm font-semibold text-slate-900">
                 Log Activity
               </p>
-
+ 
               <p className="text-xs text-slate-500">
                 Record a customer activity
               </p>
             </div>
           </button>
-
+ 
           <button
             type="button"
             onClick={() => {
@@ -407,12 +471,12 @@ const CrmDashboardPage: React.FC = () => {
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-sm font-semibold text-violet-600">
               ↗
             </span>
-
+ 
             <div>
               <p className="text-sm font-semibold text-slate-900">
                 View Reports
               </p>
-
+ 
               <p className="text-xs text-slate-500">
                 Open reports and analytics
               </p>
@@ -423,5 +487,5 @@ const CrmDashboardPage: React.FC = () => {
     </PageContainer>
   );
 };
-
+ 
 export default CrmDashboardPage;

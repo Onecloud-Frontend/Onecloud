@@ -75,14 +75,15 @@ class ContactService {
     contactId: string,
     input: UpdateContactInput
   ): Promise<Contact> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
         const contact = contactMockData.find(
           (item) => item.contactId === contactId
         );
 
         if (!contact) {
-          throw new Error('Contact not found');
+          reject(new Error('Contact not found'));
+          return;
         }
 
         Object.assign(contact, {
@@ -152,14 +153,15 @@ class ContactService {
     contactId: string,
     status: string
   ): Promise<Contact> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
         const contact = contactMockData.find(
           (item) => item.contactId === contactId
         );
 
         if (!contact) {
-          throw new Error('Contact not found');
+          reject(new Error('Contact not found'));
+          return;
         }
 
         contact.status = status;

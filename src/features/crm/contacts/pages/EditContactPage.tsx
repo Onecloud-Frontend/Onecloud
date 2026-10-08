@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { PageContainer } from '@/shared/components/ui/PageContainer';
 import ContactForm from '../forms/ContactForm';
 import { useContact, useUpdateContact } from '../hooks/contact.hooks';
@@ -69,7 +70,23 @@ const EditContactPage: React.FC = () => {
   };
 
   return (
-    <PageContainer className="space-y-5 pb-8"><div><p className="text-sm font-medium text-blue-600">CRM / Contacts</p><h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">Edit Contact</h1><p className="mt-1 text-sm text-slate-500">Update {contact.firstName} {contact.lastName}'s contact information.</p></div>
+    <PageContainer className="space-y-5 pb-8">
+      <div className="space-y-4">
+        <button
+          type="button"
+          onClick={() => navigate(`/crm/contacts/${id}`)}
+          className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        >
+          <ArrowLeft size={16} />
+          Back
+        </button>
+        <div>
+          <p className="text-sm font-medium text-blue-600">CRM / Contacts</p>
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">Edit Contact</h1>
+          <p className="mt-1 text-sm text-slate-500">Update {contact.firstName} {contact.lastName}'s contact information.</p>
+        </div>
+      </div>
+
       {updateContact.isError && (
         <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">Contact could not be updated. Please try again.</div>
       )}

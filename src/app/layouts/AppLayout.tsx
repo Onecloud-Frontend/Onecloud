@@ -43,6 +43,7 @@ const CRM_NAVIGATION = [
 const HRMS_NAVIGATION = [
   { label: "Dashboard", path: "/hrms/dashboard", icon: LayoutDashboard },
   { label: "Employees", path: "/hrms/employees", icon: Users },
+  { label: "Recruitment", path: "/hrms/recruitment", icon: Briefcase },
   { label: "Attendance", path: "/hrms/attendance", icon: Calendar },
   { label: "Leave", path: "/hrms/leave", icon: Calendar },
   { label: "Payroll", path: "/hrms/payroll", icon: Wallet },
