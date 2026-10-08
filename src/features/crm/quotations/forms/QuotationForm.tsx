@@ -7,6 +7,13 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
+  customers,
+  opportunities,
+  products,
+  users,
+} from "../../shared/data";
+
+import {
   quotationFormSchema,
   type QuotationFormSchemaValues,
 } from "../schemas/quotationFormSchema";
@@ -27,6 +34,13 @@ interface QuotationFormProps {
   onCancel: () => void;
 }
 
+interface PricingSummary {
+  subtotal: number;
+  discount: number;
+  tax: number;
+  grandTotal: number;
+}
+
 function createEmptyLineItem(): QuotationLineItem {
   return {
     id: crypto.randomUUID(),
@@ -44,49 +58,25 @@ function createEmptyLineItem(): QuotationLineItem {
   };
 }
 
-const DEFAULT_FORM_VALUES: QuotationFormSchemaValues = {
-  customerId: "",
-  opportunityId: "",
-  quoteDate: new Date()
-    .toISOString()
-    .split("T")[0],
-  validUntil: "",
-  salespersonId: "",
-  currency: "INR",
-  paymentTerms: "",
-  deliveryTerms: "",
-  lineItems: [createEmptyLineItem()],
-  notes: "",
-};
-
 function calculateLineItem(
   item: QuotationLineItem,
 ): QuotationLineItem {
-  const quantity =
-    Number(item.quantity) || 0;
-
-  const unitPrice =
-    Number(item.unitPrice) || 0;
-
+  const quantity = Number(item.quantity) || 0;
+  const unitPrice = Number(item.unitPrice) || 0;
   const discountPercent =
     Number(item.discountPercent) || 0;
+  const taxRate = Number(item.taxRate) || 0;
 
-  const taxRate =
-    Number(item.taxRate) || 0;
-
-  const subtotal =
-    quantity * unitPrice;
+  const subtotal = quantity * unitPrice;
 
   const discountAmount =
-    subtotal *
-    (discountPercent / 100);
+    subtotal * (discountPercent / 100);
 
   const taxableAmount =
     subtotal - discountAmount;
 
   const taxAmount =
-    taxableAmount *
-    (taxRate / 100);
+    taxableAmount * (taxRate / 100);
 
   const total =
     taxableAmount + taxAmount;
@@ -104,69 +94,27 @@ function calculateLineItem(
   };
 }
 
-const customerOptions = [
-  {
-    id: "cust-001",
-    name: "Acme Technologies",
-  },
-  {
-    id: "cust-002",
-    name: "GlobalTech Solutions",
-  },
-  {
-    id: "cust-003",
-    name: "Nova Retail Group",
-  },
-  {
-    id: "cust-004",
-    name: "Vertex Manufacturing Ltd",
-  },
-  {
-    id: "cust-005",
-    name: "BrightWave Digital Services",
-  },
-];
-
-const opportunityOptions = [
-  {
-    id: "opp-001",
-    name: "Acme Cloud Migration",
-  },
-  {
-    id: "opp-002",
-    name: "GlobalTech Infrastructure",
-  },
-  {
-    id: "opp-003",
-    name: "Nova Retail Expansion",
-  },
-  {
-    id: "opp-004",
-    name: "Vertex ERP Upgrade",
-  },
-];
-
-const salespersonOptions = [
-  {
-    id: "sp-001",
-    name: "Vennela Gopichand",
-  },
-  {
-    id: "sp-002",
-    name: "Rahul Sharma",
-  },
-  {
-    id: "sp-003",
-    name: "Priya Reddy",
-  },
-];
-
 const currencyOptions: CurrencyCode[] = [
   "INR",
   "USD",
   "EUR",
   "GBP",
 ];
+
+const DEFAULT_FORM_VALUES: QuotationFormSchemaValues = {
+  customerId: "",
+  opportunityId: "",
+  quoteDate: new Date()
+    .toISOString()
+    .split("T")[0],
+  validUntil: "",
+  salespersonId: "",
+  currency: "INR",
+  paymentTerms: "",
+  deliveryTerms: "",
+  lineItems: [createEmptyLineItem()],
+  notes: "",
+};
 
 export function QuotationForm({
   initialValues,
@@ -183,6 +131,7 @@ export function QuotationForm({
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } =
     useForm<QuotationFormSchemaValues>({
@@ -213,10 +162,10 @@ export function QuotationForm({
     useWatch({
       control,
       name: "lineItems",
-    });
+    }) ?? [];
 
   const pricing =
-    watchedLineItems.reduce(
+    watchedLineItems.reduce<PricingSummary>(
       (summary, item) => {
         const calculated =
           calculateLineItem(item);
@@ -243,13 +192,74 @@ export function QuotationForm({
       },
     );
 
-  const formatAmount = (
-    amount: number,
-  ) =>
+  const formatAmount = (amount: number) =>
     new Intl.NumberFormat("en-IN", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
+
+  const handleProductChange = (
+    index: number,
+    productId: string,
+  ) => {
+    const product = products.find(
+      (item) => item.id === productId,
+    );
+
+    if (!product) {
+      setValue(
+        `lineItems.${index}.productId`,
+        "",
+      );
+
+      setValue(
+        `lineItems.${index}.productName`,
+        "",
+      );
+
+      setValue(
+        `lineItems.${index}.description`,
+        "",
+      );
+
+      setValue(
+        `lineItems.${index}.unitPrice`,
+        0,
+      );
+
+      setValue(
+        `lineItems.${index}.taxRate`,
+        18,
+      );
+
+      return;
+    }
+
+    setValue(
+      `lineItems.${index}.productId`,
+      product.id,
+    );
+
+    setValue(
+      `lineItems.${index}.productName`,
+      product.name,
+    );
+
+    setValue(
+      `lineItems.${index}.description`,
+      product.description ?? "",
+    );
+
+    setValue(
+      `lineItems.${index}.unitPrice`,
+      product.unitPrice,
+    );
+
+    setValue(
+      `lineItems.${index}.taxRate`,
+      product.taxRate,
+    );
+  };
 
   const submitForm = async (
     values: QuotationFormSchemaValues,
@@ -366,16 +376,20 @@ export function QuotationForm({
                 Select customer
               </option>
 
-              {customerOptions.map(
-                (customer) => (
+              {customers
+                .filter(
+                  (customer) =>
+                    customer.status !==
+                    "CHURNED",
+                )
+                .map((customer) => (
                   <option
                     key={customer.id}
                     value={customer.id}
                   >
-                    {customer.name}
+                    {customer.companyName}
                   </option>
-                ),
-              )}
+                ))}
             </select>
 
             {errors.customerId && (
@@ -405,7 +419,7 @@ export function QuotationForm({
                 Select opportunity
               </option>
 
-              {opportunityOptions.map(
+              {opportunities.map(
                 (opportunity) => (
                   <option
                     key={opportunity.id}
@@ -416,6 +430,15 @@ export function QuotationForm({
                 ),
               )}
             </select>
+
+            {errors.opportunityId && (
+              <div className={errorClass}>
+                {
+                  errors.opportunityId
+                    .message
+                }
+              </div>
+            )}
           </div>
 
           {/* Salesperson */}
@@ -441,21 +464,27 @@ export function QuotationForm({
                 Select salesperson
               </option>
 
-              {salespersonOptions.map(
-                (salesperson) => (
+              {users
+                .filter(
+                  (user) => user.isActive,
+                )
+                .map((user) => (
                   <option
-                    key={salesperson.id}
-                    value={salesperson.id}
+                    key={user.id}
+                    value={user.id}
                   >
-                    {salesperson.name}
+                    {user.firstName}{" "}
+                    {user.lastName}
                   </option>
-                ),
-              )}
+                ))}
             </select>
 
             {errors.salespersonId && (
               <div className={errorClass}>
-                {errors.salespersonId.message}
+                {
+                  errors.salespersonId
+                    .message
+                }
               </div>
             )}
           </div>
@@ -511,7 +540,10 @@ export function QuotationForm({
 
             {errors.validUntil && (
               <div className={errorClass}>
-                {errors.validUntil.message}
+                {
+                  errors.validUntil
+                    .message
+                }
               </div>
             )}
           </div>
@@ -531,9 +563,7 @@ export function QuotationForm({
             <select
               id="quotation-currency"
               className={selectClass}
-              {...register(
-                "currency",
-              )}
+              {...register("currency")}
             >
               {currencyOptions.map(
                 (currency) => (
@@ -591,7 +621,10 @@ export function QuotationForm({
 
             {errors.paymentTerms && (
               <div className={errorClass}>
-                {errors.paymentTerms.message}
+                {
+                  errors.paymentTerms
+                    .message
+                }
               </div>
             )}
           </div>
@@ -617,7 +650,10 @@ export function QuotationForm({
 
             {errors.deliveryTerms && (
               <div className={errorClass}>
-                {errors.deliveryTerms.message}
+                {
+                  errors.deliveryTerms
+                    .message
+                }
               </div>
             )}
           </div>
@@ -692,19 +728,14 @@ export function QuotationForm({
 
             <tbody className="divide-y divide-slate-100">
               {fields.map(
-                (
-                  field,
-                  index,
-                ) => {
+                (field, index) => {
                   const item =
-                    watchedLineItems?.[
+                    watchedLineItems[
                       index
                     ] ?? field;
 
                   const calculated =
-                    calculateLineItem(
-                      item,
-                    );
+                    calculateLineItem(item);
 
                   const lineItemError =
                     errors.lineItems?.[
@@ -718,14 +749,75 @@ export function QuotationForm({
                     >
                       {/* Product */}
                       <td className="max-w-0 px-5 py-3">
+                        <select
+                          className={selectClass}
+                          value={
+                            item.productId ??
+                            ""
+                          }
+                          onChange={(event) =>
+                            handleProductChange(
+                              index,
+                              event.target
+                                .value,
+                            )
+                          }
+                          disabled={
+                            isSubmitting
+                          }
+                        >
+                          <option value="">
+                            Select product / service
+                          </option>
+
+                          {products
+                            .filter(
+                              (product) =>
+                                product.isActive,
+                            )
+                            .map(
+                              (
+                                product,
+                              ) => (
+                                <option
+                                  key={
+                                    product.id
+                                  }
+                                  value={
+                                    product.id
+                                  }
+                                >
+                                  {
+                                    product.name
+                                  }
+                                </option>
+                              ),
+                            )}
+                        </select>
+
                         <input
-                          type="text"
-                          className={inputClass}
-                          placeholder="Product / service"
+                          type="hidden"
+                          {...register(
+                            `lineItems.${index}.productId`,
+                          )}
+                        />
+
+                        <input
+                          type="hidden"
                           {...register(
                             `lineItems.${index}.productName`,
                           )}
                         />
+
+                        {lineItemError?.productId && (
+                          <div className={errorClass}>
+                            {
+                              lineItemError
+                                .productId
+                                .message
+                            }
+                          </div>
+                        )}
 
                         {lineItemError?.productName && (
                           <div className={errorClass}>
@@ -878,10 +970,13 @@ export function QuotationForm({
                             remove(index)
                           }
                           disabled={
-                            fields.length === 1 ||
+                            fields.length ===
+                              1 ||
                             isSubmitting
                           }
-                          aria-label={`Remove line item ${index + 1}`}
+                          aria-label={`Remove line item ${
+                            index + 1
+                          }`}
                         >
                           Remove
                         </button>
