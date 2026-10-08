@@ -1,10 +1,9 @@
-import React from 'react';
-import PageShell from '@/shared/components/ui/PageShell';
+import React from "react";
+import LeadDashboard from "../components/LeadDashboard";
 
-export const LeadsPage: React.FC = () => (
-  <PageShell
-    domain="CRM"
-    title="Leads"
-    description="Pending implementation"
-  />
-);
+export const LeadsPage: React.FC = () => {
+  return <LeadDashboard />
+  ;
+};
+
+export default LeadsPage;

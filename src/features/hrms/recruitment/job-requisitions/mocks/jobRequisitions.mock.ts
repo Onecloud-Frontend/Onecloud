@@ -1,0 +1,42 @@
+import type { JobRequisition } from '../types/jobRequisition.types';
+
+export const mockJobRequisitions: JobRequisition[] = [
+  {
+    id: 'REQ-001',
+    jobTitle: 'Senior Java Developer',
+    department: 'Engineering',
+    location: 'Hyderabad',
+    employmentType: 'FULL_TIME',
+    numberOfPositions: 2,
+    experience: '4–6 years',
+    skills: ['Java', 'Spring Boot', 'REST APIs', 'SQL'],
+    education: 'B.Tech / B.E / MCA',
+    description: 'Build and maintain enterprise Java services and collaborate with frontend and product teams.',
+    hiringManager: 'Alan Turing',
+    priority: 'HIGH',
+    expectedJoiningDate: '2026-11-15',
+    status: 'DRAFT',
+    createdAt: '2026-10-01T09:00:00.000Z',
+    updatedAt: '2026-10-01T09:00:00.000Z',
+  },
+  {
+    id: 'REQ-002',
+    jobTitle: 'HR Business Partner',
+    department: 'Human Resources',
+    location: 'Bengaluru',
+    employmentType: 'FULL_TIME',
+    numberOfPositions: 1,
+    experience: '5–8 years',
+    skills: ['Employee Relations', 'HR Operations', 'People Analytics'],
+    education: 'MBA / PGDM in HR',
+    description: 'Partner with business leaders on workforce planning, employee relations, and people programs.',
+    hiringManager: 'Mary Parker',
+    priority: 'MEDIUM',
+    expectedJoiningDate: '2026-12-01',
+    status: 'PENDING_APPROVAL',
+    createdAt: '2026-09-28T09:00:00.000Z',
+    updatedAt: '2026-10-02T10:30:00.000Z',
+    submittedAt: '2026-10-02T10:30:00.000Z',
+  },
+];
+

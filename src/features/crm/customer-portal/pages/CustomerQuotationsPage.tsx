@@ -161,11 +161,127 @@ const CustomerQuotationsPage: React.FC = () => {
                     </button>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filtered.map((q) => (
+                  <tr key={q.id} className="hover:bg-slate-50/70">
+                    <td className="px-4 py-4 font-semibold text-blue-700">
+                      {q.quotationNumber}
+                    </td>
+                    <td className="px-4 py-4 font-semibold text-slate-800">
+                      {q.title}
+                    </td>
+                    <td className="px-4 py-4 text-slate-500">
+                      {q.createdDate}
+                    </td>
+                    <td className="px-4 py-4 text-slate-500">{q.validUntil}</td>
+                    <td className="px-4 py-4">{q.owner}</td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${portalStatus(q.status)}`}
+                      >
+                        {q.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 font-bold">
+                      {formatMoney(q.total)}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setSelected(q)}
+                          className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:text-blue-600"
+                          title="View"
+                        >
+                          <Eye size={15} />
+                        </button>
+                        <button
+                          onClick={() => download(q)}
+                          className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:text-blue-600"
+                          title="Download"
+                        >
+                          <Download size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <EmptyState
+            title="No quotations found"
+            text="Try another quotation search or status filter."
+          />
+        )}
       </div>
+      {selected && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4"
+          onMouseDown={(e) => e.currentTarget === e.target && setSelected(null)}
+        >
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-semibold text-blue-600">
+                  {selected.quotationNumber}
+                </p>
+                <h2 className="mt-1 text-xl font-bold">{selected.title}</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Valid until {selected.validUntil} · Owner {selected.owner}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelected(null)}
+                className="text-slate-400"
+              >
+                <X size={19} />
+              </button>
+            </div>
+            <div className="mt-5 space-y-2">
+              {selected.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex justify-between rounded-xl border border-slate-100 p-3 text-sm"
+                >
+                  <span>
+                    {item.name}{" "}
+                    <span className="text-xs text-slate-400">
+                      × {item.quantity}
+                    </span>
+                  </span>
+                  <b>{formatMoney(item.unitPrice * item.quantity)}</b>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 rounded-xl bg-slate-50 p-4">
+              <p className="text-sm text-slate-600">{selected.notes}</p>
+              <p className="mt-3 text-right text-lg font-bold">
+                Total: {formatMoney(selected.total)}
+              </p>
+            </div>
+            {["Sent", "Viewed", "Changes Requested"].includes(
+              selected.status,
+            ) && (
+              <div className="mt-5 flex flex-wrap gap-2">
+                <button
+                  onClick={() => update(selected.id, "Accepted")}
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white"
+                >
+                  <Check size={16} /> Accept Quote
+                </button>
+                <button
+                  onClick={() => update(selected.id, "Changes Requested")}
+                  className="inline-flex items-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-4 py-2.5 text-sm font-semibold text-orange-700"
+                >
+                  <MessageSquare size={16} /> Request Changes
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

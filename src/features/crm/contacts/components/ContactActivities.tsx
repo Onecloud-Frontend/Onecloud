@@ -2,30 +2,19 @@
 
 import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useAddContactActivity } from '../hooks/contact.hooks';
+import type { ContactActivity } from '../types/contact.types';
+import { contactActivitySchema, type ContactActivityFormValues } from '../schemas/contactActivitySchema';
 
 interface ContactActivitiesProps {
   contactId: string;
-  appointments: unknown[];
-  tasks: unknown[];
+  appointments: ContactActivity[];
+  tasks: ContactActivity[];
 }
 
 type ActivityType = 'appointment' | 'task';
-
-const getLabel = (item: unknown) => {
-  if (typeof item === 'string') return item;
-
-  if (item && typeof item === 'object') {
-    const data = item as Record<string, unknown>;
-    const label = data.title ?? data.subject ?? data.name;
-
-    if (typeof label === 'string' && label.trim()) {
-      return label;
-    }
-  }
-
-  return JSON.stringify(item);
-};
 
 const ContactActivities: React.FC<ContactActivitiesProps> = ({
   contactId,
@@ -33,60 +22,64 @@ const ContactActivities: React.FC<ContactActivitiesProps> = ({
   tasks,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [type, setType] = useState<ActivityType>('appointment');
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
-  const [error, setError] = useState('');
-
   const addActivity = useAddContactActivity();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<ContactActivityFormValues>({
+    resolver: zodResolver(contactActivitySchema),
+    defaultValues: {
+      title: '',
+      date: '',
+      type: 'appointment',
+    },
+  });
 
   const closeForm = () => {
     setIsOpen(false);
-    setType('appointment');
-    setTitle('');
-    setDate('');
-    setError('');
+    reset();
   };
 
-  const submit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const cleanTitle = title.trim();
-
-    if (!cleanTitle) {
-      setError('Enter an activity title.');
-      return;
-    }
-
+  const submit = (values: ContactActivityFormValues) => {
     addActivity.mutate(
       {
         contactId,
-        type,
-        title: cleanTitle,
-        date,
+        type: values.type,
+        title: values.title,
+        date: values.date || '',
       },
       {
         onSuccess: () => {
           closeForm();
         },
         onError: () => {
-          setError('Unable to add activity.');
+          // Errors are handled by react-hook-form if validation fails,
+          // but mutation errors can be handled here.
         },
       }
     );
   };
 
-  const renderList = (items: unknown[], emptyText: string) =>
+  const renderList = (items: ContactActivity[], emptyText: string) =>
     items.length === 0 ? (
       <p className="text-sm text-gray-500">{emptyText}</p>
     ) : (
       <ul className="space-y-2">
         {items.map((item, index) => (
           <li
-            key={`${getLabel(item)}-${index}`}
+            key={`${item.id}-${index}`}
             className="rounded-md border border-gray-200 p-3"
           >
-            {getLabel(item)}
+            <div className="flex flex-col">
+              <span className="font-medium text-slate-900">{item.title}</span>
+              {item.date && (
+                <span className="text-xs text-slate-500">{item.date}</span>
+              )}
+            </div>
           </li>
         ))}
       </ul>
@@ -128,7 +121,7 @@ const ContactActivities: React.FC<ContactActivitiesProps> = ({
           aria-modal="true"
         >
           <form
-            onSubmit={submit}
+            onSubmit={handleSubmit(submit)}
             className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
           >
             <div className="mb-5 flex items-center justify-between">
@@ -154,10 +147,7 @@ const ContactActivities: React.FC<ContactActivitiesProps> = ({
                   Activity type
                 </span>
                 <select
-                  value={type}
-                  onChange={(event) =>
-                    setType(event.target.value as ActivityType)
-                  }
+                  {...register('type')}
                   className="w-full rounded-md border border-gray-300 px-3 py-2"
                   disabled={addActivity.isPending}
                 >
@@ -169,19 +159,15 @@ const ContactActivities: React.FC<ContactActivitiesProps> = ({
               <label className="block">
                 <span className="mb-1 block text-sm font-medium">Title</span>
                 <input
+                  {...register('title')}
                   type="text"
-                  value={title}
-                  onChange={(event) => {
-                    setTitle(event.target.value);
-                    setError('');
-                  }}
                   placeholder="For example, Follow up on proposal"
                   className="w-full rounded-md border border-gray-300 px-3 py-2"
                   disabled={addActivity.isPending}
                 />
-                {error ? (
-                  <p className="mt-1 text-sm text-red-600">{error}</p>
-                ) : null}
+                {errors.title && (
+                  <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+                )}
               </label>
 
               <label className="block">
@@ -189,9 +175,8 @@ const ContactActivities: React.FC<ContactActivitiesProps> = ({
                   Date <span className="font-normal text-gray-500">(optional)</span>
                 </span>
                 <input
+                  {...register('date')}
                   type="date"
-                  value={date}
-                  onChange={(event) => setDate(event.target.value)}
                   className="w-full rounded-md border border-gray-300 px-3 py-2"
                   disabled={addActivity.isPending}
                 />

@@ -1,0 +1,17 @@
+export const OPPORTUNITY_STAGES = [
+  "QUALIFICATION",
+  "DISCOVERY",
+  "PROPOSAL",
+  "NEGOTIATION",
+  "CLOSED_WON",
+  "CLOSED_LOST",
+] as const;
+
+export const OPPORTUNITY_SOURCES = [
+  "WEBSITE",
+  "REFERRAL",
+  "SOCIAL_MEDIA",
+  "EMAIL",
+  "EVENT",
+  "COLD_CALL",
+] as const;

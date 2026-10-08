@@ -219,6 +219,117 @@ const CustomerProfilePage: React.FC = () => {
             value={formatAddress(customer.shippingAddress)}
           />
         </div>
+      )}
+      <div className="grid gap-5 xl:grid-cols-[1fr_360px]">
+        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-3 border-b border-slate-100 pb-5">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+              <UserRound size={25} />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                {profile.companyName}
+              </h2>
+              <p className="text-xs text-slate-500">
+                Customer code · {profile.customerCode}
+              </p>
+            </div>
+          </div>
+          {editing ? (
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              {field("companyName", "Company Name")}
+              {field("primaryContact", "Primary Contact")}
+              {field("email", "Email", "email")}
+              {field("phone", "Phone")}
+              {field("alternatePhone", "Alternate Phone")}
+              {field("website", "Website")}
+              {field("billingAddress", "Billing Address")}
+              {field("shippingAddress", "Shipping Address")}
+              {field("gstin", "GSTIN")}
+              {field("pan", "PAN")}
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-semibold text-slate-500">
+                  Preferred Contact
+                </span>
+                <select
+                  value={draft.preferredContact}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      preferredContact: e.target
+                        .value as CustomerProfile["preferredContact"],
+                    })
+                  }
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+                >
+                  <option>Email</option>
+                  <option>Phone</option>
+                  <option>Portal</option>
+                </select>
+              </label>
+            </div>
+          ) : (
+            <dl className="mt-3 grid gap-x-8 md:grid-cols-2">
+              <DetailRow
+                label="Primary Contact"
+                value={profile.primaryContact}
+              />
+              <DetailRow label="Email" value={profile.email} />
+              <DetailRow label="Phone" value={profile.phone} />
+              <DetailRow
+                label="Alternate Phone"
+                value={profile.alternatePhone}
+              />
+              <DetailRow label="Website" value={profile.website} />
+              <DetailRow
+                label="Billing Address"
+                value={profile.billingAddress}
+              />
+              <DetailRow
+                label="Shipping Address"
+                value={profile.shippingAddress}
+              />
+              <DetailRow label="GSTIN" value={profile.gstin} />
+              <DetailRow label="PAN" value={profile.pan} />
+              <DetailRow
+                label="Preferred Contact"
+                value={profile.preferredContact}
+              />
+            </dl>
+          )}
+        </section>
+        <aside className="space-y-5">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h3 className="flex items-center gap-2 font-bold text-slate-900">
+              <ShieldCheck size={18} className="text-emerald-600" /> Account
+              Preferences
+            </h3>
+            <dl className="mt-3">
+              <DetailRow label="Payment Terms" value={profile.paymentTerms} />
+              <DetailRow
+                label="Account Manager"
+                value={profile.accountManager}
+              />
+              <DetailRow
+                label="Status"
+                value={
+                  <span
+                    className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${portalStatus("Active")}`}
+                  >
+                    Active
+                  </span>
+                }
+              />
+            </dl>
+          </section>
+          <section className="rounded-2xl border border-blue-100 bg-blue-50 p-5">
+            <h3 className="font-bold text-blue-900">Profile security</h3>
+            <p className="mt-2 text-sm leading-6 text-blue-800">
+              For production use, profile and tax information should be updated
+              through authenticated APIs and audited server-side.
+            </p>
+          </section>
+        </aside>
       </div>
     </div>
   );

@@ -15,6 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Settings,
+  PieChart,
+  Activity,
 } from "lucide-react";
 import {
   Tooltip,
@@ -28,16 +30,20 @@ const CRM_NAVIGATION = [
   { label: 'Dashboard', path: '/crm/dashboard', icon: LayoutDashboard },
   { label: 'Leads', path: '/crm/leads', icon: Filter },
   { label: 'Contacts', path: '/crm/contacts', icon: Contact },
+  { label: 'Customers', path: '/crm/customers', icon: Users },
   { label: 'Opportunities', path: '/crm/opportunities', icon: Briefcase },
+  { label: 'Activities', path: '/crm/activities', icon: Activity },
   { label: 'Pipeline', path: '/crm/pipeline', icon: BarChart3 },
   { label: 'Quotations', path: '/crm/quotations', icon: FileText },
   { label: 'Customer Portal', path: '/crm/customer-portal', icon: Globe },
+  { label: 'Reports', path: '/crm/reports', icon: PieChart },
   { label: 'Settings', path: '/crm/settings', icon: Settings },
 ];
 
 const HRMS_NAVIGATION = [
   { label: "Dashboard", path: "/hrms/dashboard", icon: LayoutDashboard },
   { label: "Employees", path: "/hrms/employees", icon: Users },
+  { label: "Recruitment", path: "/hrms/recruitment", icon: Briefcase },
   { label: "Attendance", path: "/hrms/attendance", icon: Calendar },
   { label: "Leave", path: "/hrms/leave", icon: Calendar },
   { label: "Payroll", path: "/hrms/payroll", icon: Wallet },

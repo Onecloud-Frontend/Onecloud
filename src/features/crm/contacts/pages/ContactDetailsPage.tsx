@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { PageContainer } from '@/shared/components/ui/PageContainer';
-import { Pencil } from 'lucide-react';
+import { ArrowLeft, Pencil } from 'lucide-react';
 import ContactProfile from '../components/ContactProfile';
 import CommunicationHistory from '../components/CommunicationHistory';
 import ContactActivities from '../components/ContactActivities';
@@ -31,7 +31,25 @@ export const ContactDetailsPage: React.FC = () => {
   }
 
   return (
-    <PageContainer className="space-y-5 pb-8"><div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-sm font-medium text-blue-600">CRM / Contacts</p><h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{contact.firstName} {contact.lastName}</h1><p className="mt-1 text-sm text-slate-500">Contact details and relationship history.</p></div><button type="button" onClick={() => navigate(`/crm/contacts/${contact.contactId}/edit`)} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700"><Pencil className="size-4" />Edit Contact</button></div>
+    <PageContainer className="space-y-5 pb-8">
+      <div className="space-y-4">
+        <button
+          type="button"
+          onClick={() => navigate('/crm/contacts')}
+          className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+        >
+          <ArrowLeft size={16} />
+          Back
+        </button>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-medium text-blue-600">CRM / Contacts</p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{contact.firstName} {contact.lastName}</h1>
+            <p className="mt-1 text-sm text-slate-500">Contact details and relationship history.</p>
+          </div>
+          <button type="button" onClick={() => navigate(`/crm/contacts/${contact.contactId}/edit`)} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-medium text-white transition hover:bg-blue-700"><Pencil className="size-4" />Edit Contact</button>
+        </div>
+      </div>
 
       <ContactProfile contact={contact} />
 
@@ -47,7 +65,31 @@ export const ContactDetailsPage: React.FC = () => {
 
       <ContactNotes notes={contact.notes} />
 
-      <section className="rounded-xl border border-slate-200 bg-white shadow-sm"><div className="border-b border-slate-100 px-6 py-4"><h2 className="font-semibold text-slate-900">Related Opportunities</h2></div><div className="p-6 text-sm text-slate-500">{contact.relatedOpportunities.length === 0 ? 'No related opportunities available.' : contact.relatedOpportunities.map((opportunity, index) => <div key={index}>{JSON.stringify(opportunity)}</div>)}</div></section>
+      <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-100 px-6 py-4">
+          <h2 className="font-semibold text-slate-900">Related Opportunities</h2>
+        </div>
+        <div className="p-6 text-sm text-slate-500">
+          {contact.relatedOpportunities.length === 0 ? (
+            'No related opportunities available.'
+          ) : (
+            contact.relatedOpportunities.map((opportunity, index) => (
+              <div key={index} className="mb-3 last:mb-0 p-3 rounded-md border border-slate-100">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-slate-900">{opportunity.name}</span>
+                  <span className="text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-600">
+                    {opportunity.stage}
+                  </span>
+                </div>
+                <div className="mt-1 flex justify-between text-xs text-slate-400">
+                  <span>Value: ${opportunity.value.toLocaleString()}</span>
+                  <span>Expected Close: {opportunity.closeDate}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
       <section className="grid gap-4 rounded-xl border border-slate-200 bg-white p-6 text-sm shadow-sm sm:grid-cols-2"><div><p className="text-xs font-medium uppercase tracking-wide text-slate-500">Created Date</p><p className="mt-1 text-slate-800">{contact.createdDate}</p></div><div><p className="text-xs font-medium uppercase tracking-wide text-slate-500">Updated Date</p><p className="mt-1 text-slate-800">{contact.updatedDate}</p></div></section>
     </PageContainer>
   );
