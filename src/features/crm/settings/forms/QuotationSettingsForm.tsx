@@ -9,7 +9,6 @@ import {
   quotationSettingsSchema,
   type QuotationSettingsFormValues,
 } from "../schemas/quotationSettings.schema";
-
 import type { QuotationSettings } from "../types/quotationSettings.types";
 
 interface QuotationSettingsFormProps {
@@ -327,7 +326,7 @@ export function QuotationSettingsForm({
                         {...register(
                           `quoteStatuses.${index}.code`,
                         )}
-                        disabled
+                        readOnly
                         className={`${inputClassName} bg-slate-50 text-slate-500`}
                       />
                     </td>
