@@ -5,6 +5,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import SettingsLayout from '../components/SettingsLayout';
 import GeneralSettings from '../components/GeneralSettings';
+import NotificationSettings from '../components/NotificationSettings';
+import EmailSettings from '../components/EmailSettings';
+import DisplaySettings from '../components/DisplaySettings';
+import ConfigurationHistory from '../components/ConfigurationHistory';
+import ContactSettings from '../components/ContactSettings';
+import ActivitySettings from '../components/ActivitySettings';
+import { PipelineSettings } from '../components/PipelineSettings';
+import { QuotationSettings } from '../components/QuotationSettings';
 
 import type { SettingsSection } from '../types/settings.types';
 import {
@@ -27,23 +35,20 @@ const ComingSoon = () => (
 const sectionComponents: Partial<
   Record<SettingsSection, React.ComponentType>
 > = {
-  // Built
   general: GeneralSettings,
-
-  // Not built yet
   'lead-management': ComingSoon,
   opportunity: ComingSoon,
-  pipeline: ComingSoon,
-  activities: ComingSoon,
-  quotations: ComingSoon,
+  pipeline: PipelineSettings,
+  activities: ActivitySettings,
+  quotations: QuotationSettings,
   customers: ComingSoon,
-  contacts: ComingSoon,
-  notifications: ComingSoon,
-  email: ComingSoon,
+  contacts: ContactSettings,
+  notifications: NotificationSettings,
+  email: EmailSettings,
   numbering: ComingSoon,
   localization: ComingSoon,
-  display: ComingSoon,
-  history: ComingSoon,
+  display: DisplaySettings,
+  history: ConfigurationHistory,
 };
 
 export default function SettingsPage() {
