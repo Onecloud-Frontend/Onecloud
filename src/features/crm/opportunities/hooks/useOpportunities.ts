@@ -4,63 +4,84 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import type { Opportunity } from "../types/opportunityTypes";
-import type { OpportunityFormValues } from "../schemas/opportunitySchema";
+import type {
+  Opportunity,
+} from "@/features/crm/shared/types/opportunity.types";
 
-import {
-  getOpportunities,
+import { getOpportunities,
   getOpportunityById,
   createOpportunity,
   updateOpportunity,
-  deleteOpportunity,
-} from "../services/opportunityService";
+  deleteOpportunity,} from "@/features/crm/shared/service/opportunityService";
+import type {
+  OpportunityFormValues,
+} from "../schemas/opportunitySchema";
 
-const OPPORTUNITIES_QUERY_KEY = ["opportunities"];
+export const OPPORTUNITIES_QUERY_KEY = [
+  "opportunities",
+];
 
 /**
- * Get all opportunities
+ * Get all opportunities.
  */
 export function useOpportunities() {
   return useQuery({
-    queryKey: OPPORTUNITIES_QUERY_KEY,
-    queryFn: getOpportunities,
+    queryKey:
+      OPPORTUNITIES_QUERY_KEY,
+
+    queryFn:
+      getOpportunities,
   });
 }
 
 /**
- * Get one opportunity by ID
+ * Get one opportunity.
  */
-export function useOpportunity(id: string) {
+export function useOpportunity(
+  id: string,
+) {
   return useQuery({
-    queryKey: [...OPPORTUNITIES_QUERY_KEY, id],
-    queryFn: () => getOpportunityById(id),
-    enabled: Boolean(id),
+    queryKey: [
+      ...OPPORTUNITIES_QUERY_KEY,
+      id,
+    ],
+
+    queryFn: () =>
+      getOpportunityById(id),
+
+    enabled:
+      Boolean(id),
   });
 }
 
 /**
- * Create opportunity
+ * Create opportunity.
  */
 export function useCreateOpportunity() {
-  const queryClient = useQueryClient();
+  const queryClient =
+    useQueryClient();
 
   return useMutation({
-    mutationFn: (values: OpportunityFormValues) =>
+    mutationFn: (
+      values: OpportunityFormValues,
+    ) =>
       createOpportunity(values),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: OPPORTUNITIES_QUERY_KEY,
+        queryKey:
+          OPPORTUNITIES_QUERY_KEY,
       });
     },
   });
 }
 
 /**
- * Update opportunity
+ * Update opportunity.
  */
 export function useUpdateOpportunity() {
-  const queryClient = useQueryClient();
+  const queryClient =
+    useQueryClient();
 
   return useMutation({
     mutationFn: ({
@@ -69,11 +90,19 @@ export function useUpdateOpportunity() {
     }: {
       id: string;
       values: Partial<Opportunity>;
-    }) => updateOpportunity(id, values),
+    }) =>
+      updateOpportunity(
+        id,
+        values,
+      ),
 
-    onSuccess: (_, variables) => {
+    onSuccess: (
+      _data,
+      variables,
+    ) => {
       queryClient.invalidateQueries({
-        queryKey: OPPORTUNITIES_QUERY_KEY,
+        queryKey:
+          OPPORTUNITIES_QUERY_KEY,
       });
 
       queryClient.invalidateQueries({
@@ -87,17 +116,22 @@ export function useUpdateOpportunity() {
 }
 
 /**
- * Delete opportunity
+ * Delete opportunity.
  */
 export function useDeleteOpportunity() {
-  const queryClient = useQueryClient();
+  const queryClient =
+    useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteOpportunity(id),
+    mutationFn: (
+      id: string,
+    ) =>
+      deleteOpportunity(id),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: OPPORTUNITIES_QUERY_KEY,
+        queryKey:
+          OPPORTUNITIES_QUERY_KEY,
       });
     },
   });

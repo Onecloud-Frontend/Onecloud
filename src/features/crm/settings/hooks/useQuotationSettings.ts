@@ -1,11 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { quotationSettingsService } from "../services/quotationSettingsService";
 import type { QuotationSettingsFormValues } from "../schemas/quotationSettings.schema";
 
 const quotationSettingsKeys = {
   all: ["quotation-settings"] as const,
-  detail: () => [...quotationSettingsKeys.all, "detail"] as const,
+
+  detail: () =>
+    [...quotationSettingsKeys.all, "detail"] as const,
 };
 
 export function useQuotationSettings() {
@@ -21,7 +27,10 @@ export function useUpdateQuotationSettings() {
   return useMutation({
     mutationFn: (
       values: QuotationSettingsFormValues,
-    ) => quotationSettingsService.updateQuotationSettings(values),
+    ) =>
+      quotationSettingsService.updateQuotationSettings(
+        values,
+      ),
 
     onSuccess: (updatedSettings) => {
       queryClient.setQueryData(

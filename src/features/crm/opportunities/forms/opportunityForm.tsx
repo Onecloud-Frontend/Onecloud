@@ -1,24 +1,19 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  opportunitySchema,
-  type OpportunityFormInput,
-  type OpportunityFormValues,
-} from "../schemas/opportunitySchema";
-import {
-  OPPORTUNITY_STAGES,
-  OPPORTUNITY_SOURCES,
-  CURRENCY_OPTIONS,
-} from "../mocks/opportunityConstants";
+import {opportunitySchema, type OpportunityFormInput, type OpportunityFormValues,} from "../schemas/opportunitySchema";
+import {OPPORTUNITY_STAGES,OPPORTUNITY_SOURCES,} from "../mocks/opportunityConstants";
+import { users } from "@/features/crm/shared/data/users";
 
 interface OpportunityFormProps {
   initialValues?: Partial<OpportunityFormInput>;
   submitLabel: string;
-  onSubmit: (values: OpportunityFormValues) => void | Promise<void>;
+  onSubmit: (
+    values: OpportunityFormValues,
+  ) => void | Promise<void>;
   isSubmitting?: boolean;
 }
 
-export function OpportunityForm({
+export default function OpportunityForm({
   initialValues,
   submitLabel,
   onSubmit,
@@ -28,230 +23,293 @@ export function OpportunityForm({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<OpportunityFormInput, unknown, OpportunityFormValues>({
+  } = useForm<
+    OpportunityFormInput,
+    unknown,
+    OpportunityFormValues
+  >({
     resolver: zodResolver(opportunitySchema),
+
     defaultValues: {
       name: "",
-      customerName: "",
-      contactName: "",
-      description: "",
-      stage: "Prospecting",
-      expectedRevenue: 0,
+      customerId: "",
+      contactId: "",
+      leadId: "",
+      stage: "QUALIFICATION",
       probability: 20,
+      expectedRevenue: 0,
+      amount: 0,
       expectedCloseDate: "",
-      ownerName: "",
-      competitor: "",
+      assignedTo: "",
       source: "",
-      currency: "INR",
-      notes: "",
+      competitors: [],
+      description: "",
       ...initialValues,
     },
   });
 
-  const inputClassName =
+  const inputClass =
     "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
-  const labelClassName = "mb-1 block text-sm font-medium text-gray-700";
+  const labelClass =
+    "mb-1 block text-sm font-medium text-gray-700";
 
-  const errorClassName = "mt-1 text-xs text-red-600";
+  const errorClass =
+    "mt-1 text-xs text-red-600";
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-6 rounded-xl bg-white p-6 shadow-sm"
     >
-      {/* Basic Information */}
+      {/* =====================================================
+          BASIC INFORMATION
+      ====================================================== */}
+
       <section>
         <h2 className="mb-4 text-lg font-semibold text-gray-800">
           Basic Information
         </h2>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
           {/* Opportunity Name */}
           <div>
-            <label className={labelClassName}>
-              Opportunity Name <span className="text-red-500">*</span>
+            <label className={labelClass}>
+              Opportunity Name{" "}
+              <span className="text-red-500">*</span>
             </label>
 
             <input
               type="text"
               placeholder="Enter opportunity name"
               {...register("name")}
-              className={inputClassName}
+              className={inputClass}
             />
 
             {errors.name && (
-              <p className={errorClassName}>{errors.name.message}</p>
+              <p className={errorClass}>
+                {errors.name.message}
+              </p>
             )}
           </div>
 
-          {/* Customer */}
+          {/* Customer - MANUAL INPUT */}
           <div>
-            <label className={labelClassName}>
-              Customer <span className="text-red-500">*</span>
+            <label className={labelClass}>
+              Customer{" "}
+              <span className="text-red-500">*</span>
             </label>
 
             <input
               type="text"
               placeholder="Enter customer name"
-              {...register("customerName")}
-              className={inputClassName}
+              {...register("customerId")}
+              className={inputClass}
             />
 
-            {errors.customerName && (
-              <p className={errorClassName}>
-                {errors.customerName.message}
+            {errors.customerId && (
+              <p className={errorClass}>
+                {errors.customerId.message}
               </p>
             )}
           </div>
 
-          {/* Contact */}
+          {/* Contact - MANUAL INPUT */}
           <div>
-            <label className={labelClassName}>Contact</label>
+            <label className={labelClass}>
+              Contact
+            </label>
 
             <input
               type="text"
               placeholder="Enter contact name"
-              {...register("contactName")}
-              className={inputClassName}
+              {...register("contactId")}
+              className={inputClass}
             />
 
-            {errors.contactName && (
-              <p className={errorClassName}>
-                {errors.contactName.message}
+            {errors.contactId && (
+              <p className={errorClass}>
+                {errors.contactId.message}
               </p>
             )}
           </div>
 
           {/* Owner */}
           <div>
-            <label className={labelClassName}>
-              Owner <span className="text-red-500">*</span>
+            <label className={labelClass}>
+              Owner{" "}
+              <span className="text-red-500">*</span>
             </label>
 
-            <input
-              type="text"
-              placeholder="Enter owner name"
-              {...register("ownerName")}
-              className={inputClassName}
-            />
+            <select
+              {...register("assignedTo")}
+              className={inputClass}
+            >
+              <option value="">
+                Select owner
+              </option>
 
-            {errors.ownerName && (
-              <p className={errorClassName}>{errors.ownerName.message}</p>
+              {users
+                .filter((user) => user.isActive)
+                .map((user) => (
+                  <option
+                    key={user.id}
+                    value={user.id}
+                  >
+                    {user.firstName} {user.lastName}
+                  </option>
+                ))}
+            </select>
+
+            {errors.assignedTo && (
+              <p className={errorClass}>
+                {errors.assignedTo.message}
+              </p>
             )}
           </div>
         </div>
       </section>
 
-      {/* Opportunity Details */}
+      {/* =====================================================
+          OPPORTUNITY DETAILS
+      ====================================================== */}
+
       <section>
         <h2 className="mb-4 text-lg font-semibold text-gray-800">
           Opportunity Details
         </h2>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+
           {/* Stage */}
           <div>
-            <label className={labelClassName}>
-              Stage <span className="text-red-500">*</span>
+            <label className={labelClass}>
+              Stage{" "}
+              <span className="text-red-500">*</span>
             </label>
 
-            <select {...register("stage")} className={inputClassName}>
-              <option value="">Select stage</option>
-
+            <select
+              {...register("stage")}
+              className={inputClass}
+            >
               {OPPORTUNITY_STAGES.map((stage) => (
-                <option key={stage} value={stage}>
-                  {stage}
+                <option
+                  key={stage}
+                  value={stage}
+                >
+                  {stage.replaceAll("_", " ")}
                 </option>
               ))}
             </select>
-
-            {errors.stage && (
-              <p className={errorClassName}>{errors.stage.message}</p>
-            )}
           </div>
 
-          {/* Source */}
+          {/* Lead Source */}
           <div>
-            <label className={labelClassName}>Lead Source</label>
+            <label className={labelClass}>
+              Lead Source
+            </label>
 
-            <select {...register("source")} className={inputClassName}>
-              <option value="">Select source</option>
+            <select
+              {...register("source")}
+              className={inputClass}
+            >
+              <option value="">
+                Select source
+              </option>
 
               {OPPORTUNITY_SOURCES.map((source) => (
-                <option key={source} value={source}>
-                  {source}
+                <option
+                  key={source}
+                  value={source}
+                >
+                  {source.replaceAll("_", " ")}
                 </option>
               ))}
             </select>
-
-            {errors.source && (
-              <p className={errorClassName}>{errors.source.message}</p>
-            )}
           </div>
 
           {/* Expected Revenue */}
           <div>
-            <label className={labelClassName}>
-              Expected Revenue <span className="text-red-500">*</span>
+            <label className={labelClass}>
+              Expected Revenue{" "}
+              <span className="text-red-500">*</span>
             </label>
 
             <input
               type="text"
               inputMode="decimal"
-              placeholder="Enter amount, e.g. 850000"
+              placeholder="2250000"
               {...register("expectedRevenue", {
                 setValueAs: (value) => {
-                  if (value === "") return undefined;
+                  if (value === "") {
+                    return undefined;
+                  }
 
-                  const numericValue = Number(
-                    String(value).replace(/,/g, "").trim()
+                  const number = Number(
+                    String(value)
+                      .replace(/,/g, "")
+                      .trim(),
                   );
 
-                  return Number.isNaN(numericValue)
+                  return Number.isNaN(number)
                     ? value
-                    : numericValue;
+                    : number;
                 },
               })}
-              className={inputClassName}
+              className={inputClass}
             />
 
-            <p className="mt-1 text-xs text-gray-500">
-              Type the amount directly. Example: 850000
-            </p>
-
             {errors.expectedRevenue && (
-              <p className={errorClassName}>
+              <p className={errorClass}>
                 {errors.expectedRevenue.message}
               </p>
             )}
           </div>
 
-          {/* Currency */}
+          {/* Amount */}
           <div>
-            <label className={labelClassName}>
-              Currency <span className="text-red-500">*</span>
+            <label className={labelClass}>
+              Amount{" "}
+              <span className="text-red-500">*</span>
             </label>
 
-            <select {...register("currency")} className={inputClassName}>
-              <option value="">Select currency</option>
+            <input
+              type="text"
+              inputMode="decimal"
+              placeholder="3000000"
+              {...register("amount", {
+                setValueAs: (value) => {
+                  if (value === "") {
+                    return undefined;
+                  }
 
-              {CURRENCY_OPTIONS.map((currency) => (
-                <option key={currency} value={currency}>
-                  {currency}
-                </option>
-              ))}
-            </select>
+                  const number = Number(
+                    String(value)
+                      .replace(/,/g, "")
+                      .trim(),
+                  );
 
-            {errors.currency && (
-              <p className={errorClassName}>{errors.currency.message}</p>
+                  return Number.isNaN(number)
+                    ? value
+                    : number;
+                },
+              })}
+              className={inputClass}
+            />
+
+            {errors.amount && (
+              <p className={errorClass}>
+                {errors.amount.message}
+              </p>
             )}
           </div>
 
           {/* Probability */}
           <div>
-            <label className={labelClassName}>
-              Probability (%) <span className="text-red-500">*</span>
+            <label className={labelClass}>
+              Probability (%){" "}
+              <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -259,15 +317,14 @@ export function OpportunityForm({
               min="0"
               max="100"
               step="1"
-              placeholder="Enter probability"
               {...register("probability", {
                 valueAsNumber: true,
               })}
-              className={inputClassName}
+              className={inputClass}
             />
 
             {errors.probability && (
-              <p className={errorClassName}>
+              <p className={errorClass}>
                 {errors.probability.message}
               </p>
             )}
@@ -275,85 +332,80 @@ export function OpportunityForm({
 
           {/* Expected Close Date */}
           <div>
-            <label className={labelClassName}>
-              Expected Close Date <span className="text-red-500">*</span>
+            <label className={labelClass}>
+              Expected Close Date{" "}
+              <span className="text-red-500">*</span>
             </label>
 
             <input
               type="date"
               {...register("expectedCloseDate")}
-              className={inputClassName}
+              className={inputClass}
             />
 
             {errors.expectedCloseDate && (
-              <p className={errorClassName}>
+              <p className={errorClass}>
                 {errors.expectedCloseDate.message}
               </p>
             )}
           </div>
 
-          {/* Competitor */}
-          <div>
-            <label className={labelClassName}>Competitor</label>
+          {/* Competitors */}
+          <div className="md:col-span-2">
+            <label className={labelClass}>
+              Competitors
+            </label>
 
             <input
               type="text"
-              placeholder="Enter competitor name"
-              {...register("competitor")}
-              className={inputClassName}
+              placeholder="CloudAxis, SkyStack"
+              {...register("competitors", {
+                setValueAs: (value) =>
+                  String(value)
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean),
+              })}
+              className={inputClass}
             />
 
-            {errors.competitor && (
-              <p className={errorClassName}>
-                {errors.competitor.message}
-              </p>
-            )}
+            <p className="mt-1 text-xs text-gray-500">
+              Enter multiple competitors separated by commas.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* Description */}
+      {/* =====================================================
+          DESCRIPTION
+      ====================================================== */}
+
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">
+        <label className={labelClass}>
           Description
-        </h2>
+        </label>
 
         <textarea
           rows={4}
           placeholder="Enter opportunity description"
           {...register("description")}
-          className={inputClassName}
+          className={inputClass}
         />
-
-        {errors.description && (
-          <p className={errorClassName}>{errors.description.message}</p>
-        )}
       </section>
 
-      {/* Notes */}
-      <section>
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">Notes</h2>
+      {/* =====================================================
+          SUBMIT
+      ====================================================== */}
 
-        <textarea
-          rows={4}
-          placeholder="Enter additional notes"
-          {...register("notes")}
-          className={inputClassName}
-        />
-
-        {errors.notes && (
-          <p className={errorClassName}>{errors.notes.message}</p>
-        )}
-      </section>
-
-      {/* Actions */}
       <div className="flex justify-end border-t border-gray-200 pt-5">
         <button
           type="submit"
           disabled={isSubmitting}
           className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "Saving..." : submitLabel}
+          {isSubmitting
+            ? "Saving..."
+            : submitLabel}
         </button>
       </div>
     </form>

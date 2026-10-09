@@ -1,30 +1,17 @@
 export const OPPORTUNITY_STAGES = [
-  "Prospecting",
-  "Qualification",
-  "Proposal",
-  "Negotiation",
-  "Closed Won",
-  "Closed Lost",
-] as const;
-
-export const OPPORTUNITY_STATUSES = [
-  "Open",
-  "Won",
-  "Lost",
+  "QUALIFICATION",
+  "DISCOVERY",
+  "PROPOSAL",
+  "NEGOTIATION",
+  "CLOSED_WON",
+  "CLOSED_LOST",
 ] as const;
 
 export const OPPORTUNITY_SOURCES = [
-  "Website",
-  "Referral",
-  "Email",
-  "Phone",
-  "Campaign",
-  "Other",
-] as const;
-
-export const CURRENCY_OPTIONS = [
-  "INR",
-  "USD",
-  "EUR",
-  "GBP",
+  "WEBSITE",
+  "REFERRAL",
+  "SOCIAL_MEDIA",
+  "EMAIL",
+  "EVENT",
+  "COLD_CALL",
 ] as const;

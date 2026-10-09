@@ -7,14 +7,15 @@ export const LeadDetailsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
+      <button
+  onClick={() => navigate("/crm/leads")}
+  className="mb-6 rounded-lg border bg-white px-5 py-2 font-medium text-gray-700 shadow-sm hover:bg-gray-100"
+>
+  ← Back to Leads
+</button>
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex items-center gap-4">
-          <button
-            onClick={() => navigate("/crm/leads")}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 font-medium text-gray-700 hover:bg-gray-100"
-          >
-            ← Back
-          </button>
+         
 
           <div>
             <h1 className="text-3xl font-bold text-blue-600">

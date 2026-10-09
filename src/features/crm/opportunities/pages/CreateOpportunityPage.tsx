@@ -1,67 +1,94 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateOpportunity } from "../hooks/useOpportunities";
-import { OpportunityForm } from "../forms/opportunityForm";
+import OpportunityForm from "../forms/opportunityForm";
 import type { OpportunityFormValues } from "../schemas/opportunitySchema";
 
 export function CreateOpportunityPage() {
   const navigate = useNavigate();
 
-  const createMutation = useCreateOpportunity();
-  const [errorMessage, setErrorMessage] = useState("");
+  const createMutation =
+    useCreateOpportunity();
 
-  const handleSubmit = async (values: OpportunityFormValues) => {
+  const [errorMessage, setErrorMessage] =
+    useState("");
+
+  const handleSubmit = async (
+    values: OpportunityFormValues,
+  ) => {
     setErrorMessage("");
 
     try {
-      await createMutation.mutateAsync(values);
+      await createMutation.mutateAsync(
+        values,
+      );
+
       navigate("/crm/opportunities");
     } catch (error) {
-      console.error("Create opportunity error:", error);
+      console.error(
+        "Create opportunity error:",
+        error,
+      );
 
-      setErrorMessage("Unable to create opportunity. Please try again.");
+      setErrorMessage(
+        "Unable to create opportunity. Please try again.",
+      );
     }
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
-      <div className="mx-auto max-w-5xl">
-        {/* Back Button - aligned to the left */}
+    <main className="min-h-screen bg-slate-50 px-3 py-5 sm:px-6 sm:py-6 lg:px-8">
+      <div className="mx-auto w-full max-w-5xl">
+
+        {/* Back button */}
         <div className="mb-6 flex w-full justify-start">
           <button
             type="button"
-            onClick={() => navigate("/crm/opportunities")}
-            className="inline-flex w-fit items-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-600"
+            onClick={() =>
+              navigate(
+                "/crm/opportunities",
+              )
+            }
+            className="inline-flex w-fit items-center gap-3 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-indigo-400 hover:bg-indigo-50 hover:text-indigo-600"
           >
-            <span className="text-xl leading-none">←</span>
-            <span>Back to Opportunities</span>
+            <span
+              className="text-xl leading-none"
+              aria-hidden="true"
+            >
+              ←
+            </span>
+
+            <span>
+              Back to Opportunities
+            </span>
           </button>
         </div>
 
-        {/* Page Header */}
-        <div className="mb-6">
-          <p className="text-sm text-gray-500">
+        {/* Header */}
+        <header className="mb-6">
+          <p className="text-sm text-slate-500">
             CRM / Opportunities / Create
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold text-gray-900">
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
             Create Opportunity
           </h1>
 
-          <p className="mt-2 text-sm text-gray-600">
-            Add a new sales opportunity to your CRM.
+          <p className="mt-2 text-sm text-slate-600">
+            Add a new sales opportunity to
+            your CRM.
           </p>
-        </div>
+        </header>
 
-        {/* Error Message */}
+        {/* Error */}
         {errorMessage && (
           <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {errorMessage}
           </div>
         )}
 
-        {/* Form Card */}
-        <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        {/* Form */}
+        <section>
           <OpportunityForm
             submitLabel={
               createMutation.isPending
@@ -69,7 +96,9 @@ export function CreateOpportunityPage() {
                 : "Create Opportunity"
             }
             onSubmit={handleSubmit}
-            isSubmitting={createMutation.isPending}
+            isSubmitting={
+              createMutation.isPending
+            }
           />
         </section>
       </div>

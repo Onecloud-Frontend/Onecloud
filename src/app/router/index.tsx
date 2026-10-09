@@ -122,6 +122,11 @@ const CandidateDetailsPage = lazy_(
       "@/features/hrms/recruitment/candidates/pages/CandidateDetailsPage"
     ),
 );
+
+const ApplicationsPage = lazy_(
+  () => import("@/features/hrms/recruitment/pages/ApplicationsPage"),
+);
+
 const InterviewsPage = lazy_(
   () => import("@/features/hrms/recruitment/pages/InterviewsPage"),
 );
@@ -375,6 +380,7 @@ export const router = createBrowserRouter([
       { path: "hrms/recruitment", element: <RecruitmentPage /> },
       { path: "hrms/recruitment/offers", element: <OffersPage /> },
       { path: "hrms/recruitment/candidates", element: <CandidatesPage /> },
+      { path: "hrms/recruitment/applications", element: <ApplicationsPage /> },
       { path: "hrms/recruitment/interviews", element: <InterviewsPage /> },
       { path: "hrms/recruitment/candidates/:candidateId",element: <CandidateDetailsPage />,},
       { path: "hrms/performance", element: <PerformancePage /> },
@@ -397,33 +403,23 @@ export const router = createBrowserRouter([
                 await import("@/features/crm/dashboard/pages/DashboardPage")
               ).default,
             }),
-          },  
-        { path: 'settings', children: [{ index: true, lazy: async () => ({ Component: (await import('@/features/crm/settings/pages/SettingsPage')).default,}),},
-          { path: 'notifications', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/NotificationSettings')).default,}),},
-          { path: 'email', lazy: async () => ({ Component: (await import('@/features/crm/settings/components/EmailSettings')).default,}),},
-          { path: 'display', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/DisplaySettings')).default,}),},
-          { path: 'history', lazy: async () => ({ Component: ( await import('@/features/crm/settings/components/ConfigurationHistory')).default,}),},
-          { path: "contacts", lazy: async () => ({ Component: ( await import( "@/features/crm/settings/components/ContactSettings" )).default, }),},
-  ],
-},
-          {path: 'settings', lazy: async () => ({Component: (await import('@/features/crm/settings/pages/SettingsPage')).default}),},
-          {
-            path: "dashboard",
-            lazy: async () => ({
-              Component:
-                (await import("@/features/crm/dashboard/pages/DashboardPage"))
-                  .default ||
-                (await import("@/features/crm/dashboard/pages/DashboardPage"))
-                  .default,
-            }),
           },
           {
             path: "settings",
-            lazy: async () => ({
-              Component: (
-                await import("@/features/crm/settings/pages/SettingsPage")
-              ).default,
-            }),
+            children: [
+              {
+                index: true,
+                lazy: async () => ({
+                  Component: (await import("@/features/crm/settings/pages/SettingsPage")).default,
+                }),
+              },
+              {
+                path: ":section",
+                lazy: async () => ({
+                  Component: (await import("@/features/crm/settings/pages/SettingsPage")).default,
+                }),
+              },
+            ],
           },
           {
             path: "leads",

@@ -1,34 +1,22 @@
-<<<<<<< HEAD
-import React from 'react';
-import { Bell, CheckCircle2, Clock3, Headphones, MessageSquare } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { customerActivities, customerNotifications, supportTickets } from '../types/data';
-import { ActivityIcon, PageHeader, QuickLink, StatCard, portalStatus } from '../components/PortalUi';
-
-export const CustomerDashboardPage: React.FC = () => {
- const open=supportTickets.filter(t=>t.status!=='Resolved'); const unread=customerNotifications.filter(n=>!n.read);
- return <div className="p-5 md:p-7"><PageHeader title="Customer Portal" description="A single workspace for support requests, customer activity, reminders and notifications."/>
- <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"><StatCard label="Open Support" value={open.length} icon={<Headphones size={19}/>} /><StatCard label="Resolved Tickets" value={supportTickets.filter(t=>t.status==='Resolved').length} icon={<CheckCircle2 size={19}/>} tone="bg-emerald-50 text-emerald-600"/><StatCard label="Upcoming Activities" value={customerActivities.filter(a=>a.status!=='Completed').length} icon={<Clock3 size={19}/>} tone="bg-violet-50 text-violet-600"/><StatCard label="Unread Notifications" value={unread.length} icon={<Bell size={19}/>} tone="bg-orange-50 text-orange-600"/></div>
- <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4"><QuickLink to="/crm/customer-portal/support" label="Support Requests" count={supportTickets.length} icon={<Headphones size={18}/>} /><QuickLink to="/crm/customer-portal/activities" label="Customer Activities" count={customerActivities.length} icon={<MessageSquare size={18}/>} /><QuickLink to="/crm/customer-portal/notifications" label="Notifications" count={unread.length} icon={<Bell size={18}/>} /><QuickLink to="/crm/customer-portal/profile" label="Customer Profile" icon={<MessageSquare size={18}/>} /></div>
- <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.35fr_.65fr]">
-  <section className="rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="flex items-center justify-between border-b border-slate-100 p-5"><div><h2 className="font-bold text-slate-900">Recent Support</h2><p className="mt-1 text-xs text-slate-500">Latest customer support requests</p></div><Link to="/crm/customer-portal/support" className="text-xs font-semibold text-blue-600">View all</Link></div><div className="divide-y divide-slate-100">{supportTickets.slice(0,4).map(t=><Link key={t.id} to={`/crm/customer-portal/support/${t.id}`} className="flex items-center gap-3 p-4 hover:bg-slate-50"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600"><Headphones size={18}/></div><div className="min-w-0 flex-1"><div className="flex flex-wrap gap-2"><span className="text-xs font-semibold text-blue-600">{t.ticketNumber}</span><span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${portalStatus(t.status)}`}>{t.status}</span></div><p className="mt-1 truncate text-sm font-semibold text-slate-800">{t.subject}</p><p className="mt-0.5 text-xs text-slate-400">Updated {t.updatedDate} · {t.assignedTo}</p></div></Link>)}</div></section>
-  <section className="rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="border-b border-slate-100 p-5"><h2 className="font-bold text-slate-900">Upcoming Reminders</h2><p className="mt-1 text-xs text-slate-500">Next actions requiring attention</p></div><div className="space-y-3 p-4">{customerActivities.filter(a=>a.status!=='Completed').map(a=><div key={a.id} className="flex gap-3 rounded-xl border border-slate-100 p-3"><ActivityIcon type={a.activityType}/><div className="min-w-0"><p className="text-sm font-semibold text-slate-800">{a.subject}</p><p className="mt-1 text-xs text-slate-500">{a.nextAction}</p><p className="mt-2 text-[11px] font-semibold text-blue-600">Reminder: {a.reminderDate}</p></div></div>)}</div></section>
- </div>
- </div>;
-};
-=======
-
 import React from "react";
-import { Link } from "react-router-dom";
 import {
-  ChevronRight,
-  FileText,
-  LayoutDashboard,
-  Package,
-  Receipt,
-  User,
-  Wallet,
+    Bell,
+    CheckCircle2,
+    Clock3,
+    Headphones,
+    MessageSquare,
 } from "lucide-react";
+
+import {
+  customers,
+  invoices,
+  orders,
+  quotations,
+} from "../../shared/data";
+
+// ---------------------------------------------------------------------------
+// Menu
+// ---------------------------------------------------------------------------
 
 interface MenuItem {
   title: string;
@@ -40,19 +28,11 @@ interface MenuItem {
   hoverBorder: string;
 }
 
-interface SummaryItem {
-  label: string;
-  value: string;
-  description: string;
-  icon: React.ElementType;
-  iconBg: string;
-  iconColor: string;
-}
-
 const menuItems: MenuItem[] = [
   {
     title: "Profile",
-    description: "View and manage your customer profile and contact details.",
+    description:
+      "View and manage your customer profile and contact details.",
     path: "/crm/customer-portal/profile",
     icon: User,
     iconBg: "bg-violet-50",
@@ -61,7 +41,8 @@ const menuItems: MenuItem[] = [
   },
   {
     title: "Quotations",
-    description: "Review quotations and track their current status.",
+    description:
+      "Review quotations and track their current status.",
     path: "/crm/customer-portal/quotations",
     icon: FileText,
     iconBg: "bg-blue-50",
@@ -70,7 +51,8 @@ const menuItems: MenuItem[] = [
   },
   {
     title: "Orders",
-    description: "View your orders and monitor order progress.",
+    description:
+      "View your orders and monitor order progress.",
     path: "/crm/customer-portal/orders",
     icon: Package,
     iconBg: "bg-emerald-50",
@@ -79,7 +61,8 @@ const menuItems: MenuItem[] = [
   },
   {
     title: "Invoices",
-    description: "View invoices, payment details, and outstanding amounts.",
+    description:
+      "View invoices, payment details, and outstanding amounts.",
     path: "/crm/customer-portal/invoices",
     icon: Receipt,
     iconBg: "bg-orange-50",
@@ -88,7 +71,8 @@ const menuItems: MenuItem[] = [
   },
   {
     title: "Account Summary",
-    description: "Review your account and overall financial information.",
+    description:
+      "Review your account and overall financial information.",
     path: "/crm/customer-portal/account",
     icon: Wallet,
     iconBg: "bg-cyan-50",
@@ -97,49 +81,77 @@ const menuItems: MenuItem[] = [
   },
 ];
 
-const summaryItems: SummaryItem[] = [
-  {
-    label: "Total Orders",
-    value: "24",
-    description: "Orders placed",
-    icon: Package,
-    iconBg: "bg-emerald-50",
-    iconColor: "text-emerald-600",
-  },
-  {
-    label: "Open Quotations",
-    value: "06",
-    description: "Awaiting response",
-    icon: FileText,
-    iconBg: "bg-blue-50",
-    iconColor: "text-blue-600",
-  },
-  {
-    label: "Outstanding",
-    value: "$12,450",
-    description: "Amount due",
-    icon: Wallet,
-    iconBg: "bg-orange-50",
-    iconColor: "text-orange-600",
-  },
-  {
-    label: "Account Status",
-    value: "Active",
-    description: "Account in good standing",
-    icon: User,
-    iconBg: "bg-violet-50",
-    iconColor: "text-violet-600",
-  },
-];
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
 
 const CustomerDashboardPage: React.FC = () => {
+  const customer = customers[0];
+
+  const totalOrders = orders.length;
+
+  const openQuotations = quotations.filter(
+    (quotation) =>
+      quotation.status !== "ACCEPTED" &&
+      quotation.status !== "REJECTED",
+  ).length;
+
+  const outstandingAmount = invoices.reduce(
+    (total, invoice) => total + invoice.balanceAmount,
+    0,
+  );
+
+  const currencyCode = invoices[0]?.currency ?? "INR";
+
+  const formattedOutstanding = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: currencyCode,
+    maximumFractionDigits: 0,
+  }).format(outstandingAmount);
+
+  const accountStatus = customer?.status ?? "UNKNOWN";
+
+  const summaryItems = [
+    {
+      label: "Total Orders",
+      value: String(totalOrders).padStart(2, "0"),
+      description: "Orders placed",
+      icon: Package,
+      iconBg: "bg-emerald-50",
+      iconColor: "text-emerald-600",
+    },
+    {
+      label: "Open Quotations",
+      value: String(openQuotations).padStart(2, "0"),
+      description: "Awaiting response",
+      icon: FileText,
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-600",
+    },
+    {
+      label: "Outstanding",
+      value: formattedOutstanding,
+      description: "Amount due",
+      icon: Wallet,
+      iconBg: "bg-orange-50",
+      iconColor: "text-orange-600",
+    },
+    {
+      label: "Account Status",
+      value: accountStatus,
+      description: "Customer account status",
+      icon: User,
+      iconBg: "bg-violet-50",
+      iconColor: "text-violet-600",
+    },
+  ];
+
   return (
     <div className="min-h-full bg-gradient-to-br from-slate-50 via-white to-blue-50">
       <div className="mx-auto max-w-7xl space-y-7 p-4 sm:p-6 lg:p-8">
 
         {/* Header */}
         <section className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-          {/* Decorative background */}
           <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-100/60 blur-3xl" />
           <div className="absolute -bottom-24 left-1/3 h-52 w-52 rounded-full bg-violet-100/50 blur-3xl" />
 
@@ -174,123 +186,105 @@ const CustomerDashboardPage: React.FC = () => {
               </p>
 
               <p className="mt-1 text-lg font-bold text-gray-900">
-                ACC-10245
+                {customer?.id ?? "—"}
               </p>
 
               <div className="mt-2 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span className="text-xs font-medium text-emerald-600">
-                  Active Account
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    accountStatus === "ACTIVE"
+                      ? "bg-emerald-500"
+                      : "bg-gray-400"
+                  }`}
+                />
+
+                <span
+                  className={`text-xs font-medium ${
+                    accountStatus === "ACTIVE"
+                      ? "text-emerald-600"
+                      : "text-gray-600"
+                  }`}
+                >
+                  {accountStatus} Account
                 </span>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Account Overview */}
-        <section>
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-900">
-              Account Overview
-            </h2>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Quick insights into your customer account.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {summaryItems.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <div
-                  key={item.label}
-                  className="group rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between">
-                    <div
-                      className={`flex h-11 w-11 items-center justify-center rounded-xl ${item.iconBg} ${item.iconColor}`}
-                    >
-                      <Icon size={21} />
+            <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 className="font-bold text-slate-900">Customer Account Summary</h2>
+                        <p className="mt-1 text-xs text-slate-500">
+                            {customerAccount.companyName} · {customerAccount.accountId} · {customerAccount.customerCode}
+                        </p>
                     </div>
-
-                    <span className="text-xs font-medium text-gray-400">
-                      Overview
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        {customerAccount.accountStatus}
                     </span>
-                  </div>
-
-                  <div className="mt-5">
-                    <p className="text-sm font-medium text-gray-500">
-                      {item.label}
-                    </p>
-
-                    <p
-                      className={`mt-1 text-2xl font-bold ${
-                        item.label === "Account Status"
-                          ? "text-emerald-600"
-                          : "text-gray-900"
-                      }`}
-                    >
-                      {item.value}
-                    </p>
-
-                    <p className="mt-1 text-xs text-gray-400">
-                      {item.description}
-                    </p>
-                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Customer Services */}
-        <section>
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-900">
-              Customer Services
-            </h2>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Access your account information and services.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${item.hoverBorder}`}
-                >
-                  {/* Top gradient line */}
-                  <div
-                    className={`absolute left-0 right-0 top-0 h-1 ${
-                      item.title === "Profile"
-                        ? "bg-gradient-to-r from-violet-500 to-purple-500"
-                        : item.title === "Quotations"
-                          ? "bg-gradient-to-r from-blue-500 to-indigo-500"
-                          : item.title === "Orders"
-                            ? "bg-gradient-to-r from-emerald-500 to-teal-500"
-                            : item.title === "Invoices"
-                              ? "bg-gradient-to-r from-orange-500 to-amber-500"
-                              : "bg-gradient-to-r from-cyan-500 to-sky-500"
-                    }`}
-                  />
-
-                  <div className="flex items-start justify-between">
-                    <div
-                      className={`flex h-12 w-12 items-center justify-center rounded-xl ${item.iconBg} ${item.iconColor} transition-all duration-300 group-hover:scale-110`}
-                    >
-                      <Icon size={23} />
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-8">
+                    {[
+                        ["Total Quotes", customerAccount.totalQuotes],
+                        ["Pending Quotes", customerAccount.pendingQuotes],
+                        ["Total Orders", customerAccount.totalOrders],
+                        ["Open Orders", customerAccount.openOrders],
+                        ["Total Invoices", customerAccount.totalInvoices],
+                        ["Outstanding", `₹${customerAccount.outstandingAmount.toLocaleString("en-IN")}`],
+                        ["Paid Amount", `₹${customerAccount.paidAmount.toLocaleString("en-IN")}`],
+                        ["Payment Due", customerAccount.paymentDueDate],
+                    ].map(([label, value]) => (
+                        <div key={label} className="rounded-xl bg-slate-50 p-3">
+                            <p className="text-[11px] font-medium text-slate-500">{label}</p>
+                            <p className="mt-1 text-sm font-bold text-slate-900">{value}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.35fr_.65fr]">
+                <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 p-5">
+                        <div>
+                            <h2 className="font-bold text-slate-900">Recent Support</h2>
+                            <p className="mt-1 text-xs text-slate-500">
+                                Latest customer support requests
+                            </p>
+                        </div>
+                        <Link
+                            to="/crm/customer-portal/support"
+                            className="text-xs font-semibold text-blue-600"
+                        >
+                            View all
+                        </Link>
                     </div>
-
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all duration-300 group-hover:bg-gray-100 group-hover:text-gray-700">
-                      <ChevronRight size={17} />
+                    <div className="divide-y divide-slate-100">
+                        {supportTickets.slice(0, 4).map((t) => (
+                            <Link
+                                key={t.id}
+                                to={`/crm/customer-portal/support/${t.id}`}
+                                className="flex items-center gap-3 p-4 hover:bg-slate-50"
+                            >
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                                    <Headphones size={18} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="text-xs font-semibold text-blue-600">
+                                            {t.ticketNumber}
+                                        </span>
+                                        <span
+                                            className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${portalStatus(t.status)}`}
+                                        >
+                                            {t.status}
+                                        </span>
+                                    </div>
+                                    <p className="mt-1 truncate text-sm font-semibold text-slate-800">
+                                        {t.subject}
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-slate-400">
+                                        Updated {t.updatedDate} · {t.assignedTo}
+                                    </p>
+                                </div>
+                            </Link>
+                        ))}
                     </div>
                   </div>
 
@@ -302,7 +296,9 @@ const CustomerDashboardPage: React.FC = () => {
                     {item.description}
                   </p>
 
-                  <div className={`mt-4 text-sm font-semibold ${item.iconColor}`}>
+                  <div
+                    className={`mt-4 text-sm font-semibold ${item.iconColor}`}
+                  >
                     View details →
                   </div>
                 </Link>
@@ -311,7 +307,7 @@ const CustomerDashboardPage: React.FC = () => {
           </div>
         </section>
 
-        {/* account information */}
+        {/* Account Information */}
         <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
           <div className="border-b border-gray-100 bg-gradient-to-r from-indigo-50 via-white to-cyan-50 px-6 py-5">
             <h2 className="text-lg font-bold text-gray-900">
@@ -330,7 +326,7 @@ const CustomerDashboardPage: React.FC = () => {
               </p>
 
               <p className="mt-2 text-sm font-semibold text-gray-900">
-                Shan Admin
+                {customer?.companyName ?? "—"}
               </p>
             </div>
 
@@ -340,16 +336,11 @@ const CustomerDashboardPage: React.FC = () => {
               </p>
 
               <p className="mt-2 text-sm font-semibold text-gray-900">
-                Enterprise Customer
+                {customer?.industry ?? "—"}
               </p>
             </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  );
+        </div>
+    );
 };
 
 export { CustomerDashboardPage };
-
->>>>>>> origin/dev

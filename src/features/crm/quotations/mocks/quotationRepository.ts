@@ -3,6 +3,19 @@ import type {
   QuotationFormValues,
 } from "../types/quotation.types";
 
+import {
+  customers,
+  contacts,
+  opportunities,
+  products,
+  users,
+} from "../../shared/data";
+
+import {
+  calculateCompleteLineItem,
+  calculateQuotationTotals,
+} from "../utils/quotationCalculations";
+
 import { quotationMockData } from "./quotationMockData";
 
 let quotations: Quotation[] = [
@@ -38,6 +51,13 @@ function createQuoteNumber(): string {
   ).padStart(3, "0")}`;
 }
 
+/**
+ * Maps quotation form values into the
+ * feature-level quotation model.
+ *
+ * All CRM relationships are resolved
+ * from the centralized CRM dataset.
+ */
 function mapFormValuesToQuotation(
   values: QuotationFormValues,
   existing?: Quotation,
@@ -45,47 +65,163 @@ function mapFormValuesToQuotation(
   const now =
     new Date().toISOString();
 
-  const subtotal =
-    values.lineItems.reduce(
-      (sum, item) =>
-        sum + item.subtotal,
-      0,
-    );
+  /*
+   * Resolve the selected customer from
+   * the centralized CRM dataset.
+   */
+  const customer = customers.find(
+    (item) =>
+      item.id === values.customerId,
+  );
 
-  const discountAmount =
-    values.lineItems.reduce(
-      (sum, item) =>
-        sum + item.discountAmount,
-      0,
+  if (!customer) {
+    throw new Error(
+      "Selected customer was not found in the CRM dataset.",
     );
+  }
 
-  const taxAmount =
-    values.lineItems.reduce(
-      (sum, item) =>
-        sum + item.taxAmount,
-      0,
+  /*
+   * Resolve the selected opportunity.
+   */
+  const opportunity =
+    values.opportunityId
+      ? opportunities.find(
+          (item) =>
+            item.id ===
+            values.opportunityId,
+        )
+      : undefined;
+
+  if (
+    values.opportunityId &&
+    !opportunity
+  ) {
+    throw new Error(
+      "Selected opportunity was not found in the CRM dataset.",
     );
+  }
 
-  const grandTotal =
-    values.lineItems.reduce(
-      (sum, item) =>
-        sum + item.total,
-      0,
+  /*
+   * If an opportunity is selected,
+   * make sure it actually belongs to
+   * the selected customer.
+   */
+  if (
+    opportunity &&
+    opportunity.customerId !==
+      customer.id
+  ) {
+    throw new Error(
+      "Selected opportunity does not belong to the selected customer.",
     );
+  }
 
-  const customerName =
-    getCustomerName(
-      values.customerId,
-    );
-
-  const opportunityName =
-    getOpportunityName(
-      values.opportunityId,
-    );
-
-  const salespersonName =
-    getSalespersonName(
+  /*
+   * Resolve the salesperson from the
+   * centralized users dataset.
+   */
+  const salesperson = users.find(
+    (item) =>
+      item.id ===
       values.salespersonId,
+  );
+
+  if (!salesperson) {
+    throw new Error(
+      "Selected salesperson was not found in the CRM dataset.",
+    );
+  }
+
+  if (!salesperson.isActive) {
+    throw new Error(
+      "Selected salesperson is inactive.",
+    );
+  }
+
+  /*
+   * Find the customer's primary
+   * contact from the centralized
+   * contacts dataset.
+   *
+   * The form currently does not ask
+   * the user to select a contact, so
+   * we resolve the primary contact
+   * automatically.
+   */
+  const primaryContact =
+    contacts.find(
+      (contact) =>
+        contact.customerId ===
+          customer.id &&
+        contact.isPrimary &&
+        contact.status ===
+          "ACTIVE",
+    );
+
+  /*
+   * Recalculate every line item using
+   * the centralized product dataset.
+   *
+   * Product ID is the relationship.
+   */
+  const lineItems =
+    values.lineItems.map((item) => {
+      if (!item.productId) {
+        throw new Error(
+          "Every quotation line item must have a valid product.",
+        );
+      }
+
+      const product =
+        products.find(
+          (productItem) =>
+            productItem.id ===
+            item.productId,
+        );
+
+      if (!product) {
+        throw new Error(
+          `Product ${item.productId} was not found in the CRM dataset.`,
+        );
+      }
+
+      if (!product.isActive) {
+        throw new Error(
+          `${product.name} is currently inactive.`,
+        );
+      }
+
+      /*
+       * Product master data is the source
+       * of truth for product identity,
+       * description, price and tax rate.
+       *
+       * Quantity and discount come from
+       * the quotation form.
+       */
+      return calculateCompleteLineItem({
+        id: item.id,
+        productId: product.id,
+        productName: product.name,
+        description:
+          item.description ??
+          product.description ??
+          "",
+        quantity: item.quantity,
+        unitPrice: product.unitPrice,
+        discountPercent:
+          item.discountPercent,
+        taxRate: product.taxRate,
+      });
+    });
+
+  /*
+   * Calculate quotation totals from the
+   * final calculated line items.
+   */
+  const totals =
+    calculateQuotationTotals(
+      lineItems,
     );
 
   return {
@@ -97,25 +233,56 @@ function mapFormValuesToQuotation(
       existing?.quoteNumber ??
       createQuoteNumber(),
 
+    /*
+     * Customer relationship.
+     */
     customerId:
-      values.customerId,
+      customer.id,
 
-    customerName,
+    customerName:
+      customer.companyName,
 
     customerAddress:
-      existing?.customerAddress,
+      customer.billingAddress
+        ? [
+            customer.billingAddress
+              .addressLine1,
+            customer.billingAddress
+              .addressLine2,
+            customer.billingAddress
+              .city,
+            customer.billingAddress
+              .state,
+            customer.billingAddress
+              .postalCode,
+            customer.billingAddress
+              .country,
+          ]
+            .filter(Boolean)
+            .join(", ")
+        : undefined,
 
+    /*
+     * Contact relationship.
+     */
     contactId:
+      primaryContact?.id ??
       existing?.contactId,
 
     contactName:
-      existing?.contactName,
+      primaryContact
+        ? `${primaryContact.firstName} ${primaryContact.lastName}`
+        : existing?.contactName,
 
+    /*
+     * Opportunity relationship.
+     */
     opportunityId:
-      values.opportunityId ||
+      opportunity?.id ??
       undefined,
 
-    opportunityName,
+    opportunityName:
+      opportunity?.name,
 
     quoteDate:
       values.quoteDate,
@@ -123,10 +290,14 @@ function mapFormValuesToQuotation(
     validUntil:
       values.validUntil,
 
+    /*
+     * Salesperson relationship.
+     */
     salespersonId:
-      values.salespersonId,
+      salesperson.id,
 
-    salespersonName,
+    salespersonName:
+      `${salesperson.firstName} ${salesperson.lastName}`,
 
     currency:
       values.currency,
@@ -139,17 +310,30 @@ function mapFormValuesToQuotation(
       values.deliveryTerms ||
       undefined,
 
-    lineItems:
-      values.lineItems,
+    /*
+     * Final calculated line items.
+     */
+    lineItems,
 
-    subtotal,
+    /*
+     * Final calculated quotation totals.
+     */
+    subtotal:
+      totals.subtotal,
 
-    discountAmount,
+    discountAmount:
+      totals.discountAmount,
 
-    taxAmount,
+    taxAmount:
+      totals.taxAmount,
 
-    grandTotal,
+    grandTotal:
+      totals.grandTotal,
 
+    /*
+     * Preserve workflow state while
+     * editing an existing quotation.
+     */
     status:
       existing?.status ??
       "draft",
@@ -170,102 +354,23 @@ function mapFormValuesToQuotation(
       existing?.createdAt ??
       now,
 
-    updatedAt: now,
+    updatedAt:
+      now,
   };
 }
 
 /*
- * These temporary lookup functions will eventually
- * be replaced by Customer / Opportunity / User APIs.
+ * Return all quotations.
  */
-
-function getCustomerName(
-  customerId: string,
-): string {
-  const customers: Record<
-    string,
-    string
-  > = {
-    "cust-001":
-      "Acme Technologies",
-
-    "cust-002":
-      "GlobalTech Solutions",
-
-    "cust-003":
-      "Nova Retail Group",
-
-    "cust-004":
-      "Vertex Manufacturing Ltd",
-
-    "cust-005":
-      "BrightWave Digital Services",
-  };
-
-  return (
-    customers[customerId] ??
-    "Unknown customer"
-  );
-}
-
-function getOpportunityName(
-  opportunityId?: string,
-): string | undefined {
-  if (!opportunityId) {
-    return undefined;
-  }
-
-  const opportunities: Record<
-    string,
-    string
-  > = {
-    "opp-001":
-      "Acme Cloud Migration",
-
-    "opp-002":
-      "GlobalTech Infrastructure",
-
-    "opp-003":
-      "Nova Retail Expansion",
-
-    "opp-004":
-      "Vertex ERP Upgrade",
-  };
-
-  return opportunities[
-    opportunityId
-  ];
-}
-
-function getSalespersonName(
-  salespersonId: string,
-): string {
-  const salespeople: Record<
-    string,
-    string
-  > = {
-    "sp-001":
-      "Vennela Gopichand",
-
-    "sp-002":
-      "Rahul Sharma",
-
-    "sp-003":
-      "Priya Reddy",
-  };
-
-  return (
-    salespeople[salespersonId] ??
-    "Unknown salesperson"
-  );
-}
-
 export async function findAll(): Promise<
   Quotation[]
 > {
   return [...quotations];
 }
 
+/*
+ * Find a quotation by ID.
+ */
 export async function findById(
   id: string,
 ): Promise<
@@ -277,6 +382,9 @@ export async function findById(
   );
 }
 
+/*
+ * Create a new quotation.
+ */
 export async function create(
   values: QuotationFormValues,
 ): Promise<Quotation> {
@@ -293,6 +401,9 @@ export async function create(
   return quotation;
 }
 
+/*
+ * Update an existing quotation.
+ */
 export async function update(
   id: string,
   values: QuotationFormValues,
@@ -325,6 +436,9 @@ export async function update(
   return updated;
 }
 
+/*
+ * Submit a quotation for approval.
+ */
 export async function submitApproval(
   id: string,
 ): Promise<Quotation> {
@@ -361,17 +475,8 @@ export async function submitApproval(
   const updated: Quotation = {
     ...existing,
 
-    /*
-     * Once the quotation is submitted
-     * into the approval workflow, its
-     * quotation status becomes Sent.
-     */
     status: "sent",
 
-    /*
-     * The approval workflow is now
-     * waiting for an approver.
-     */
     approvalStatus:
       "pending",
 
@@ -407,6 +512,10 @@ export async function submitApproval(
   return updated;
 }
 
+/*
+ * Revise a rejected or expired
+ * quotation.
+ */
 export async function revise(
   id: string,
 ): Promise<Quotation> {
@@ -439,16 +548,8 @@ export async function revise(
   const updated: Quotation = {
     ...existing,
 
-    /*
-     * A revised quotation goes back
-     * to the preparation stage.
-     */
     status: "draft",
 
-    /*
-     * Approval must be submitted
-     * again after revision.
-     */
     approvalStatus:
       "not_submitted",
 

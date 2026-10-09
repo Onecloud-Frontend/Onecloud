@@ -1,51 +1,53 @@
 import { quotationSettingsMockData } from "../mocks/quotationSettingsMockData";
-import { quotationSettingsSchema } from "../schemas/quotationSettings.schema";
-import type { QuotationSettingsFormValues } from "../schemas/quotationSettings.schema";
 import type { QuotationSettings } from "../types/quotationSettings.types";
+import type { QuotationSettingsFormValues } from "../schemas/quotationSettings.schema";
 
 const REQUEST_DELAY_MS = 300;
 
-let quotationSettings: QuotationSettings = cloneData(
-  quotationSettingsMockData,
-);
-
-function cloneData<T>(data: T): T {
-  return JSON.parse(JSON.stringify(data)) as T;
-}
+let quotationSettings: QuotationSettings = {
+  ...quotationSettingsMockData,
+  quoteStatuses: quotationSettingsMockData.quoteStatuses.map(
+    (status) => ({ ...status }),
+  ),
+};
 
 function simulateRequest<T>(data: T): Promise<T> {
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(cloneData(data));
+      resolve(data);
     }, REQUEST_DELAY_MS);
   });
 }
 
-const getQuotationSettings =
-  async (): Promise<QuotationSettings> => {
-    return simulateRequest(quotationSettings);
-  };
+async function getQuotationSettings(): Promise<QuotationSettings> {
+  return simulateRequest({
+    ...quotationSettings,
+    quoteStatuses: quotationSettings.quoteStatuses.map(
+      (status) => ({ ...status }),
+    ),
+  });
+}
 
-const updateQuotationSettings = async (
+async function updateQuotationSettings(
   values: QuotationSettingsFormValues,
-): Promise<QuotationSettings> => {
-  const validatedValues =
-    quotationSettingsSchema.parse(values);
-
+): Promise<QuotationSettings> {
   quotationSettings = {
     ...quotationSettings,
-    ...validatedValues,
-    quoteStatuses: validatedValues.quoteStatuses.map(
-      (status) => ({
-        ...status,
-      }),
+    ...values,
+    quoteStatuses: values.quoteStatuses.map(
+      (status) => ({ ...status }),
     ),
     updatedAt: new Date().toISOString(),
     updatedBy: "VENNELA GOPICHAND",
   };
 
-  return simulateRequest(quotationSettings);
-};
+  return simulateRequest({
+    ...quotationSettings,
+    quoteStatuses: quotationSettings.quoteStatuses.map(
+      (status) => ({ ...status }),
+    ),
+  });
+}
 
 export const quotationSettingsService = {
   getQuotationSettings,

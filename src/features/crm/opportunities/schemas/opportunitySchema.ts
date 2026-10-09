@@ -1,34 +1,42 @@
 import { z } from "zod";
 
+const LEAD_SOURCES = [
+  "WEBSITE",
+  "REFERRAL",
+  "SOCIAL_MEDIA",
+  "EMAIL",
+  "EVENT",
+  "COLD_CALL",
+] as const;
+
 export const opportunitySchema = z.object({
   name: z
     .string()
     .trim()
     .min(1, "Opportunity name is required"),
 
-  customerName: z
+  customerId: z
     .string()
-    .trim()
     .min(1, "Customer is required"),
 
-  contactName: z
+  contactId: z
     .string()
-    .trim()
     .optional(),
 
-  description: z
+  leadId: z
     .string()
-    .trim()
     .optional(),
 
   stage: z
-    .string()
-    .min(1, "Stage is required"),
-
-  expectedRevenue: z
-    .coerce
-    .number()
-    .min(0, "Expected revenue cannot be negative"),
+    .enum([
+      "QUALIFICATION",
+      "DISCOVERY",
+      "PROPOSAL",
+      "NEGOTIATION",
+      "CLOSED_WON",
+      "CLOSED_LOST",
+    ])
+    .default("QUALIFICATION"),
 
   probability: z
     .coerce
@@ -36,29 +44,37 @@ export const opportunitySchema = z.object({
     .min(0, "Probability cannot be less than 0")
     .max(100, "Probability cannot exceed 100"),
 
+  expectedRevenue: z
+    .coerce
+    .number()
+    .min(0, "Expected revenue cannot be negative"),
+
+  amount: z
+    .coerce
+    .number()
+    .min(0, "Amount cannot be negative"),
+
   expectedCloseDate: z
     .string()
     .min(1, "Expected close date is required"),
 
-  ownerName: z
+  assignedTo: z
     .string()
-    .trim()
     .min(1, "Owner is required"),
 
-  competitor: z
-    .string()
-    .trim()
-    .optional(),
-
   source: z
-    .string()
+    .union([
+      z.enum(LEAD_SOURCES),
+      z.literal(""),
+    ])
+    .optional()
+    .transform((value) => value || undefined),
+
+  competitors: z
+    .array(z.string())
     .optional(),
 
-  currency: z
-    .string()
-    .min(1, "Currency is required"),
-
-  notes: z
+  description: z
     .string()
     .trim()
     .optional(),
