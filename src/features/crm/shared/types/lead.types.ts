@@ -1,37 +1,38 @@
-export type LeadStatus = 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'PROPOSAL' | 'NEGOTIATION' | 'LOST' | 'WON';
-export type LeadSource = 'WEBSITE' | 'REFERRAL' | 'COLD_CALL' | 'CONFERENCE' | 'PARTNER';
+export type LeadStatus =
+  | "NEW"
+  | "CONTACTED"
+  | "QUALIFIED"
+  | "UNQUALIFIED"
+  | "CONVERTED"
+  | "LOST";
+
+export type LeadRating = "HOT" | "WARM" | "COLD";
+
+export type LeadSource =
+  | "WEBSITE"
+  | "REFERRAL"
+  | "SOCIAL_MEDIA"
+  | "EMAIL"
+  | "EVENT"
+  | "COLD_CALL";
 
 export interface Lead {
   id: string;
+  leadCode: string;
   firstName: string;
   lastName: string;
-  company: string;
-  jobTitle: string;
+  companyName: string;
   email: string;
   phone: string;
-  status: LeadStatus;
   source: LeadSource;
+  status: LeadStatus;
+  rating: LeadRating;
+  score: number;
   estimatedValue: number;
-  assignedTo: string; // Employee ID
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-}
-
-export interface LeadFilters {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: LeadStatus;
-  source?: LeadSource;
-  assignedTo?: string;
-  sortBy?: keyof Lead;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface PaginatedLeads {
-  data: Lead[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  assignedTo: string;
+  convertedCustomerId?: string;
+  convertedContactId?: string;
+  convertedOpportunityId?: string;
+  createdAt: string;
+  updatedAt: string;
 }

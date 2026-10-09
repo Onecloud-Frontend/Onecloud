@@ -1,14 +1,13 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-
 // ─── Layouts ───────────────────────────────────────────────────────────────
 import AuthLayout from '@/app/layouts/AuthLayout';
 import AppLayout from '@/app/layouts/AppLayout';
 import AdminLayout from '@/app/layouts/AdminLayout';
 
 // ─── Error Pages ───────────────────────────────────────────────────────────
-import NotFoundPage from '@/app/error-pages/404';
-import GeneralErrorPage from '@/app/error-pages/GeneralErrorPage';
+import NotFoundPage from "@/app/error-pages/404";
+import GeneralErrorPage from "@/app/error-pages/GeneralErrorPage";
 
 // ─── Simple fallback shown while lazy chunks load ─────────────────────────
 const PageLoader = () => (
@@ -50,19 +49,60 @@ const AuditCompliancePage         = lazy_(() => import('@/features/platform-admi
 const ServicesPage                = lazy_(() => import('@/features/platform-admin/services/ServicesPage'));
 
 // ─── HRMS Pages ────────────────────────────────────────────────────────────
-const HrmsDashboardPage           = lazy_(() => import('@/features/hrms/dashboard/pages/DashboardPage'));
-const EmployeesPage               = lazy_(() => import('@/features/hrms/employees/pages/EmployeesPage'));
-const EmployeeDetailsPage         = lazy_(() => import('@/features/hrms/employees/pages/EmployeeDetailsPage'));
-const AttendancePage              = lazy_(() => import('@/features/hrms/attendance/pages/AttendancePage'));
-const LeavePage                   = lazy_(() => import('@/features/hrms/leave/pages/LeavePage'));
-const PayrollPage                 = lazy_(() => import('@/features/hrms/payroll/pages/PayrollPage'));
-const PayslipViewPage             = lazy_(() => import('@/features/hrms/payroll/pages/PayslipViewPage'));
-const RecruitmentPage             = lazy_(() => import('@/features/hrms/recruitment/pages/RecruitmentPage'));
-const PerformancePage             = lazy_(() => import('@/features/hrms/performance/pages/PerformancePage'));
-const LearningPage                = lazy_(() => import('@/features/hrms/learning/pages/LearningPage'));
-const EmployeeSelfServicePage     = lazy_(() => import('@/features/hrms/employee-self-service/pages/EmployeeSelfServicePage'));
-const HrmsAssetsPage              = lazy_(() => import('@/features/hrms/assets/pages/AssetsPage'));
-const HrmsSettingsPage            = lazy_(() => import('@/features/hrms/settings/pages/SettingsPage'));
+
+const HrmsDashboardPage = lazy_(
+  () => import("@/features/hrms/dashboard/pages/DashboardPage"),
+);
+const EmployeesPage = lazy_(
+  () => import("@/features/hrms/employees/pages/EmployeesPage"),
+);
+const EmployeeDetailsPage = lazy_(
+  () => import("@/features/hrms/employees/pages/EmployeeDetailsPage"),
+);
+const AttendancePage = lazy_(
+  () => import("@/features/hrms/attendance/pages/AttendancePage"),
+);
+const LeavePage = lazy_(() => import("@/features/hrms/leave/pages/LeavePage"));
+const PayrollPage = lazy_(
+  () => import("@/features/hrms/payroll/pages/PayrollPage"),
+);
+const PayslipViewPage = lazy_(
+  () => import("@/features/hrms/payroll/pages/PayslipViewPage"),
+);
+const RecruitmentPage = lazy_(
+  () => import("@/features/hrms/recruitment/pages/RecruitmentPage"),
+);
+const ApplicationsPage = lazy_(
+  () => import("@/features/hrms/recruitment/pages/ApplicationsPage"),
+);
+const OffersPage = lazy_(
+  () => import("@/features/hrms/recruitment/pages/OffersPage"),
+);
+const CandidatesPage = lazy_(
+  () => import("@/features/hrms/recruitment/candidates/pages/CandidatesPage"),
+);
+const CandidateDetailsPage = lazy_(
+  () =>
+    import(
+      "@/features/hrms/recruitment/candidates/pages/CandidateDetailsPage"
+    ),
+);
+const PerformancePage = lazy_(
+  () => import("@/features/hrms/performance/pages/PerformancePage"),
+);
+const LearningPage = lazy_(
+  () => import("@/features/hrms/learning/pages/LearningPage"),
+);
+const EmployeeSelfServicePage = lazy_(
+  () =>
+    import("@/features/hrms/employee-self-service/pages/EmployeeSelfServicePage"),
+);
+const HrmsAssetsPage = lazy_(
+  () => import("@/features/hrms/assets/pages/AssetsPage"),
+);
+const HrmsSettingsPage = lazy_(
+  () => import("@/features/hrms/settings/pages/SettingsPage"),
+);
 
 // ─── CRM Pages ─────────────────────────────────────────────────────────────
 // (CRM Pages are now fully lazy-loaded inside the route definitions below to avoid top-level bloat)
@@ -202,28 +242,76 @@ export const router = createBrowserRouter([
     children: [
 
       // HRMS
-      { path: 'hrms',                   element: <Navigate to="/hrms/dashboard" replace /> },
-      { path: 'hrms/dashboard',         element: <HrmsDashboardPage /> },
-      { path: 'hrms/employees',         element: <EmployeesPage /> },
-      { path: 'hrms/employees/:id',     element: <EmployeeDetailsPage /> },
-      { path: 'hrms/attendance',        element: <AttendancePage /> },
-      { path: 'hrms/leave',             element: <LeavePage /> },
-      { path: 'hrms/payroll',           element: <PayrollPage /> },
-      { path: 'hrms/payroll/payslips/:id',       element: <PayslipViewPage /> },
-      { path: 'hrms/recruitment',       element: <RecruitmentPage /> },
-      { path: 'hrms/performance',       element: <PerformancePage /> },
-      { path: 'hrms/learning',          element: <LearningPage /> },
-      { path: 'hrms/ess',               element: <EmployeeSelfServicePage /> },
-      { path: 'hrms/assets',            element: <HrmsAssetsPage /> },
-      { path: 'hrms/settings',          element: <HrmsSettingsPage /> },
+            { path: "hrms", element: <Navigate to="/hrms/dashboard" replace /> },
+      { path: "hrms/dashboard", element: <HrmsDashboardPage /> },
+      { path: "hrms/employees", element: <EmployeesPage /> },
+      { path: "hrms/employees/:id", element: <EmployeeDetailsPage /> },
+      { path: "hrms/attendance", element: <AttendancePage /> },
+      { path: "hrms/leave", element: <LeavePage /> },
+      { path: "hrms/payroll", element: <PayrollPage /> },
+      { path: "hrms/payroll/payslips/:id", element: <PayslipViewPage /> },
+      { path: "hrms/recruitment", element: <RecruitmentPage /> },
+      { path: "hrms/recruitment/applications", element: <ApplicationsPage /> },
+      { path: "hrms/recruitment/offers", element: <OffersPage /> },
+      { path: "hrms/recruitment/candidates", element: <CandidatesPage /> },
+      {
+        path: "hrms/recruitment/candidates/:candidateId",
+        element: <CandidateDetailsPage />,
+      },
+      { path: "hrms/performance", element: <PerformancePage /> },
+      { path: "hrms/learning", element: <LearningPage /> },
+      { path: "hrms/ess", element: <EmployeeSelfServicePage /> },
+      { path: "hrms/assets", element: <HrmsAssetsPage /> },
+      { path: "hrms/settings", element: <HrmsSettingsPage /> },
 
       // CRM
       {
         path: 'crm',
         children: [
           { index: true, element: <Navigate to="dashboard" replace /> },
-          { path: 'dashboard', lazy: async () => ({ Component: (await import('@/features/crm/dashboard/pages/DashboardPage')).default || (await import('@/features/crm/dashboard/pages/DashboardPage')).DashboardPage }) },
-          { path: 'settings', lazy: async () => ({ Component: (await import('@/features/crm/settings/pages/SettingsPage')).default || (await import('@/features/crm/settings/pages/SettingsPage')).SettingsPage }) },
+
+          { path: 'dashboard', lazy: async () => ({ Component: (await import('@/features/crm/dashboard/pages/DashboardPage')).default }) },
+{
+  path: 'settings',
+  children: [
+    {
+      index: true,
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/pages/SettingsPage')).default,
+      }),
+    },
+    {
+      path: 'notifications',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/NotificationSettings')).default,
+      }),
+    },
+    {
+      path: 'email',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/EmailSettings')).default,
+      }),
+    },
+    {
+      path: 'display',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/DisplaySettings')).default,
+      }),
+    },
+    {
+      path: 'history',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/ConfigurationHistory')).default,
+      }),
+    },
+    {
+      path: 'contacts',
+      lazy: async () => ({
+        Component: (await import('@/features/crm/settings/components/ContactSettings')).default,
+      }),
+    },
+  ],
+},
           {
             path: 'leads',
             children: [

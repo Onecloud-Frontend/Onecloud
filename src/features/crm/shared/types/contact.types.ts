@@ -1,33 +1,16 @@
-export type ContactType = 'CUSTOMER' | 'PARTNER' | 'VENDOR' | 'OTHER';
-
 export interface Contact {
   id: string;
+  contactCode: string;
+  customerId: string;
   firstName: string;
   lastName: string;
-  accountId: string; // Associated company/account
+  designation: string;
+  department?: string;
   email: string;
   phone: string;
-  jobTitle: string;
-  type: ContactType;
-  ownerId: string; // Assigned Employee ID
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-}
-
-export interface ContactFilters {
-  page?: number;
-  limit?: number;
-  search?: string;
-  accountId?: string;
-  type?: ContactType;
-  sortBy?: keyof Contact;
-  sortOrder?: 'asc' | 'desc';
-}
-
-export interface PaginatedContacts {
-  data: Contact[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  mobile?: string;
+  isPrimary: boolean;
+  status: "ACTIVE" | "INACTIVE";
+  createdAt: string;
+  updatedAt: string;
 }
