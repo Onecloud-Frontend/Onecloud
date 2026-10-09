@@ -9,6 +9,14 @@ export interface Contact {
   email: string;
   phone: string;
   mobile?: string;
+  dateOfBirth?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  linkedIn?: string;
+  contactType?: string;
   isPrimary: boolean;
   status: "ACTIVE" | "INACTIVE";
   createdAt: string;
