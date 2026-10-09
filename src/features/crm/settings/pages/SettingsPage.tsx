@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import SettingsLayout from '../components/SettingsLayout';
 import GeneralSettings from '../components/GeneralSettings';
+import { CrmOperationsSettings } from '../components/CrmOperationsSettings';
 import NotificationSettings from '../components/NotificationSettings';
 import EmailSettings from '../components/EmailSettings';
 import DisplaySettings from '../components/DisplaySettings';
@@ -13,7 +14,6 @@ import ContactSettings from '../components/ContactSettings';
 import ActivitySettings from '../components/ActivitySettings';
 import { PipelineSettings } from '../components/PipelineSettings';
 import { QuotationSettings } from '../components/QuotationSettings';
-
 import type { SettingsSection } from '../types/settings.types';
 import {
   isSettingsSection,
@@ -36,6 +36,9 @@ const sectionComponents: Partial<
   Record<SettingsSection, React.ComponentType>
 > = {
   general: GeneralSettings,
+  'crm-operations': CrmOperationsSettings,
+
+  // Not built yet
   'lead-management': ComingSoon,
   opportunity: ComingSoon,
   pipeline: PipelineSettings,
@@ -58,37 +61,16 @@ export default function SettingsPage() {
 
   const navigate = useNavigate();
 
-  /*
-   * Check whether the URL section is a valid
-   * SettingsSection.
-   *
-   * Example:
-   * /crm/settings/general
-   * /crm/settings/pipeline
-   * /crm/settings/customers
-   */
   const activeSection: SettingsSection =
     typeof section === 'string' && isSettingsSection(section)
       ? section
       : 'general';
 
-  /*
-   * Get the label for the active sidebar item.
-   *
-   * Example:
-   * general -> General
-   * pipeline -> Pipeline
-   * numbering -> Numbering & Sequences
-   */
-    const title = useMemo(
-      () => activeSection.replace(/-/g, ' '),
-      [activeSection],
-    );
+  const title = useMemo(
+    () => activeSection.replace(/-/g, ' '),
+    [activeSection],
+  );
 
-  /*
-   * Change the URL when the user clicks
-   * an item in the Settings sidebar.
-   */
   const handleSectionChange = (
     nextSection: SettingsSection,
   ) => {
@@ -97,12 +79,6 @@ export default function SettingsPage() {
     );
   };
 
-  /*
-   * Load the component for the selected section.
-   *
-   * If the section does not have a component yet,
-   * ComingSoon will be displayed.
-   */
   const ActiveComponent =
     sectionComponents[activeSection] ??
     ComingSoon;
