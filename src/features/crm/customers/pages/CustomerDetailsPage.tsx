@@ -1,752 +1,372 @@
-import React from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
 
-import { useCustomer } from '../hooks/useCustomer'
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { useCustomer } from '../hooks/useCustomer';
+import { useCustomer360 } from '../hooks/useCustomer360';
+
+const tabs = [
+  'Overview',
+  'Contacts',
+  'Opportunities',
+  'Activities',
+  'Quotations',
+  'Orders',
+  'Invoices',
+] as const;
+
+type Tab = (typeof tabs)[number];
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(amount);
 
 export const CustomerDetailsPage: React.FC = () => {
-  const navigate = useNavigate()
-  const { id = '' } = useParams()
+  const navigate = useNavigate();
+  const { id = '' } = useParams();
+
+  const [activeTab, setActiveTab] = useState<Tab>('Overview');
+
 
   const {
-    data: customer,
-    isLoading,
+    data: existingCustomer,
+    isPending: existingLoading,
+  } = useCustomer(id);
+
+
+  const sharedCustomerId = id.startsWith('CUS-')
+    ? id
+    : existingCustomer?.customerId ?? '';
+
+  const {
+    data,
+    isPending,
     isError,
-  } = useCustomer(id)
+  } = useCustomer360(sharedCustomerId);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
+  const waitingForExistingCustomer =
+    !id.startsWith('CUS-') && existingLoading;
 
-  const formatDate = (date: string) => {
-    if (!date) {
-      return '-'
-    }
-
-    return new Date(date).toLocaleDateString('en-IN')
-  }
-
-  if (isLoading) {
+  if (waitingForExistingCustomer || (sharedCustomerId && isPending)) {
     return (
-      <div className="p-6">
-        <p>Loading customer...</p>
+      <div className="p-6 text-gray-600">
+        Loading Customer 360...
       </div>
-    )
+    );
   }
 
   if (isError) {
     return (
-      <div className="p-6">
-        <p>Unable to load customer.</p>
+      <div className="p-6 text-red-600">
+        Failed to load Customer 360 data.
       </div>
-    )
+    );
   }
 
-  if (!customer) {
+  if (!data) {
     return (
       <div className="p-6">
-        <h1 className="text-xl font-semibold">
+        <h2 className="text-xl font-semibold">
           Customer not found
-        </h1>
-
+        </h2>
+        <p className="mt-2 text-gray-500">
+          No matching customer was found in the
+          centralized CRM dataset.
+        </p>
         <button
-          type="button"
           onClick={() => navigate('/crm/customers')}
-          className="mt-4 rounded border px-4 py-2"
+          className="mt-4 rounded bg-blue-600 px-4 py-2 text-white"
         >
           Back to Customers
         </button>
       </div>
-    )
+    );
   }
 
-  return (
-    <div className="p-6">
-      {/* Back Button */}
+  const {
+    customer,
+    owner,
+    contacts,
+    opportunities,
+    activities,
+    quotations,
+    orders,
+    invoices,
+  } = data;
 
+  const counts = [
+    { label: 'Contacts', value: contacts.length },
+    { label: 'Opportunities', value: opportunities.length },
+    { label: 'Activities', value: activities.length },
+    { label: 'Quotations', value: quotations.length },
+    { label: 'Orders', value: orders.length },
+    { label: 'Invoices', value: invoices.length },
+  ];
+
+  const emptyMessage = (
+    <p className="rounded border border-dashed p-6 text-gray-500">
+      No records found for this customer.
+    </p>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
       <button
-        type="button"
         onClick={() => navigate('/crm/customers')}
-        className="mb-4 text-sm text-blue-600"
+        className="mb-5 text-sm font-medium text-blue-600"
       >
         ← Back to Customers
       </button>
 
       {/* Customer Header */}
-
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold">
-              {customer.customerName}
+      <div className="mb-6 rounded-xl bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {customer.companyName}
             </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              {customer.id} · {customer.industry}
+            </p>
+          </div>
 
-            <span
-              className={`rounded-full px-2 py-1 text-xs ${
-                customer.status === 'Active'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-gray-100 text-gray-600'
+          <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
+            {customer.status}
+          </span>
+        </div>
+
+        <p className="mt-4 text-sm text-gray-600">
+          Account Owner:{' '}
+          {owner
+            ? `${owner.firstName} ${owner.lastName}`
+            : 'Not assigned'}
+        </p>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        {counts.map((item) => (
+          <div
+            key={item.label}
+            className="rounded-xl bg-white p-4 shadow-sm"
+          >
+            <p className="text-sm text-gray-500">
+              {item.label}
+            </p>
+            <p className="mt-2 text-2xl font-bold text-gray-900">
+              {item.value}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <div className="rounded-xl bg-white shadow-sm">
+        <div className="flex gap-2 overflow-x-auto border-b p-3">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium ${
+                activeTab === tab
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
-              {customer.status}
-            </span>
-          </div>
-
-          <p className="mt-1 text-sm text-gray-500">
-            {customer.customerId}
-          </p>
+              {tab}
+            </button>
+          ))}
         </div>
 
-        {/* Edit Customer */}
-
-        <button
-          type="button"
-          onClick={() =>
-            navigate(
-              `/crm/customers/${customer.id}/edit`
-            )
-          }
-          className="rounded bg-blue-600 px-4 py-2 text-white"
-        >
-          Edit Customer
-        </button>
-      </div>
-
-      {/* Overview */}
-
-      <div className="mb-6 rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Overview
-        </h2>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div>
-            <p className="text-sm text-gray-500">
-              Customer ID
-            </p>
-            <p className="font-medium">
-              {customer.customerId}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Customer Name
-            </p>
-            <p className="font-medium">
-              {customer.customerName}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Customer Type
-            </p>
-            <p>{customer.customerType}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Industry
-            </p>
-            <p>{customer.industry || '-'}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Website
-            </p>
-            <p>{customer.website || '-'}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Email
-            </p>
-            <p>{customer.email || '-'}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Phone
-            </p>
-            <p>{customer.phone || '-'}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Owner
-            </p>
-            <p>{customer.owner}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Status
-            </p>
-            <p>{customer.status}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Tax / GST Number
-            </p>
-            <p>{customer.taxNumber || '-'}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Currency
-            </p>
-            <p>{customer.currency || '-'}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Payment Terms
-            </p>
-            <p>{customer.paymentTerms || '-'}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Addresses */}
-
-      <div className="mb-6 rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Addresses
-        </h2>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div>
-            <h3 className="mb-2 font-medium">
-              Billing Address
-            </h3>
-
-            <p className="text-sm text-gray-600">
-              {customer.billingAddress || '-'}
-            </p>
-
-            <p className="text-sm text-gray-600">
-              {customer.city || ''}
-              {customer.city && customer.state
-                ? ', '
-                : ''}
-              {customer.state || ''}
-            </p>
-
-            <p className="text-sm text-gray-600">
-              {customer.country || ''}
-              {customer.postalCode
-                ? ` - ${customer.postalCode}`
-                : ''}
-            </p>
-          </div>
-
-          <div>
-            <h3 className="mb-2 font-medium">
-              Shipping Address
-            </h3>
-
-            <p className="text-sm text-gray-600">
-              {customer.shippingAddress || '-'}
-            </p>
-
-            <p className="text-sm text-gray-600">
-              {customer.city || ''}
-              {customer.city && customer.state
-                ? ', '
-                : ''}
-              {customer.state || ''}
-            </p>
-
-            <p className="text-sm text-gray-600">
-              {customer.country || ''}
-              {customer.postalCode
-                ? ` - ${customer.postalCode}`
-                : ''}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Contacts */}
-
-      <div className="mb-6 rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Contacts
-        </h2>
-
-        {customer.contacts.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No contacts available.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left">
-                    Name
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Role
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Email
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Phone
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {customer.contacts.map((contact) => (
-                  <tr
-                    key={contact.id}
-                    className="border-t"
-                  >
-                    <td className="px-3 py-2">
-                      {contact.name}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {contact.role}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {contact.email}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {contact.phone}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Opportunities */}
-
-      <div className="mb-6 rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Opportunities
-        </h2>
-
-        {customer.opportunities.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No opportunities available.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left">
-                    Opportunity
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Stage
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Amount
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {customer.opportunities.map(
-                  (opportunity) => (
-                    <tr
-                      key={opportunity.id}
-                      className="border-t"
-                    >
-                      <td className="px-3 py-2">
-                        {opportunity.name}
-                      </td>
-
-                      <td className="px-3 py-2">
-                        {opportunity.stage}
-                      </td>
-
-                      <td className="px-3 py-2">
-                        {formatCurrency(
-                          opportunity.amount
-                        )}
-                      </td>
-
-                      <td className="px-3 py-2">
-                        {opportunity.status}
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Quotes */}
-
-      <div className="mb-6 rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Quotes
-        </h2>
-
-        {customer.quotes.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No quotes available.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left">
-                    Quote Number
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Amount
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Status
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {customer.quotes.map((quote) => (
-                  <tr
-                    key={quote.id}
-                    className="border-t"
-                  >
-                    <td className="px-3 py-2">
-                      {quote.quoteNumber}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {formatCurrency(quote.amount)}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {quote.status}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {formatDate(quote.date)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Orders */}
-
-      <div className="mb-6 rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Orders
-        </h2>
-
-        {customer.orders.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No orders available.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left">
-                    Order Number
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Amount
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Status
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {customer.orders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="border-t"
-                  >
-                    <td className="px-3 py-2">
-                      {order.orderNumber}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {formatCurrency(order.amount)}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {order.status}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {formatDate(order.date)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Invoices */}
-
-      <div className="mb-6 rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Invoices
-        </h2>
-
-        {customer.invoices.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No invoices available.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left">
-                    Invoice Number
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Amount
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Status
-                  </th>
-
-                  <th className="px-3 py-2 text-left">
-                    Date
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {customer.invoices.map((invoice) => (
-                  <tr
-                    key={invoice.id}
-                    className="border-t"
-                  >
-                    <td className="px-3 py-2">
-                      {invoice.invoiceNumber}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {formatCurrency(invoice.amount)}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {invoice.status}
-                    </td>
-
-                    <td className="px-3 py-2">
-                      {formatDate(invoice.date)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Activities */}
-
-      <div className="mb-6 rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Activities
-        </h2>
-
-        {customer.activities.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No activities available.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {customer.activities.map((activity) => (
-              <div
-                key={activity.id}
-                className="rounded border p-3"
-              >
-                <div className="flex flex-wrap justify-between gap-2">
-                  <p className="font-medium">
-                    {activity.type}
-                  </p>
-
-                  <p className="text-sm text-gray-500">
-                    {formatDate(activity.date)}
-                  </p>
-                </div>
-
-                <p className="mt-1 text-sm text-gray-600">
-                  {activity.description}
+        <div className="p-5">
+          {/* Overview */}
+          {activeTab === 'Overview' && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">
+                Company Information
+              </h2>
+
+              <div className="grid gap-4 text-sm md:grid-cols-2">
+                <p><strong>Company:</strong> {customer.companyName}</p>
+                <p><strong>Industry:</strong> {customer.industry}</p>
+                <p><strong>Email:</strong> {customer.email}</p>
+                <p><strong>Phone:</strong> {customer.phone}</p>
+                <p><strong>Status:</strong> {customer.status}</p>
+                <p>
+                  <strong>Owner:</strong>{' '}
+                  {owner
+                    ? `${owner.firstName} ${owner.lastName}`
+                    : 'Not assigned'}
                 </p>
-
-                <p className="mt-1 text-xs text-gray-500">
-                  By {activity.performedBy}
+                <p>
+                  <strong>Website:</strong>{' '}
+                  {customer.website || 'Not available'}
+                </p>
+                <p>
+                  <strong>Employees:</strong>{' '}
+                  {customer.employeeCount ?? 'Not available'}
                 </p>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* Service History */}
+              <h3 className="pt-3 font-semibold">
+                Billing Address
+              </h3>
+              <p className="text-sm text-gray-600">
+                {[
+                  customer.billingAddress.addressLine1,
+                  customer.billingAddress.addressLine2,
+                  customer.billingAddress.city,
+                  customer.billingAddress.state,
+                  customer.billingAddress.postalCode,
+                  customer.billingAddress.country,
+                ].filter(Boolean).join(', ')}
+              </p>
+            </div>
+          )}
 
-      <div className="mb-6 rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Service History
-        </h2>
+          {/* Contacts */}
+          {activeTab === 'Contacts' && (
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">Contacts</h2>
+              {contacts.length === 0
+                ? emptyMessage
+                : contacts.map((contact) => (
+                    <div key={contact.id} className="rounded-lg border p-4">
+                      <h3 className="font-semibold">
+                        {contact.firstName} {contact.lastName}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {contact.designation}
+                      </p>
+                      <p className="mt-2 text-sm">{contact.email}</p>
+                      <p className="text-sm">{contact.phone}</p>
+                    </div>
+                  ))}
+            </div>
+          )}
 
-        {customer.serviceHistory.length === 0 ? (
-          <p className="text-sm text-gray-500">
-            No service history available.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left">
-                    Service
-                  </th>
+          {/* Opportunities */}
+          {activeTab === 'Opportunities' && (
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">Opportunities</h2>
+              {opportunities.length === 0
+                ? emptyMessage
+                : opportunities.map((opportunity) => (
+                    <div key={opportunity.id} className="rounded-lg border p-4">
+                      <h3 className="font-semibold">
+                        {opportunity.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Stage: {opportunity.stage}
+                      </p>
+                      <p className="mt-2 text-sm">
+                        Amount: {formatCurrency(opportunity.amount)}
+                      </p>
+                      <p className="text-sm">
+                        Probability: {opportunity.probability}%
+                      </p>
+                    </div>
+                  ))}
+            </div>
+          )}
 
-                  <th className="px-3 py-2 text-left">
-                    Status
-                  </th>
+          {/* Activities */}
+          {activeTab === 'Activities' && (
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">Activities</h2>
+              {activities.length === 0
+                ? emptyMessage
+                : activities.map((activity) => (
+                    <div key={activity.id} className="rounded-lg border p-4">
+                      <h3 className="font-semibold">
+                        {activity.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {activity.type} · {activity.status}
+                      </p>
+                      <p className="mt-2 text-sm">
+                        {activity.description}
+                      </p>
+                    </div>
+                  ))}
+            </div>
+          )}
 
-                  <th className="px-3 py-2 text-left">
-                    Date
-                  </th>
-                </tr>
-              </thead>
+          {/* Quotations */}
+          {activeTab === 'Quotations' && (
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">Quotations</h2>
+              {quotations.length === 0
+                ? emptyMessage
+                : quotations.map((quotation) => (
+                    <div key={quotation.id} className="rounded-lg border p-4">
+                      <h3 className="font-semibold">
+                        {quotation.quotationNumber}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Status: {quotation.status}
+                      </p>
+                      <p className="mt-2 text-sm">
+                        Total: {formatCurrency(quotation.totalAmount)}
+                      </p>
+                    </div>
+                  ))}
+            </div>
+          )}
 
-              <tbody>
-                {customer.serviceHistory.map(
-                  (service) => (
-                    <tr
-                      key={service.id}
-                      className="border-t"
-                    >
-                      <td className="px-3 py-2">
-                        {service.service}
-                      </td>
+          {/* Orders */}
+          {activeTab === 'Orders' && (
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">Orders</h2>
+              {orders.length === 0
+                ? emptyMessage
+                : orders.map((order) => (
+                    <div key={order.id} className="rounded-lg border p-4">
+                      <h3 className="font-semibold">
+                        {order.orderNumber}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Status: {order.status}
+                      </p>
+                      <p className="mt-2 text-sm">
+                        Total: {formatCurrency(order.totalAmount)}
+                      </p>
+                    </div>
+                  ))}
+            </div>
+          )}
 
-                      <td className="px-3 py-2">
-                        {service.status}
-                      </td>
-
-                      <td className="px-3 py-2">
-                        {formatDate(service.date)}
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Additional Details */}
-
-      <div className="rounded border bg-white p-5">
-        <h2 className="mb-4 text-lg font-semibold">
-          Additional Details
-        </h2>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <p className="text-sm text-gray-500">
-              Created Date
-            </p>
-
-            <p>
-              {formatDate(customer.createdDate)}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Updated Date
-            </p>
-
-            <p>
-              {formatDate(customer.updatedDate)}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Total Opportunities
-            </p>
-
-            <p>{customer.totalOpportunities}</p>
-          </div>
-
-          <div>
-            <p className="text-sm text-gray-500">
-              Total Revenue
-            </p>
-
-            <p>
-              {formatCurrency(customer.totalRevenue)}
-            </p>
-          </div>
-
-          <div className="md:col-span-2">
-            <p className="text-sm text-gray-500">
-              Notes
-            </p>
-
-            <p className="mt-1">
-              {customer.notes || '-'}
-            </p>
-          </div>
+          {/* Invoices */}
+          {activeTab === 'Invoices' && (
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold">Invoices</h2>
+              {invoices.length === 0
+                ? emptyMessage
+                : invoices.map((invoice) => (
+                    <div key={invoice.id} className="rounded-lg border p-4">
+                      <h3 className="font-semibold">
+                        {invoice.invoiceNumber}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Status: {invoice.status}
+                      </p>
+                      <p className="mt-2 text-sm">
+                        Total: {formatCurrency(invoice.totalAmount)}
+                      </p>
+                      <p className="text-sm">
+                        Balance: {formatCurrency(invoice.balanceAmount)}
+                      </p>
+                    </div>
+                  ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default CustomerDetailsPage;
