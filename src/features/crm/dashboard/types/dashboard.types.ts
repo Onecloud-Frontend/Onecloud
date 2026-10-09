@@ -64,8 +64,11 @@ export interface SalesPerformance {
 
 export interface DashboardMetrics {
   totalRevenue: DashboardMetric;
+  totalCustomers: DashboardMetric;
   activeLeads: DashboardMetric;
   qualifiedLeads: DashboardMetric;
+  wonRevenue: DashboardMetric;
+  pendingQuotations: DashboardMetric;
   activeOpportunityValue: DashboardMetric;
   winRate: DashboardMetric;
   pipelineValue: DashboardMetric;
