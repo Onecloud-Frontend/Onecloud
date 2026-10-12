@@ -1,11 +1,11 @@
 import type { DragEvent } from "react";
 
+import OpportunityCard from "./OpportunityCard";
+
 import type {
   PipelineOpportunity,
   PipelineStageConfig,
 } from "../types/pipeline.types";
-
-import OpportunityCard from "./OpportunityCard";
 
 interface PipelineColumnProps {
   stage: PipelineStageConfig;
@@ -19,6 +19,14 @@ interface PipelineColumnProps {
   onView: (id: string) => void;
 }
 
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 export default function PipelineColumn({
   stage,
   opportunities,
@@ -27,6 +35,11 @@ export default function PipelineColumn({
   onView,
 }: PipelineColumnProps) {
   const totalStageValue = opportunities.reduce(
+    (sum, opportunity) => sum + opportunity.amount,
+    0,
+  );
+
+  const weightedStageValue = opportunities.reduce(
     (sum, opportunity) => sum + opportunity.expectedRevenue,
     0,
   );
@@ -35,7 +48,7 @@ export default function PipelineColumn({
     <div
       onDragOver={(event) => event.preventDefault()}
       onDrop={onDrop}
-      className="flex min-h-[500px] min-w-[280px] flex-1 flex-col rounded-lg bg-gray-100 p-3"
+      className="flex min-h-[500px] min-w-[290px] flex-1 flex-col rounded-lg bg-gray-100 p-3"
     >
       <div className="mb-4">
         <div className="flex items-center justify-between">
@@ -46,12 +59,12 @@ export default function PipelineColumn({
           </span>
         </div>
 
-        <p className="mt-1 text-xs text-gray-500">
-          Probability: {stage.probability}%
+        <p className="mt-2 text-sm font-medium text-gray-900">
+          {formatCurrency(totalStageValue)}
         </p>
 
-        <p className="mt-1 text-sm font-medium text-gray-900">
-          Stage Value: ${totalStageValue.toLocaleString()}
+        <p className="mt-1 text-xs text-gray-500">
+          Weighted: {formatCurrency(weightedStageValue)}
         </p>
       </div>
 

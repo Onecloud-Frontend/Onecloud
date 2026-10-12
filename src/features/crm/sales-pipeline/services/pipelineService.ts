@@ -1,32 +1,27 @@
+import {
+  getOpportunities,
+  getOpportunityById,
+  updateOpportunity,
+} from "../../shared/service/opportunityService";
+
 import type {
-  PipelineOpportunity,
-  PipelineStage,
-} from "../types/pipeline.types";
-import { pipelineMockOpportunities } from "../mocks/pipelineMockData";
+  Opportunity,
+  OpportunityStage,
+} from "../../shared/types/opportunity.types";
 
-let opportunities: PipelineOpportunity[] = [...pipelineMockOpportunities];
+import { stageProbability } from "../config/pipelineStages";
 
-function getStatusFromStage(
-  stage: PipelineStage,
-): PipelineOpportunity["status"] {
-  if (stage === "Closed Won") {
-    return "Won";
-  }
-
-  if (stage === "Closed Lost") {
-    return "Lost";
-  }
-
-  return "Open";
+function calculateExpectedRevenue(amount: number, probability: number): number {
+  return Math.round(amount * (probability / 100));
 }
 
 export const pipelineService = {
-  async getOpportunities(): Promise<PipelineOpportunity[]> {
-    return opportunities;
+  async getOpportunities(): Promise<Opportunity[]> {
+    return getOpportunities();
   },
 
-  async getOpportunity(id: string): Promise<PipelineOpportunity> {
-    const opportunity = opportunities.find((item) => item.id === id);
+  async getOpportunity(id: string): Promise<Opportunity> {
+    const opportunity = await getOpportunityById(id);
 
     if (!opportunity) {
       throw new Error(`Opportunity ${id} not found`);
@@ -35,70 +30,26 @@ export const pipelineService = {
     return opportunity;
   },
 
-  async updateStage(
-    id: string,
-    stage: PipelineStage,
-  ): Promise<PipelineOpportunity> {
-    const opportunity = opportunities.find((item) => item.id === id);
+  async updateStage(id: string, stage: OpportunityStage): Promise<Opportunity> {
+    const opportunity = await getOpportunityById(id);
 
     if (!opportunity) {
       throw new Error(`Opportunity ${id} not found`);
     }
 
-    const now = new Date().toISOString();
+    const probability = stageProbability[stage];
 
-    const updatedOpportunity: PipelineOpportunity = {
-      ...opportunity,
+    if (probability === undefined) {
+      throw new Error(`Invalid pipeline stage: ${stage}`);
+    }
 
+    return updateOpportunity(id, {
       stage,
-
-      status: getStatusFromStage(stage),
-
-      probability:
-        stage === "Closed Won"
-          ? 100
-          : stage === "Closed Lost"
-            ? 0
-            : opportunity.probability,
-
-      updatedAt: now,
-
-      daysInStage: 0,
-
-      stageHistory: [
-        ...opportunity.stageHistory,
-        {
-          stage,
-          enteredAt: now,
-          daysInStage: 0,
-        },
-      ],
-    };
-
-    opportunities = opportunities.map((item) =>
-      item.id === id ? updatedOpportunity : item,
-    );
-
-    return updatedOpportunity;
-  },
-
-  async updateOwner(id: string, owner: string): Promise<PipelineOpportunity> {
-    const opportunity = opportunities.find((item) => item.id === id);
-
-    if (!opportunity) {
-      throw new Error(`Opportunity ${id} not found`);
-    }
-
-    const updatedOpportunity: PipelineOpportunity = {
-      ...opportunity,
-      owner,
-      updatedAt: new Date().toISOString(),
-    };
-
-    opportunities = opportunities.map((item) =>
-      item.id === id ? updatedOpportunity : item,
-    );
-
-    return updatedOpportunity;
+      probability,
+      expectedRevenue: calculateExpectedRevenue(
+        opportunity.amount,
+        probability,
+      ),
+    });
   },
 };
