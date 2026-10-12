@@ -394,6 +394,8 @@ export const router = createBrowserRouter([
         path: "crm",
         children: [
           { index: true, element: <Navigate to="dashboard" replace /> },
+          { path: 'settings', lazy: async () => ({ Component: (await import('@/features/crm/settings/pages/SettingsPage')).default }) },
+          { path: 'settings/:section', lazy: async () => ({ Component: (await import('@/features/crm/settings/pages/SettingsPage')).default }) },
           {
             path: "dashboard",
             lazy: async () => ({
