@@ -2,9 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { pipelineService } from "../services/pipelineService";
 
+import { OPPORTUNITIES_QUERY_KEY } from "../../opportunities/hooks/useOpportunities";
+
 import type { PipelineStage } from "../types/pipeline.types";
 
-const pipelineQueryKey = ["crm", "sales-pipeline", "opportunities"];
+export const pipelineQueryKey = OPPORTUNITIES_QUERY_KEY;
 
 export function useSalesPipeline() {
   return useQuery({
@@ -15,7 +17,7 @@ export function useSalesPipeline() {
 
 export function usePipelineOpportunity(id: string) {
   return useQuery({
-    queryKey: ["crm", "sales-pipeline", "opportunity", id],
+    queryKey: [...pipelineQueryKey, id],
     queryFn: () => pipelineService.getOpportunity(id),
     enabled: Boolean(id),
   });
@@ -28,42 +30,14 @@ export function useUpdatePipelineStage() {
     mutationFn: ({ id, stage }: { id: string; stage: PipelineStage }) =>
       pipelineService.updateStage(id, stage),
 
-    onSuccess: (updatedOpportunity) => {
-      queryClient.invalidateQueries({
+    onSuccess: async (updatedOpportunity) => {
+      queryClient.setQueryData(
+        [...pipelineQueryKey, updatedOpportunity.id],
+        updatedOpportunity,
+      );
+
+      await queryClient.invalidateQueries({
         queryKey: pipelineQueryKey,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [
-          "crm",
-          "sales-pipeline",
-          "opportunity",
-          updatedOpportunity.id,
-        ],
-      });
-    },
-  });
-}
-
-export function useUpdatePipelineOwner() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, owner }: { id: string; owner: string }) =>
-      pipelineService.updateOwner(id, owner),
-
-    onSuccess: (updatedOpportunity) => {
-      queryClient.invalidateQueries({
-        queryKey: pipelineQueryKey,
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [
-          "crm",
-          "sales-pipeline",
-          "opportunity",
-          updatedOpportunity.id,
-        ],
       });
     },
   });

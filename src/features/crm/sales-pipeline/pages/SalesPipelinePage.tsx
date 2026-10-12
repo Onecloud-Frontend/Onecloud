@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+
 import { Link } from "react-router-dom";
 
 import PipelineBoard from "../components/PipelineBoard";
@@ -9,7 +10,7 @@ import PipelineFilters, {
 
 import PipelineSummary from "../components/PipelineSummary";
 
-import { pipelineStages } from "../mocks/pipelineMockData";
+import { pipelineStages } from "../config/pipelineStages";
 
 import {
   useSalesPipeline,
@@ -30,30 +31,18 @@ export function SalesPipelinePage() {
     dateTo: "",
   });
 
-  /*
-   * Get unique owners from opportunity data.
-   */
   const owners = useMemo(
-    () => Array.from(new Set(opportunities.map((item) => item.owner))),
+    () => Array.from(new Set(opportunities.map((item) => item.assignedTo))),
     [opportunities],
   );
 
-  /*
-   * Get unique customers from opportunity data.
-   */
   const customers = useMemo(
-    () => Array.from(new Set(opportunities.map((item) => item.customer))),
+    () => Array.from(new Set(opportunities.map((item) => item.customerId))),
     [opportunities],
   );
 
-  /*
-   * Get all six pipeline stage labels.
-   */
   const stages = useMemo(() => pipelineStages.map((stage) => stage.label), []);
 
-  /*
-   * Apply search and filters.
-   */
   const filteredOpportunities = useMemo(() => {
     return opportunities.filter((opportunity) => {
       const search = filters.search.trim().toLowerCase();
@@ -61,12 +50,12 @@ export function SalesPipelinePage() {
       const matchesSearch =
         !search ||
         opportunity.name.toLowerCase().includes(search) ||
-        opportunity.customer.toLowerCase().includes(search) ||
-        opportunity.id.toLowerCase().includes(search) ||
-        opportunity.contact.toLowerCase().includes(search);
+        opportunity.opportunityCode.toLowerCase().includes(search) ||
+        opportunity.customerId.toLowerCase().includes(search) ||
+        opportunity.id.toLowerCase().includes(search);
 
       const matchesOwner =
-        !filters.owner || opportunity.owner === filters.owner;
+        !filters.owner || opportunity.assignedTo === filters.owner;
 
       const selectedStage = pipelineStages.find(
         (stage) => stage.label === filters.stage,
@@ -76,7 +65,7 @@ export function SalesPipelinePage() {
         !selectedStage || opportunity.stage === selectedStage;
 
       const matchesCustomer =
-        !filters.customer || opportunity.customer === filters.customer;
+        !filters.customer || opportunity.customerId === filters.customer;
 
       const matchesFrom =
         !filters.dateFrom || opportunity.expectedCloseDate >= filters.dateFrom;
@@ -95,9 +84,6 @@ export function SalesPipelinePage() {
     });
   }, [opportunities, filters]);
 
-  /*
-   * Handle drag/drop stage changes.
-   */
   const handleStageChange = (
     opportunityId: string,
     stage: Parameters<typeof updateStageMutation.mutate>[0]["stage"],
@@ -108,9 +94,6 @@ export function SalesPipelinePage() {
     });
   };
 
-  /*
-   * Reset all filters.
-   */
   const handleResetFilters = () => {
     setFilters({
       search: "",
@@ -122,9 +105,6 @@ export function SalesPipelinePage() {
     });
   };
 
-  /*
-   * Loading state.
-   */
   if (isLoading) {
     return (
       <div className="p-6">
@@ -133,9 +113,6 @@ export function SalesPipelinePage() {
     );
   }
 
-  /*
-   * Error state.
-   */
   if (isError) {
     return (
       <div className="p-6">
@@ -146,7 +123,6 @@ export function SalesPipelinePage() {
 
   return (
     <div className="space-y-6 p-6">
-      {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium text-gray-500">
@@ -158,11 +134,10 @@ export function SalesPipelinePage() {
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Manage opportunities across the sales pipeline stages.
+            Manage centralized CRM opportunities across the sales pipeline.
           </p>
         </div>
 
-        {/* Navigation to Analysis */}
         <Link
           to="/crm/pipeline/analysis"
           className="inline-flex items-center justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
@@ -171,10 +146,8 @@ export function SalesPipelinePage() {
         </Link>
       </div>
 
-      {/* Pipeline Summary */}
       <PipelineSummary opportunities={filteredOpportunities} />
 
-      {/* Pipeline Filters */}
       <PipelineFilters
         owners={owners}
         stages={stages}
@@ -183,7 +156,6 @@ export function SalesPipelinePage() {
         onReset={handleResetFilters}
       />
 
-      {/* No Results */}
       {filteredOpportunities.length === 0 ? (
         <div className="rounded-lg border border-dashed bg-white p-10 text-center">
           <h2 className="font-semibold text-gray-900">
@@ -195,16 +167,12 @@ export function SalesPipelinePage() {
           </p>
         </div>
       ) : (
-        /*
-         * Pipeline Board
-         */
         <PipelineBoard
           opportunities={filteredOpportunities}
           onStageChange={handleStageChange}
         />
       )}
 
-      {/* Stage Update Status */}
       {updateStageMutation.isPending && (
         <p className="text-sm text-gray-500">Updating opportunity stage...</p>
       )}

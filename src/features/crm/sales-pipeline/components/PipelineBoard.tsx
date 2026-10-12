@@ -1,8 +1,10 @@
 import { useState } from "react";
+
 import type { DragEvent } from "react";
+
 import { useNavigate } from "react-router-dom";
 
-import { pipelineStages } from "../mocks/pipelineMockData";
+import { pipelineStages } from "../config/pipelineStages";
 
 import type {
   PipelineOpportunity,
@@ -45,6 +47,13 @@ export default function PipelineBoard({
       return;
     }
 
+    const opportunity = opportunities.find((item) => item.id === id);
+
+    if (!opportunity || opportunity.stage === stage) {
+      setDraggedId(null);
+      return;
+    }
+
     onStageChange(id, stage);
 
     setDraggedId(null);
@@ -55,7 +64,7 @@ export default function PipelineBoard({
       <div className="flex min-w-max gap-4 pb-4">
         {pipelineStages.map((stage) => {
           const stageOpportunities = opportunities.filter(
-            (item) => item.stage === stage.id,
+            (opportunity) => opportunity.stage === stage.id,
           );
 
           return (

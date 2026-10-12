@@ -10,6 +10,14 @@ interface OpportunityCardProps {
   onView: (id: string) => void;
 }
 
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 export default function OpportunityCard({
   opportunity,
   onDragStart,
@@ -23,7 +31,9 @@ export default function OpportunityCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-xs font-medium text-gray-400">{opportunity.id}</p>
+          <p className="text-xs font-medium text-gray-400">
+            {opportunity.opportunityCode}
+          </p>
 
           <button
             type="button"
@@ -41,15 +51,24 @@ export default function OpportunityCard({
         </span>
       </div>
 
-      <p className="mt-2 text-sm text-gray-500">{opportunity.customer}</p>
+      <p className="mt-2 text-sm text-gray-500">
+        Customer: {opportunity.customerId}
+      </p>
 
       <div className="mt-4 space-y-2 text-sm">
+        <div className="flex justify-between gap-4">
+          <span className="text-gray-500">Amount</span>
+
+          <span className="font-medium">
+            {formatCurrency(opportunity.amount)}
+          </span>
+        </div>
+
         <div className="flex justify-between gap-4">
           <span className="text-gray-500">Expected Revenue</span>
 
           <span className="font-medium">
-            {opportunity.currency}{" "}
-            {opportunity.expectedRevenue.toLocaleString()}
+            {formatCurrency(opportunity.expectedRevenue)}
           </span>
         </div>
 
@@ -58,24 +77,14 @@ export default function OpportunityCard({
 
           <span>{opportunity.expectedCloseDate}</span>
         </div>
-
-        <div className="flex justify-between gap-4">
-          <span className="text-gray-500">Days in Stage</span>
-
-          <span>{opportunity.daysInStage}</span>
-        </div>
-
-        <div className="flex justify-between gap-4">
-          <span className="text-gray-500">Last Activity</span>
-
-          <span>{opportunity.lastActivityDate || "—"}</span>
-        </div>
       </div>
 
       <div className="mt-4 border-t pt-3">
-        <p className="text-xs text-gray-500">Owner</p>
+        <p className="text-xs text-gray-500">Assigned To</p>
 
-        <p className="text-sm font-medium text-gray-900">{opportunity.owner}</p>
+        <p className="text-sm font-medium text-gray-900">
+          {opportunity.assignedTo}
+        </p>
       </div>
     </div>
   );

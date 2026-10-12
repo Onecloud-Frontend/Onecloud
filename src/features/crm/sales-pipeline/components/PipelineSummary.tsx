@@ -4,38 +4,45 @@ interface PipelineSummaryProps {
   opportunities: PipelineOpportunity[];
 }
 
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
 export default function PipelineSummary({
   opportunities,
 }: PipelineSummaryProps) {
   const totalOpportunities = opportunities.length;
 
-  // Only active/open pipeline opportunities
   const activeOpportunities = opportunities.filter(
-    (item) => item.stage !== "Closed Won" && item.stage !== "Closed Lost",
+    (item) => item.stage !== "CLOSED_WON" && item.stage !== "CLOSED_LOST",
   );
 
   const pipelineValue = activeOpportunities.reduce(
+    (sum, item) => sum + item.amount,
+    0,
+  );
+
+  const weightedValue = activeOpportunities.reduce(
     (sum, item) => sum + item.expectedRevenue,
     0,
   );
 
-  // Won opportunities
   const wonOpportunities = opportunities.filter(
-    (item) => item.stage === "Closed Won" || item.status === "Won",
+    (item) => item.stage === "CLOSED_WON",
   );
 
-  // Lost opportunities
   const lostOpportunities = opportunities.filter(
-    (item) => item.stage === "Closed Lost" || item.status === "Lost",
+    (item) => item.stage === "CLOSED_LOST",
   );
 
-  const wonValue = wonOpportunities.reduce(
-    (sum, item) => sum + item.expectedRevenue,
-    0,
-  );
+  const wonValue = wonOpportunities.reduce((sum, item) => sum + item.amount, 0);
 
   const lostValue = lostOpportunities.reduce(
-    (sum, item) => sum + item.expectedRevenue,
+    (sum, item) => sum + item.amount,
     0,
   );
 
@@ -51,15 +58,19 @@ export default function PipelineSummary({
     },
     {
       label: "Pipeline Value",
-      value: `$${pipelineValue.toLocaleString()}`,
+      value: formatCurrency(pipelineValue),
+    },
+    {
+      label: "Weighted Value",
+      value: formatCurrency(weightedValue),
     },
     {
       label: "Won Value",
-      value: `$${wonValue.toLocaleString()}`,
+      value: formatCurrency(wonValue),
     },
     {
       label: "Lost Value",
-      value: `$${lostValue.toLocaleString()}`,
+      value: formatCurrency(lostValue),
     },
     {
       label: "Win Rate",
